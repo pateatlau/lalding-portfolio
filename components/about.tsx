@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import React from "react";
-import SectionHeading from "./section-heading";
-import { motion } from "framer-motion";
-import { useSectionInView } from "@/lib/hooks";
+import React from 'react';
+import SectionHeading from './section-heading';
+import { motion } from 'framer-motion';
+import { useSectionInView } from '@/lib/hooks';
 
 export default function About() {
-  const { ref } = useSectionInView("About");
+  const { ref } = useSectionInView('About');
 
   return (
     <motion.section
@@ -19,30 +19,28 @@ export default function About() {
     >
       <SectionHeading>About me</SectionHeading>
       <p className="mb-3">
-        After graduating with a degree in{" "}
-        <span className="font-medium">Accounting</span>, I decided to pursue my
-        passion for programming. I enrolled in a coding bootcamp and learned{" "}
-        <span className="font-medium">full-stack web development</span>.{" "}
+        I have 15+ years of professional experience in
+        <span className="font-medium">Web Development</span>.{' '}
         <span className="italic">My favorite part of programming</span> is the
         problem-solving aspect. I <span className="underline">love</span> the
         feeling of finally figuring out a solution to a problem. My core stack
-        is{" "}
+        is <span className="font-medium">React Ecosystem and Node.js</span>. I
+        am also familiar with mobile app develoment and cross-platform
+        development. I am currently looking for a{' '}
+        <span className="font-medium">full-time position</span> as a{' '}
         <span className="font-medium">
-          React, Next.js, Node.js, and MongoDB
+          Software Technical Lead or Architect
         </span>
-        . I am also familiar with TypeScript and Prisma. I am always looking to
-        learn new technologies. I am currently looking for a{" "}
-        <span className="font-medium">full-time position</span> as a software
-        developer.
+        .
       </p>
 
       <p>
         <span className="italic">When I'm not coding</span>, I enjoy playing
-        video games, watching movies, and playing with my dog. I also enjoy{" "}
-        <span className="font-medium">learning new things</span>. I am currently
-        learning about{" "}
-        <span className="font-medium">history and philosophy</span>. I'm also
-        learning how to play the guitar.
+        chess, reading books, and helping others and contributing to society. I
+        also <span className="font-medium">learning new things</span>. I am
+        currently transitioning{' '}
+        <span className="font-medium">full architect role</span>. I'm also
+        learning about AI tech stack.
       </p>
     </motion.section>
   );

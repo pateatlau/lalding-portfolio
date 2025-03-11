@@ -1,107 +1,124 @@
-import React from "react";
-import { CgWorkAlt } from "react-icons/cg";
-import { FaReact } from "react-icons/fa";
-import { LuGraduationCap } from "react-icons/lu";
-import corpcommentImg from "@/public/corpcomment.png";
-import rmtdevImg from "@/public/rmtdev.png";
-import wordanalyticsImg from "@/public/wordanalytics.png";
+import React from 'react';
+import { CgWorkAlt } from 'react-icons/cg';
+import { FaReact } from 'react-icons/fa';
+import { LuGraduationCap } from 'react-icons/lu';
+import corpcommentImg from '@/public/corpcomment.png';
+import rmtdevImg from '@/public/rmtdev.png';
+import wordanalyticsImg from '@/public/wordanalytics.png';
 
 export const links = [
   {
-    name: "Home",
-    hash: "#home",
+    name: 'Home',
+    hash: '#home',
   },
   {
-    name: "About",
-    hash: "#about",
+    name: 'About',
+    hash: '#about',
   },
   {
-    name: "Projects",
-    hash: "#projects",
+    name: 'Projects',
+    hash: '#projects',
   },
   {
-    name: "Skills",
-    hash: "#skills",
+    name: 'Skills',
+    hash: '#skills',
   },
   {
-    name: "Experience",
-    hash: "#experience",
+    name: 'Experience',
+    hash: '#experience',
   },
   {
-    name: "Contact",
-    hash: "#contact",
+    name: 'Contact',
+    hash: '#contact',
   },
 ] as const;
 
 export const experiencesData = [
   {
-    title: "Graduated bootcamp",
-    location: "Miami, FL",
+    title: 'Deputy Vice President',
+    location: 'HDFC Bank Limited',
     description:
-      "I graduated after 6 months of studying. I immediately found a job as a front-end developer.",
+      'My main role is to lead the front-end team and work with the back-end team to deliver the project. I also work with various other teams like the design team, backend team, product team, and devops team.',
     icon: React.createElement(LuGraduationCap),
-    date: "2019",
+    date: '2023 - present',
   },
   {
-    title: "Front-End Developer",
-    location: "Orlando, FL",
+    title: 'Senior PrinciPal Engineer',
+    location: 'Wissen Technology | Morgan Stanley',
     description:
-      "I worked as a front-end developer for 2 years in 1 job and 1 year in another job. I also upskilled to the full stack.",
+      'I got deployed from Wissen Technology to Morgan Stanley as a Senior PrinciPal Engineer. I worked on the design and development of various products at Morgan Stanley.',
     icon: React.createElement(CgWorkAlt),
-    date: "2019 - 2021",
+    date: '2020 - 2023',
   },
   {
-    title: "Full-Stack Developer",
-    location: "Houston, TX",
+    title: 'Technical Advisor',
+    location: 'Kongsberg Digital',
     description:
-      "I'm now a full-stack developer working as a freelancer. My stack includes React, Next.js, TypeScript, Tailwind, Prisma and MongoDB. I'm open to full-time opportunities.",
+      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
     icon: React.createElement(FaReact),
-    date: "2021 - present",
+    date: '2019 - 2020',
   },
 ] as const;
 
 export const projectsData = [
   {
-    title: "CorpComment",
+    title: 'Weather App',
     description:
-      "I worked as a full-stack developer on this startup project for 2 years. Users can give public feedback to companies.",
-    tags: ["React", "Next.js", "MongoDB", "Tailwind", "Prisma"],
+      'Fullstack dynamic web app for weather forecast. It has features like search, weather history, and weather forecast.',
+    tags: ['React', 'Next.js', 'MongoDB', 'Tailwind CSS', 'Prisma'],
     imageUrl: corpcommentImg,
   },
   {
-    title: "rmtDev",
+    title: 'Fullstack CRUD App',
     description:
-      "Job board for remote developer jobs. I was the front-end developer. It has features like filtering, sorting and pagination.",
-    tags: ["React", "TypeScript", "Next.js", "Tailwind", "Redux"],
+      'Fullstack CRUD app using React and Nodejs. It has features like CRUD operations, authentication, and authorization.',
+    tags: ['React', 'TypeScript', 'Next.js', 'Tailwind', 'Redux'],
     imageUrl: rmtdevImg,
   },
   {
-    title: "Word Analytics",
+    title: 'Micro Frontend App',
     description:
-      "A public web app for quick analytics on text. It shows word count, character count and social media post limits.",
-    tags: ["React", "Next.js", "SQL", "Tailwind", "Framer"],
+      'Fullstack micro frontend app using React and Nodejs. It has features like micro frontend architecture, authentication, and authorization.',
+    tags: ['React', 'Next.js', 'SQL', 'Tailwind', 'Framer'],
+    imageUrl: wordanalyticsImg,
+  },
+  {
+    title: 'Multiplatform App',
+    description:
+      'Multiplatform app using React Native and React Native Web. It has features like multiplatform support, authentication, and authorization.',
+    tags: ['React', 'Next.js', 'SQL', 'Tailwind', 'Framer'],
     imageUrl: wordanalyticsImg,
   },
 ] as const;
 
 export const skillsData = [
-  "HTML",
-  "CSS",
-  "JavaScript",
-  "TypeScript",
-  "React",
-  "Next.js",
-  "Node.js",
-  "Git",
-  "Tailwind",
-  "Prisma",
-  "MongoDB",
-  "Redux",
-  "GraphQL",
-  "Apollo",
-  "Express",
-  "PostgreSQL",
-  "Python",
-  "Django",
-  "Framer Motion",
+  'HTML',
+  'CSS',
+  'JavaScript',
+  'TypeScript',
+  'React',
+  'Next.js',
+  'Node.js',
+  'React Native',
+  'React Native Web',
+  'Git',
+  'Tailwind CSS',
+  'Shadcn UI',
+  'Material UI',
+  'Bootstrap',
+  'Prisma',
+  'MongoDB',
+  'Redux Toolkit',
+  'Zustand',
+  'Tanstack Query',
+  'Micro Frontend',
+  'Monorepo',
+  'Docker',
+  'GraphQL',
+  'Apollo',
+  'Express',
+  'PostgreSQL',
+  'Python',
+  'Django',
+  'Framer Motion',
 ] as const;
