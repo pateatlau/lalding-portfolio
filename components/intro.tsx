@@ -63,12 +63,12 @@ export default function Intro() {
         animate={{ opacity: 1, y: 0 }}
       >
         <span className="font-bold">
-          Hello, I'm Laldingliana Tlau Vantawl (Lalding).
+          Hello, I am Laldingliana Tlau Vantawl (Lalding),
         </span>{' '}
-        I'm a <span className="font-bold">Professional Software Engineer</span>{' '}
-        with <span className="font-bold">15+ years</span> of experience. I enjoy
-        building <span className="italic">sites & apps</span>. My focus is{' '}
-        <span className="underline">React Ecosystem and Nodejs</span>.
+        a Professional <span className="font-bold">Software Engineer</span> with{' '}
+        <span className="font-bold">15+ years</span> of experience. I enjoy
+        building <span className="italic">sites & apps</span>. My primary focus
+        is in <span className="underline">React Ecosystem and Nodejs</span>.
       </motion.h1>
 
       <motion.div
@@ -87,7 +87,7 @@ export default function Intro() {
             setTimeOfLastClick(Date.now());
           }}
         >
-          Contact me here{' '}
+          Contact me{' '}
           <BsArrowRight className="opacity-70 group-hover:translate-x-1 transition" />
         </Link>
 
@@ -96,7 +96,7 @@ export default function Intro() {
           href="/CV.pdf"
           download
         >
-          Download CV{' '}
+          My Resume{' '}
           <HiDownload className="opacity-60 group-hover:translate-y-1 transition" />
         </a>
 
