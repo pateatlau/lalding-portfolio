@@ -48,8 +48,21 @@ export default function Experience() {
                 fontSize: '1.5rem',
               }}
             >
-              <h3 className="font-semibold capitalize">{item.title}</h3>
-              <p className="font-normal !mt-0">{item.location}</p>
+              <div className="flex flew-row justify-between">
+                <div>
+                  <h3 className="font-semibold capitalize">{item.title}</h3>
+                  <p className="font-normal !mt-0">{item.location}</p>
+                </div>
+                <div>
+                  <img
+                    src={item.companylogo}
+                    alt="company logo"
+                    height="50"
+                    width="50"
+                    className="rounded-lg"
+                  />
+                </div>
+              </div>
               <p className="!mt-1 !font-normal text-gray-700 dark:text-white/75">
                 {item.description}
               </p>

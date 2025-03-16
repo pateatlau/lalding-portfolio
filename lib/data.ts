@@ -41,6 +41,7 @@ export const experiencesData = [
       'My main role is to lead the front-end team and work with the back-end team to deliver the project. I also work with various other teams like the design team, backend team, product team, and devops team.',
     icon: React.createElement(LuGraduationCap),
     date: '2023 - present',
+    companylogo: './hdfc.webp',
   },
   {
     title: 'Senior PrinciPal Engineer',
@@ -49,6 +50,7 @@ export const experiencesData = [
       'I got deployed from Wissen Technology to Morgan Stanley as a Senior PrinciPal Engineer. I worked on the design and development of various products at Morgan Stanley.',
     icon: React.createElement(CgWorkAlt),
     date: '2020 - 2023',
+    companylogo: './wissen.webp',
   },
   {
     title: 'Technical Advisor',
@@ -57,6 +59,7 @@ export const experiencesData = [
       "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
     icon: React.createElement(FaReact),
     date: '2019 - 2020',
+    companylogo: './kongsberg.webp',
   },
 ] as const;
 
