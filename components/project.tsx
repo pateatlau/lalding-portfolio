@@ -12,6 +12,8 @@ export default function Project({
   description,
   tags,
   imageUrl,
+  sourceCode,
+  liveSite,
 }: ProjectProps) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -46,6 +48,22 @@ export default function Project({
               </li>
             ))}
           </ul>
+          <div className="flex justify-between flex-row my-4">
+            <a
+              className="text-slate-500 hover:text-slate-700 transition dark:text-white/70 dark:hover:text-white/80 border rounded-md p-2 border-slate-300 dark:border-white/70 w-30 text-center"
+              href={sourceCode}
+              target="_blank"
+            >
+              Source Code
+            </a>
+            <a
+              className="text-slate-500 hover:text-slate-700 transition dark:text-white/70 dark:hover:text-white/80 border rounded-md p-2 border-slate-300 dark:border-white/70 w-30 text-center"
+              href={liveSite}
+              target="_blank"
+            >
+              Live Site
+            </a>
+          </div>
         </div>
 
         <Image

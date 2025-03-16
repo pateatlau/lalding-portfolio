@@ -1,7 +1,7 @@
 import React from 'react';
 import { CgWorkAlt } from 'react-icons/cg';
 import { FaReact } from 'react-icons/fa';
-import { LuGraduationCap } from 'react-icons/lu';
+// import { LuGraduationCap } from 'react-icons/lu';
 import corpcommentImg from '@/public/corpcomment.png';
 import rmtdevImg from '@/public/rmtdev.png';
 import wordanalyticsImg from '@/public/wordanalytics.png';
@@ -39,8 +39,8 @@ export const experiencesData = [
     location: 'HDFC Bank Limited',
     description:
       'My main role is to lead the front-end team and work with the back-end team to deliver the project. I also work with various other teams like the design team, backend team, product team, and devops team.',
-    icon: React.createElement(LuGraduationCap),
-    date: '2023 - present',
+    icon: React.createElement(CgWorkAlt),
+    date: 'May 2023 - 2025',
     companylogo: './hdfc.webp',
   },
   {
@@ -48,9 +48,18 @@ export const experiencesData = [
     location: 'Wissen Technology | Morgan Stanley',
     description:
       'I got deployed from Wissen Technology to Morgan Stanley as a Senior PrinciPal Engineer. I worked on the design and development of various products at Morgan Stanley.',
-    icon: React.createElement(CgWorkAlt),
-    date: '2020 - 2023',
+    icon: React.createElement(FaReact),
+    date: 'Jul 2020 - Apr 2023',
     companylogo: './wissen.webp',
+  },
+  {
+    title: 'Senior Software Engineer',
+    location: 'Ingenio',
+    description:
+      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
+    icon: React.createElement(CgWorkAlt),
+    date: 'Oct 2019 - Feb 2020',
+    companylogo: './ingenio.webp',
   },
   {
     title: 'Technical Advisor',
@@ -58,8 +67,53 @@ export const experiencesData = [
     description:
       "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
     icon: React.createElement(FaReact),
-    date: '2019 - 2020',
+    date: 'Apr 2019 - Sep 2019',
     companylogo: './kongsberg.webp',
+  },
+  {
+    title: 'Staff Software Engineer',
+    location: 'Davinta Technologies',
+    description:
+      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
+    icon: React.createElement(CgWorkAlt),
+    date: 'Jul 2017 - Apr 2019',
+    companylogo: './davinta.webp',
+  },
+  {
+    title: 'Senior Software Engineer',
+    location: 'Collective India Pvt. Ltd.',
+    description:
+      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
+    icon: React.createElement(FaReact),
+    date: 'Dec 2015 - Jun 2017',
+    companylogo: './collective.webp',
+  },
+  {
+    title: 'Member of Technical Staff',
+    location: 'Kaseya Software',
+    description:
+      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
+    icon: React.createElement(CgWorkAlt),
+    date: 'Jul 2014 - Dec 2015',
+    companylogo: './kaseya.webp',
+  },
+  {
+    title: 'Senior Tech Lead',
+    location: 'HCL Technologies',
+    description:
+      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
+    icon: React.createElement(FaReact),
+    date: 'Sep 2011 - Jul 2014',
+    companylogo: './hcl.webp',
+  },
+  {
+    title: 'PHP Developer',
+    location: 'SparkLogics',
+    description:
+      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
+    icon: React.createElement(CgWorkAlt),
+    date: 'Jun 2009 - Aug 2011',
+    companylogo: './exp1.svg',
   },
 ] as const;
 
@@ -70,27 +124,35 @@ export const projectsData = [
       'Fullstack dynamic web app for weather forecast. It has features like search, weather history, and weather forecast.',
     tags: ['React', 'Next.js', 'MongoDB', 'Tailwind CSS', 'Prisma'],
     imageUrl: corpcommentImg,
+    sourceCode: 'https://github.com/pateatlau/weather-app',
+    liveSite: 'https://weather-app-five-pi-36.vercel.app/',
   },
   {
     title: 'Fullstack CRUD App',
     description:
       'Fullstack CRUD app using React and Nodejs. It has features like CRUD operations, authentication, and authorization.',
-    tags: ['React', 'TypeScript', 'Next.js', 'Tailwind', 'Redux'],
+    tags: ['React', 'Nodejs', 'Express', 'JWT', 'Tailwind'],
     imageUrl: rmtdevImg,
+    sourceCode: 'https://github.com/pateatlau/nodejs-crud-api',
+    liveSite: 'https://lalding.in/',
   },
   {
     title: 'Micro Frontend App',
     description:
       'Fullstack micro frontend app using React and Nodejs. It has features like micro frontend architecture, authentication, and authorization.',
-    tags: ['React', 'Next.js', 'SQL', 'Tailwind', 'Framer'],
+    tags: ['React', 'Module Federation', 'Webpack', 'Tailwind', 'Zustand'],
     imageUrl: wordanalyticsImg,
+    sourceCode: 'https://github.com/pateatlau/mfe-rm-nx',
+    liveSite: 'http://lalding.in/',
   },
   {
     title: 'Multiplatform App',
     description:
-      'Multiplatform app using React Native and React Native Web. It has features like multiplatform support, authentication, and authorization.',
-    tags: ['React', 'Next.js', 'SQL', 'Tailwind', 'Framer'],
+      'Multiplatform app using React Native and RNW. It has features like multiplatform support, authentication, and authorization.',
+    tags: ['React Native', 'Expo', 'RNW', 'Tailwind', 'Shadcn UI'],
     imageUrl: wordanalyticsImg,
+    sourceCode: 'https://github.com/pateatlau/movies-expo',
+    liveSite: 'https://lalding.in/',
   },
 ] as const;
 
