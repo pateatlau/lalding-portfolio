@@ -141,7 +141,7 @@ export const projectsData = [
     description:
       'Fullstack micro frontend app using React and Nodejs. It has features like micro frontend architecture, authentication, and authorization.',
     tags: ['React', 'Module Federation', 'Webpack', 'Tailwind', 'Zustand'],
-    imageUrl: wordanalyticsImg,
+    imageUrl: rmtdevImg,
     sourceCode: 'https://github.com/pateatlau/mfe-rm-nx',
     liveSite: 'http://lalding.in/',
   },
@@ -150,7 +150,7 @@ export const projectsData = [
     description:
       'Multiplatform app using React Native and RNW. It has features like multiplatform support, authentication, and authorization.',
     tags: ['React Native', 'Expo', 'RNW', 'Tailwind', 'Shadcn UI'],
-    imageUrl: wordanalyticsImg,
+    imageUrl: rmtdevImg,
     sourceCode: 'https://github.com/pateatlau/movies-expo',
     liveSite: 'https://lalding.in/',
   },
