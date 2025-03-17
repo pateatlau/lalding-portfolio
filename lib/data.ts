@@ -128,13 +128,13 @@ export const projectsData = [
     liveSite: 'https://weather-app-five-pi-36.vercel.app/',
   },
   {
-    title: 'Fullstack CRUD App',
+    title: 'Fullstack MERN App',
     description:
-      'Fullstack CRUD app using React and Nodejs. It has features like CRUD operations, authentication, and authorization.',
-    tags: ['React', 'Nodejs', 'Express', 'JWT', 'Tailwind'],
+      'Fullstack MERN app for products. It has full-featured CRUD opertions using REST API developed in Express and MongoDB.',
+    tags: ['React', 'Nodejs', 'Express', 'MongoDB', 'Chakra UI'],
     imageUrl: rmtdevImg,
-    sourceCode: 'https://github.com/pateatlau/nodejs-crud-api',
-    liveSite: 'https://lalding.in/',
+    sourceCode: 'https://github.com/pateatlau/mern-products-app',
+    liveSite: 'https://lalding-products.onrender.com/',
   },
   {
     title: 'Micro Frontend App',
