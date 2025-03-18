@@ -95,7 +95,7 @@ export default function Intro() {
           href="/lalding.pdf"
           download
         >
-          My Resume{' '}
+          Download Resume
           <HiDownload className="opacity-60 group-hover:translate-y-1 transition" />
         </a>
 
