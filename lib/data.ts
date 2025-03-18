@@ -195,4 +195,9 @@ export const skillsData = [
   'Django',
   'Kubernetes',
   'Framer Motion',
+  'Jest',
+  'React Testing Library',
+  'React Native Testing Library',
+  'Cypress',
+  'Storybook',
 ] as const;
