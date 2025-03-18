@@ -130,7 +130,7 @@ export const projectsData = [
   {
     title: 'Fullstack MERN App',
     description:
-      'Fullstack MERN app for products. It has full-featured CRUD opertions using REST API developed in Express and MongoDB.',
+      'Fullstack MERN app for products. It has full CRUD opertions using REST API developed in Express and MongoDB.',
     tags: ['React', 'Nodejs', 'Express', 'MongoDB', 'Chakra UI'],
     imageUrl: rmtdevImg,
     sourceCode: 'https://github.com/pateatlau/mern-products-app',
@@ -139,11 +139,11 @@ export const projectsData = [
   {
     title: 'Micro Frontend App',
     description:
-      'Fullstack micro frontend app using React and Nodejs. It has features like micro frontend architecture, authentication, and authorization.',
-    tags: ['React', 'Module Federation', 'Webpack', 'Tailwind', 'Zustand'],
+      'Micro frontend app using React and Vite Module Federation plugin. It has a host app and a remote app, that is consumed by the host app.',
+    tags: ['React', 'Module Federation', 'Vite'],
     imageUrl: rmtdevImg,
-    sourceCode: 'https://github.com/pateatlau/mfe-rm-nx',
-    liveSite: 'http://lalding.in/',
+    sourceCode: 'https://github.com/pateatlau/vite-mfe-host',
+    liveSite: 'https://mfe-oflom8uum-lalding.vercel.app/',
   },
   {
     title: 'Multiplatform App',
