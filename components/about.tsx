@@ -19,28 +19,27 @@ export default function About() {
     >
       <SectionHeading>About me</SectionHeading>
       <p className="mb-3">
-        I have 15+ years of professional experience in
-        <span className="font-medium">Web Development</span>.{' '}
-        <span className="italic">My favorite part of programming</span> is the
-        problem-solving aspect. I <span className="underline">love</span> the
-        feeling of finally figuring out a solution to a problem. My core stack
-        is <span className="font-medium">React Ecosystem and Node.js</span>. I
-        am also familiar with mobile app develoment and cross-platform
-        development. I am currently looking for a{' '}
-        <span className="font-medium">full-time position</span> as a{' '}
+        My core <span className="font-medium">Tech Stack</span> is{' '}
+        <span className="font-medium">React Ecosystem and Node.js</span>. Apart
+        from Frontend skills, I am experienced in Fullstack development using{' '}
+        <span className="font-medium">Nextjs</span> and{' '}
+        <span className="font-medium">MERN stack</span>. I have additional
+        skills in <span className="font-medium">Cutting Edge Techs</span> such
+        as <span className="font-medium">Micro Frontends</span> and{' '}
         <span className="font-medium">
-          Software Technical Lead or Architect
+          Cross-platform development across web, iOS and Android
         </span>
-        .
+        . I am currently looking for a{' '}
+        <span className="font-medium">full-time position</span> as a{' '}
+        <span className="font-medium">Technical Lead or Architect</span>.
       </p>
 
       <p>
-        <span className="italic">When I'm not coding</span>, I enjoy playing
+        <span className="italic">When I'm not working</span>, I enjoy playing
         chess, reading books, and helping others and contributing to society. I
-        also <span className="font-medium">learning new things</span>. I am
-        currently transitioning{' '}
-        <span className="font-medium">full architect role</span>. I'm also
-        learning about AI tech stack.
+        love <span className="font-medium">learning new things</span>.and am
+        currently actively learning{' '}
+        <span className="font-medium">AI tech stack.</span>
       </p>
     </motion.section>
   );

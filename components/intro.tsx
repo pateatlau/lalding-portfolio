@@ -62,13 +62,12 @@ export default function Intro() {
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
       >
+        Hello, I am{' '}
         <span className="font-bold">
-          Hello, I am Laldingliana Tlau Vantawl, Frontend Tech Lead
+          Laldingliana Tlau Vantawl, Frontend Tech Lead
         </span>{' '}
-        with <span className="font-bold">15+ years</span> of experience in
-        developing web apps. I have additional skills in{' '}
-        <span className="font-bold">Fullstack</span> and{' '}
-        <span className="font-bold">Cross-platform</span> development.
+        with 15+ years of professional experience in building and delivering
+        highly performant and scalable web apps.
       </motion.h1>
 
       <motion.div
