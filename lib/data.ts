@@ -125,7 +125,7 @@ export const projectsData = [
     tags: ['React', 'Next.js', 'MongoDB', 'Tailwind CSS', 'Prisma'],
     imageUrl: corpcommentImg,
     sourceCode: 'https://github.com/pateatlau/weather-app',
-    liveSite: 'https://weather-app-five-pi-36.vercel.app/',
+    liveSite: 'https://weather.lalding.in/',
   },
   {
     title: 'Fullstack MERN App',
