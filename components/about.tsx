@@ -25,12 +25,13 @@ export default function About() {
         <span className="font-medium">Nextjs</span> and{' '}
         <span className="font-medium">MERN stack</span>. I have additional
         skills in <span className="font-medium">Cutting Edge Techs</span> such
-        as <span className="font-medium">Micro Frontends</span> and{' '}
+        as <span className="font-medium">Monorepos</span>,{' '}
+        <span className="font-medium">Micro Frontends</span> and{' '}
         <span className="font-medium">
           Cross-platform development across web, iOS and Android
         </span>
         . I am currently looking for a{' '}
-        <span className="font-medium">full-time position</span> as a{' '}
+        <span className="font-medium">full-time position</span> as{' '}
         <span className="font-medium">Technical Lead or Architect</span>.
       </p>
 
