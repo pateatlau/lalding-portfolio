@@ -4,7 +4,7 @@ import { FaReact } from 'react-icons/fa';
 // import { LuGraduationCap } from 'react-icons/lu';
 import corpcommentImg from '@/public/corpcomment.png';
 import rmtdevImg from '@/public/rmtdev.png';
-import wordanalyticsImg from '@/public/wordanalytics.png';
+import weatherImg from '@/public/weather.png';
 
 export const links = [
   {
@@ -122,8 +122,15 @@ export const projectsData = [
     title: 'Weather App',
     description:
       'Fullstack dynamic web app for weather forecast. It has features like search, weather history, and weather forecast.',
-    tags: ['React', 'Next.js', 'MongoDB', 'Tailwind CSS', 'Prisma'],
-    imageUrl: corpcommentImg,
+    tags: [
+      'React',
+      'Typescript',
+      'Tailwind',
+      'Vite',
+      'React Query',
+      'Recharts',
+    ],
+    imageUrl: weatherImg,
     sourceCode: 'https://github.com/pateatlau/weather-app',
     liveSite: 'https://weather.lalding.in/',
   },
