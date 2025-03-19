@@ -121,7 +121,7 @@ export const projectsData = [
   {
     title: 'Weather App',
     description:
-      'Fullstack dynamic web app for weather forecast. It has features like search, weather history, and weather forecast.',
+      'Dynamic web app for weather forecast. It has features like search, weather history, and weather forecast.',
     tags: [
       'React',
       'Typescript',
