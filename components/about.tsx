@@ -38,8 +38,11 @@ export default function About() {
       <p>
         <span className="italic">When I'm not working</span>, I enjoy playing
         chess, reading books, and helping others and contributing to society. I
-        love <span className="font-medium">learning new things</span>.and am
-        currently actively learning{' '}
+        love{' '}
+        <span className="font-medium">
+          learning new things and improving my tech stack
+        </span>
+        , and am currently actively learning{' '}
         <span className="font-medium">AI tech stack.</span>
       </p>
     </motion.section>
