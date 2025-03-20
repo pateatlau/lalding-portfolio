@@ -15,7 +15,7 @@ export default function Projects() {
       id="projects"
       className="scroll-mt-28 mb-28"
     >
-      <SectionHeading>Top Personal Projects</SectionHeading>
+      <SectionHeading>Featured Projects</SectionHeading>
       <div>
         {projectsData.map((project, index) => (
           <React.Fragment key={index}>

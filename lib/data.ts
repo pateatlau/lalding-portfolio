@@ -57,7 +57,7 @@ export const experiencesData = [
     title: 'Senior Software Engineer',
     location: 'Ingenio',
     description:
-      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
+      "Key contributor to the company's setup in India. Setting up projects, leading the Frontend team, and leading the development of new features.",
     icon: React.createElement(CgWorkAlt),
     date: 'Oct 2019 - Feb 2020',
     companylogo: './ingenio.webp',
@@ -66,7 +66,7 @@ export const experiencesData = [
     title: 'Technical Advisor',
     location: 'Kongsberg Digital',
     description:
-      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
+      "Active role of technical advisor in the company's digital journey. I was responsible for delivering migration of legacy project in Angular to React.",
     icon: React.createElement(FaReact),
     date: 'Apr 2019 - Sep 2019',
     companylogo: './kongsberg.webp',
@@ -75,7 +75,7 @@ export const experiencesData = [
     title: 'Staff Software Engineer',
     location: 'Davinta Technologies',
     description:
-      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
+      "Led the Frontend team in developing the company's corporate website and flagship product. Also delivered various POC's for various products using React, Angular and Docker.",
     icon: React.createElement(CgWorkAlt),
     date: 'Jul 2017 - Apr 2019',
     companylogo: './davinta.webp',
@@ -84,7 +84,7 @@ export const experiencesData = [
     title: 'Senior Software Engineer',
     location: 'Collective India Pvt. Ltd.',
     description:
-      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
+      "Co-led the Frontend team in developing the company's flagship product. Led the effort to modernise the project with automated build tools, linting, and testing.",
     icon: React.createElement(FaReact),
     date: 'Dec 2015 - Jun 2017',
     companylogo: './collective.webp',
@@ -93,7 +93,7 @@ export const experiencesData = [
     title: 'Member of Technical Staff',
     location: 'Kaseya Software',
     description:
-      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
+      'Led Frontend team in Corporate Website Migration to Drupal and Complete Re-design of the website. Also worked closely with the VSA engineering team and UX team to deliver the reskinning of the Flagship product.',
     icon: React.createElement(CgWorkAlt),
     date: 'Jul 2014 - Dec 2015',
     companylogo: './kaseya.webp',
@@ -102,7 +102,7 @@ export const experiencesData = [
     title: 'Senior Tech Lead',
     location: 'HCL Technologies',
     description:
-      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
+      'Got deployed onsite at Yahoo! as Senior Tech Lead. Led the Frontend team from HCL Technologies. Key contributor in reskinning of various Yahoo! websites. Developed widgets for Yahoo! Homes.',
     icon: React.createElement(FaReact),
     date: 'Sep 2011 - Jul 2014',
     companylogo: './hcl.webp',
@@ -111,7 +111,7 @@ export const experiencesData = [
     title: 'PHP Developer',
     location: 'SparkLogics',
     description:
-      "Active role of technical advisor in the company's digital transformation. I was responsible for the technical architecture of the company's products.",
+      'Developed and maintained various websites using PHP, Drupal, MySQL and Frontend technologies.',
     icon: React.createElement(CgWorkAlt),
     date: 'Jun 2009 - Aug 2011',
     companylogo: './exp1.svg',
