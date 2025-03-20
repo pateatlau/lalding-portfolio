@@ -153,13 +153,13 @@ export const projectsData = [
     liveSite: 'https://mfe-oflom8uum-lalding.vercel.app/',
   },
   {
-    title: 'Multiplatform App',
+    title: 'Movies App',
     description:
-      'Multiplatform app using React Native and RNW. It has features like multiplatform support, authentication, and authorization.',
-    tags: ['React Native', 'Expo', 'RNW', 'Tailwind', 'Shadcn UI'],
+      'Multiplatform app using React Native and RNW. It features fetching movies data from TMDB API, displaying movie details, and searching for movies.',
+    tags: ['React Native', 'Expo', 'RNW', 'Nativewind', 'Typescript'],
     imageUrl: rmtdevImg,
     sourceCode: 'https://github.com/pateatlau/movies-expo',
-    liveSite: 'https://lalding.in/',
+    liveSite: 'https://lalding-movie-app-expo-app--hd65m64ml9.expo.app/',
   },
 ] as const;
 
