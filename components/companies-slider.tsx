@@ -18,9 +18,58 @@ function CompaniesSlider() {
     speed: 3000,
     autoplaySpeed: 3000,
     cssEase: 'linear',
+    pauseOnHover: false,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          arrows: false,
+          dots: false,
+          infinite: true,
+          slidesToShow: 6,
+          slidesToScroll: 1,
+          autoplay: true,
+          speed: 3000,
+          autoplaySpeed: 3000,
+          cssEase: 'linear',
+          pauseOnHover: false,
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          arrows: false,
+          dots: false,
+          infinite: true,
+          slidesToShow: 5,
+          slidesToScroll: 1,
+          autoplay: true,
+          speed: 3000,
+          autoplaySpeed: 3000,
+          cssEase: 'linear',
+          pauseOnHover: false,
+        },
+      },
+      {
+        breakpoint: 480,
+        settings: {
+          arrows: false,
+          dots: false,
+          infinite: true,
+          slidesToShow: 3,
+          slidesToScroll: 1,
+          autoplay: true,
+          speed: 3000,
+          autoplaySpeed: 3000,
+          cssEase: 'linear',
+          pauseOnHover: false,
+        },
+      },
+    ],
   };
+
   return (
-    <div className="container hidden lg:block pt-2 pb-0 mt-10">
+    <div className="container pt-2 pb-0 mt-10">
       <Slider {...settings}>
         {companiesSliderData.map((company) => (
           <div key={company.name}>
@@ -29,7 +78,7 @@ function CompaniesSlider() {
               alt={company.name}
               width={80}
               height={80}
-              className="rounded-md"
+              className="rounded-md w-28 h-28"
             />
           </div>
         ))}
