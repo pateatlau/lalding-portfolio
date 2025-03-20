@@ -41,6 +41,7 @@ export default function Header() {
                   setActiveSection(link.name);
                   setTimeOfLastClick(Date.now());
                 }}
+                title={`Jump to ${link.name} section`}
               >
                 {link.name}
 
