@@ -165,6 +165,10 @@ export const projectsData = [
 ] as const;
 
 export const skillsData = [
+  'Technology Leadership',
+  'Frontend Development',
+  'Fullstack Development',
+  'Cross-Platform Development',
   'HTML',
   'CSS',
   'JavaScript',
