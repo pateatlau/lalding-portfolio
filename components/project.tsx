@@ -5,6 +5,7 @@ import { projectsData } from '@/lib/data';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { FaGithubSquare } from 'react-icons/fa';
+import { FaCaretRight } from 'react-icons/fa';
 
 type ProjectProps = (typeof projectsData)[number];
 
@@ -57,8 +58,8 @@ export default function Project({
               title="View Github repo of this project"
             >
               <span className="flex flex-row justify-between items-center gap-1">
+                Source Code
                 <FaGithubSquare />
-                View Code
               </span>
             </a>
             <a
@@ -67,7 +68,10 @@ export default function Project({
               target="_blank"
               title="View prod live site of this project"
             >
-              View live Site
+              <span className="flex flex-row justify-between items-center gap-1">
+                Live Site
+                <FaCaretRight />
+              </span>
             </a>
           </div>
         </div>
