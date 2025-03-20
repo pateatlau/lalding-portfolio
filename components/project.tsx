@@ -54,6 +54,7 @@ export default function Project({
               className="text-slate-500 hover:text-slate-700 transition dark:text-white/70 dark:hover:text-white/80 border rounded-md p-2 border-slate-300 dark:border-white/70 w-30 text-center"
               href={sourceCode}
               target="_blank"
+              title="View Github repo of this project"
             >
               <span className="flex flex-row justify-between items-center gap-1">
                 <FaGithubSquare />
@@ -64,6 +65,7 @@ export default function Project({
               className="text-slate-500 hover:text-slate-700 transition dark:text-white/70 dark:hover:text-white/80 border rounded-md p-2 border-slate-300 dark:border-white/70 w-30 text-center"
               href={liveSite}
               target="_blank"
+              title="View prod live site of this project"
             >
               View live Site
             </a>
