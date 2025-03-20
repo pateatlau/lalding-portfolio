@@ -10,6 +10,8 @@ import 'react-vertical-timeline-component/style.min.css';
 import { experiencesData } from '@/lib/data';
 import { useSectionInView } from '@/lib/hooks';
 import { useTheme } from '@/context/theme-context';
+import CompaniesSlider from '@/components/companies-slider';
+import Image from 'next/image';
 
 export default function Experience() {
   const { ref } = useSectionInView('Experience');
@@ -54,7 +56,7 @@ export default function Experience() {
                   <p className="font-normal !mt-0">{item.location}</p>
                 </div>
                 <div>
-                  <img
+                  <Image
                     src={item.companylogo}
                     alt="company logo"
                     height="50"
@@ -70,6 +72,7 @@ export default function Experience() {
           </React.Fragment>
         ))}
       </VerticalTimeline>
+      <CompaniesSlider />
     </section>
   );
 }
