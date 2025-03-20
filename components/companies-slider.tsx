@@ -41,7 +41,7 @@ function CompaniesSlider() {
           arrows: false,
           dots: false,
           infinite: true,
-          slidesToShow: 5,
+          slidesToShow: 4,
           slidesToScroll: 1,
           autoplay: true,
           speed: 3000,
@@ -56,7 +56,7 @@ function CompaniesSlider() {
           arrows: false,
           dots: false,
           infinite: true,
-          slidesToShow: 3,
+          slidesToShow: 2,
           slidesToScroll: 1,
           autoplay: true,
           speed: 3000,
@@ -69,7 +69,7 @@ function CompaniesSlider() {
   };
 
   return (
-    <div className="container pt-2 pb-0 mt-10">
+    <div className="container pt-2 pb-0 mt-10 hidden sm:block">
       <Slider {...settings}>
         {companiesSliderData.map((company) => (
           <div key={company.name}>
