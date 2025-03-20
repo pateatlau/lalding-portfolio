@@ -126,7 +126,7 @@ export const projectsData = [
     tags: ['React Native', 'Expo', 'RNW', 'Nativewind', 'Typescript'],
     imageUrl: moviesImg,
     sourceCode: 'https://github.com/pateatlau/movies-expo',
-    liveSite: 'https://lalding-movies.expo.app/',
+    liveSite: 'https://movies.lalding.in/',
   },
   {
     title: 'Micro Frontend App',
