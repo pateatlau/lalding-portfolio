@@ -5,6 +5,7 @@ import { FaReact } from 'react-icons/fa';
 import corpcommentImg from '@/public/corpcomment.png';
 import rmtdevImg from '@/public/rmtdev.png';
 import weatherImg from '@/public/weather.png';
+import moviesImg from '@/public/movies.png';
 
 export const links = [
   {
@@ -119,6 +120,24 @@ export const experiencesData = [
 
 export const projectsData = [
   {
+    title: 'Movies App',
+    description:
+      'Multiplatform app running in web, iOS and Android. It fetches movies from TMDB API, displays movie details, and search for movies.',
+    tags: ['React Native', 'Expo', 'RNW', 'Nativewind', 'Typescript'],
+    imageUrl: moviesImg,
+    sourceCode: 'https://github.com/pateatlau/movies-expo',
+    liveSite: 'https://lalding-movie-app-expo-app--hd65m64ml9.expo.app/',
+  },
+  {
+    title: 'Micro Frontend App',
+    description:
+      'Micro frontend app using React and Vite Module Federation plugin. It has a host app and a remote app.',
+    tags: ['React', 'Module Federation', 'Vite'],
+    imageUrl: rmtdevImg,
+    sourceCode: 'https://github.com/pateatlau/vite-mfe-host',
+    liveSite: 'https://mfe-oflom8uum-lalding.vercel.app/',
+  },
+  {
     title: 'Weather App',
     description:
       'Dynamic web app for weather forecast. It has features like search, weather history, and weather forecast.',
@@ -135,31 +154,13 @@ export const projectsData = [
     liveSite: 'https://weather.lalding.in/',
   },
   {
-    title: 'Fullstack MERN App',
+    title: 'eCommerce App',
     description:
       'Fullstack MERN app for products. It has full CRUD opertions using REST API developed in Express and MongoDB.',
     tags: ['React', 'Nodejs', 'Express', 'MongoDB', 'Chakra UI'],
     imageUrl: rmtdevImg,
     sourceCode: 'https://github.com/pateatlau/mern-products-app',
     liveSite: 'https://lalding-products.onrender.com/',
-  },
-  {
-    title: 'Micro Frontend App',
-    description:
-      'Micro frontend app using React and Vite Module Federation plugin. It has a host app and a remote app, that is consumed by the host app.',
-    tags: ['React', 'Module Federation', 'Vite'],
-    imageUrl: rmtdevImg,
-    sourceCode: 'https://github.com/pateatlau/vite-mfe-host',
-    liveSite: 'https://mfe-oflom8uum-lalding.vercel.app/',
-  },
-  {
-    title: 'Movies App',
-    description:
-      'Multiplatform app using React Native and RNW. It features fetching movies data from TMDB API, displaying movie details, and searching for movies.',
-    tags: ['React Native', 'Expo', 'RNW', 'Nativewind', 'Typescript'],
-    imageUrl: rmtdevImg,
-    sourceCode: 'https://github.com/pateatlau/movies-expo',
-    liveSite: 'https://lalding-movie-app-expo-app--hd65m64ml9.expo.app/',
   },
 ] as const;
 
