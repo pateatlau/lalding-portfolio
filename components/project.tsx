@@ -4,6 +4,7 @@ import { useRef } from 'react';
 import { projectsData } from '@/lib/data';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { FaGithubSquare } from 'react-icons/fa';
 
 type ProjectProps = (typeof projectsData)[number];
 
@@ -54,14 +55,17 @@ export default function Project({
               href={sourceCode}
               target="_blank"
             >
-              Source Code
+              <span className="flex flex-row justify-between items-center gap-1">
+                <FaGithubSquare />
+                View Code
+              </span>
             </a>
             <a
               className="text-slate-500 hover:text-slate-700 transition dark:text-white/70 dark:hover:text-white/80 border rounded-md p-2 border-slate-300 dark:border-white/70 w-30 text-center"
               href={liveSite}
               target="_blank"
             >
-              Live Site
+              View live Site
             </a>
           </div>
         </div>
