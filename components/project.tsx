@@ -57,7 +57,7 @@ export default function Project({
               target="_blank"
               title="View Github repo of this project"
             >
-              <span className="flex flex-row justify-between items-center gap-1">
+              <span className="flex flex-row justify-between items-center gap-2">
                 Source Code
                 <FaGithubSquare />
               </span>
