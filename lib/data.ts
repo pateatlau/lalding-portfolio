@@ -48,7 +48,7 @@ export const experiencesData = [
     title: 'Senior Principal Engineer',
     location: 'Wissen Technology | Morgan Stanley',
     description:
-      'I got deployed from Wissen Technology to Morgan Stanley as a Senior Principal Engineer. I delivered the design and development of various products at Morgan Stanley.',
+      'I got deployed onsite from Wissen Technology to Morgan Stanley as a Senior Principal Engineer. I delivered the design and development of various products at Morgan Stanley.',
     icon: React.createElement(FaReact),
     date: 'Jul 2020 - Apr 2023',
     companylogo: './wissen.webp',
@@ -102,7 +102,7 @@ export const experiencesData = [
     title: 'Senior Tech Lead',
     location: 'HCL Technologies | Yahoo!',
     description:
-      'I got deployed from HCL Technologies onsite at Yahoo! as Senior Tech Lead. Led the Frontend team from HCL Technologies. Key contributor in reskinning of various Yahoo! websites. Developed widgets for Yahoo! Homes.',
+      'I got deployed onsite from HCL Technologies to Yahoo! as Senior Tech Lead. Led the Frontend team from HCL Technologies. Key contributor in reskinning of various Yahoo! websites. Developed widgets for Yahoo! Homes.',
     icon: React.createElement(FaReact),
     date: 'Sep 2011 - Jul 2014',
     companylogo: './hcl.webp',
