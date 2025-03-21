@@ -11,6 +11,7 @@
   "dependencies": {
     "@react-email/components": "^0.0.7",
     "@react-email/tailwind": "^0.0.8",
+    "@sentry/nextjs": "^9.7.0",
     "@types/node": "20.3.2",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
