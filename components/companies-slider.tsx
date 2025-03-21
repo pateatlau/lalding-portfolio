@@ -80,7 +80,7 @@ function CompaniesSlider() {
               alt={company.name}
               height={80}
               width={80}
-              className="rounded-md h-24 w-32"
+              className="rounded-sm h-24 w-32"
             />
           </div>
         ))}
