@@ -82,7 +82,7 @@ export const experiencesData = [
     title: 'Deputy Vice President',
     location: 'HDFC Bank Limited',
     description:
-      'My main role is to lead the front-end team and work with the back-end team to deliver the project. I also work with various other teams like the design team, backend team, product team, and devops team.',
+      'My main role is to lead the front-end team and work with other teams like design, backend, product, and devops teams to deliver the project. My other roles include delivering innovative solutions, leading the development of new features, and collaborating with cross-functional teams to achieve project goals.',
     icon: React.createElement(CgWorkAlt),
     date: 'May 2023 - 2025',
     companylogo: '/hdfc.webp',
