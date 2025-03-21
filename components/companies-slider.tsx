@@ -13,7 +13,7 @@ function CompaniesSlider() {
     arrows: false,
     dots: false,
     infinite: true,
-    slidesToShow: 7,
+    slidesToShow: 8,
     slidesToScroll: 1,
     autoplay: true,
     speed: 3000,
