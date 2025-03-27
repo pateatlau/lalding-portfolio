@@ -218,6 +218,7 @@ export const skillsData = [
   'NX',
   'Webpack',
   'Vite',
+  'Rollup',
   'Docker',
   'Git',
   'Github',
