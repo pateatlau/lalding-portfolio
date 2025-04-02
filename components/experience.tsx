@@ -15,7 +15,7 @@ import Image from 'next/image';
 
 export default function Experience() {
   const { ref } = useSectionInView('Experience');
-  const { theme } = useTheme();
+  const { theme } = useTheme().;
 
   return (
     <section

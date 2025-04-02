@@ -59,7 +59,7 @@ export default function ThemeContextProvider({
   );
 }
 
-export function useTheme() {
+export function useTheme(). {
   const context = useContext(ThemeContext);
 
   if (context === null) {
