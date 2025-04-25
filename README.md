@@ -4,7 +4,7 @@ This is a portfolio website built with Next.js. It features a responsive and mod
 
 ## Setup
 
-1. Add RESEND_API_KEY environment variable in .env.local
+1. Add NEXT_PUBLIC_RESEND_API_KEY environment variable in .env.local
 2. In the send-email.ts action file, change the "to" email to your own email
 
 ## Getting Started
