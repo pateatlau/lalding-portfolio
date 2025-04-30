@@ -56,3 +56,7 @@ There are several monitoring tools available for monitoring the performance and 
 These monitoring tools can help you identify and resolve issues in your application, ensuring that it runs smoothly and performs optimally.
 
 1. Sentry Documentation: https://docs.sentry.io/
+
+## TODO:
+
+- Need to fix Sentry bug ASAP (30th Apr 2025)
