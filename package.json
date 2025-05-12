@@ -10,7 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@react-email/components": "^0.0.7",
+    "@react-email/components": "^0.0.22",
     "@react-email/tailwind": "^0.0.8",
     "@sentry/nextjs": "^9.7.0",
     "@types/node": "20.3.2",
@@ -20,7 +20,7 @@
     "autoprefixer": "10.4.14",
     "clsx": "^1.2.1",
     "eslint": "8.43.0",
-    "eslint-config-next": "13.4.7",
+    "eslint-config-next": "15.0.0",
     "framer-motion": "^10.12.17",
     "next": "13.4.8",
     "postcss": "8.4.24",
