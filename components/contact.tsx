@@ -37,7 +37,7 @@ export default function Contact() {
         at{' '}
         <a
           className="text-blue-400"
-          href="mailto:pateatlau@gmail.com"
+          href="mailto:laldingliana.tv@gmail.com"
         >
           laldingliana.tv@gmail.com
         </a>{' '}
