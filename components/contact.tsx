@@ -39,7 +39,7 @@ export default function Contact() {
           className="text-blue-400"
           href="mailto:pateatlau@gmail.com"
         >
-          pateatlau@gmail.com
+          laldingliana.tv@gmail.com
         </a>{' '}
         or through this form.
       </p>
