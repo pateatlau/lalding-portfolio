@@ -1,21 +1,25 @@
 pipeline {
   agent any
 
+  environment {
+    NEW_VERSION = '1.3.0'
+  }
+
   stages {
     stage("test") {
       steps {
-        echo 'Testing...'
+        echo "testing new version ${NEW_VERSION}"
       }
     }
 
     stage("build") {
       steps {
-        echo 'Building...'
+        echo "building new version ${NEW_VERSION}"
       }
     }
     stage("deploy") {
       steps {
-        echo 'Deploying...'
+        echo "deploying new version ${NEW_VERSION}"
       }
     }
   }
