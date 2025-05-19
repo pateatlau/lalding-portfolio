@@ -64,10 +64,10 @@ export default function Intro() {
       >
         Hello, I am{' '}
         <span className="font-bold">
-          Laldingliana Tlau Vantawl, Frontend Tech Lead
+          Laldingliana Tlau Vantawl, Full-stack Tech Lead
         </span>{' '}
-        with 15+ years of professional experience in building and delivering
-        highly performant and scalable web apps.
+        with over 15 years of expertise in constructing scalable web
+        applications.
       </motion.h1>
 
       <motion.div
