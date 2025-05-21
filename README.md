@@ -59,4 +59,4 @@ These monitoring tools can help you identify and resolve issues in your applicat
 
 ## TODO:
 
-- Need to fix Sentry bug ASAP (30th Apr 2025)
+- Need to implement Sentry again (21st May 2025)
