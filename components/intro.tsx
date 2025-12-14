@@ -64,7 +64,7 @@ export default function Intro() {
       >
         Hello, I am{' '}
         <span className="font-bold">
-          Laldingliana Tlau Vantawl, Full-stack Tech Lead
+          Laldingliana Tlau Vantawl (Lalding), Full-stack Tech Lead
         </span>{' '}
         with over 15 years of expertise in constructing scalable web
         applications.
