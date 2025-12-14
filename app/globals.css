@@ -13,3 +13,11 @@ html.dark {
 .borderBlack {
   @apply border border-black/10;
 }
+
+/* Fix for react-vertical-timeline-component is-hidden class in Next.js 14 */
+.vertical-timeline-element.is-hidden,
+.vertical-timeline-element-icon.is-hidden,
+.vertical-timeline-element-content.is-hidden {
+  visibility: visible !important;
+  opacity: 1 !important;
+}
