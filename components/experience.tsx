@@ -25,8 +25,8 @@ export default function Experience() {
     >
       <SectionHeading>Experience</SectionHeading>
       <VerticalTimeline lineColor="" animate={true}>
-        {experiencesData.map((item, index) => (
-          <React.Fragment key={index}>
+        {experiencesData.map((item) => (
+          <React.Fragment key={`${item.title}-${item.location}`}>
             <VerticalTimelineElement
               contentStyle={{
                 background:
@@ -50,7 +50,7 @@ export default function Experience() {
                 fontSize: '1.5rem',
               }}
             >
-              <div className="flex flew-row justify-between">
+              <div className="flex flex-row justify-between">
                 <div>
                   <h3 className="font-semibold capitalize">{item.title}</h3>
                   <p className="font-normal !mt-0">{item.location}</p>
@@ -58,7 +58,7 @@ export default function Experience() {
                 <div>
                   <Image
                     src={item.companylogo}
-                    alt="company logo"
+                    alt={`${item.location} company logo`}
                     height={50}
                     width={50}
                     className="rounded-lg"
