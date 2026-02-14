@@ -105,9 +105,9 @@ Framer Motion is used throughout for scroll-triggered animations and transitions
 - `feature/*` - Feature branches merged directly to main via PR
 
 **CI/CD**: GitHub Actions (`.github/workflows/ci.yml`)
-- Lint → Build → Deploy pipeline
+- Lint → Build pipeline
 - Lighthouse CI for performance audits on PRs
-- Auto-deploy to production on main branch push
+- Deploy job (currently disabled - see TODO below)
 
 ---
 
@@ -117,6 +117,23 @@ Framer Motion is used throughout for scroll-triggered animations and transitions
 |----------|-------------|
 | [`docs/ui-ux-design.md`](docs/ui-ux-design.md) | Comprehensive UI/UX modernization plan |
 | [`docs/improvements-and-optimizations.md`](docs/improvements-and-optimizations.md) | Known issues and optimization recommendations |
+
+---
+
+## TODOs
+
+### CI/CD: Enable Vercel Deployment
+
+The deploy job in `.github/workflows/ci.yml` is currently disabled. To enable automated deployments:
+
+1. Install Vercel CLI: `npm i -g vercel`
+2. Run `vercel link` in the project root to connect to your Vercel project
+3. Get your Vercel token from https://vercel.com/account/tokens
+4. Add these secrets to GitHub repository settings (Settings → Secrets → Actions):
+   - `VERCEL_TOKEN` - Your Vercel API token
+   - `VERCEL_ORG_ID` - Found in `.vercel/project.json` after linking
+   - `VERCEL_PROJECT_ID` - Found in `.vercel/project.json` after linking
+5. Uncomment the deploy job in `.github/workflows/ci.yml`
 
 ---
 
