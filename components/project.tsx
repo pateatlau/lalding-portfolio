@@ -41,10 +41,10 @@ export default function Project({
             {description}
           </p>
           <ul className="flex flex-wrap mt-4 gap-2 sm:mt-auto">
-            {tags.map((tag, index) => (
+            {tags.map((tag) => (
               <li
                 className="bg-black/[0.7] px-3 py-1 text-[0.7rem] uppercase tracking-wider text-white rounded-full dark:text-white/70"
-                key={index}
+                key={tag}
               >
                 {tag}
               </li>
@@ -55,6 +55,7 @@ export default function Project({
               className="text-slate-500 hover:text-slate-700 transition dark:text-white/70 dark:hover:text-white/80 border rounded-md p-2 border-slate-300 dark:border-white/70 w-30 text-center"
               href={sourceCode}
               target="_blank"
+              rel="noopener noreferrer"
               title="View Github repo of this project"
             >
               <span className="flex flex-row justify-between items-center gap-2">
@@ -66,6 +67,7 @@ export default function Project({
               className="text-slate-500 hover:text-slate-700 transition dark:text-white/70 dark:hover:text-white/80 border rounded-md p-2 border-slate-300 dark:border-white/70 w-30 text-center"
               href={liveSite}
               target="_blank"
+              rel="noopener noreferrer"
               title="View prod live site of this project"
             >
               <span className="flex flex-row justify-between items-center gap-1">
@@ -78,8 +80,8 @@ export default function Project({
 
         <Image
           src={imageUrl}
-          alt="Personal projects I worked on"
-          quality={95}
+          alt={`Screenshot of ${title} project`}
+          quality={85}
           className="absolute hidden sm:block top-8 -right-40 w-[28.25rem] rounded-t-lg shadow-2xl
         transition 
         group-hover:scale-[1.04]

@@ -13,6 +13,7 @@ export default function Footer() {
         <a
           href="https://github.com/pateatlau/lalding-portfolio"
           target="_blank"
+          rel="noopener noreferrer"
           className="underline"
         >
           [View source code at Github]
