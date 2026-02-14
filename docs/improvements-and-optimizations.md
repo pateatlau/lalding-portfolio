@@ -394,9 +394,9 @@ if (!process.env.RESEND_API_KEY) {
 7. Add font-display strategy
 8. Improve image alt text
 9. Add environment variable validation
+10. Add `sharp` package for image optimization
 
 ### Low Priority (Nice to Have)
-10. Add `sharp` package
 11. Reduce image quality slightly
 12. Fix key prop usage
 13. Remove unused imports
