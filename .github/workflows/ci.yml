@@ -58,6 +58,7 @@ jobs:
           name: build-output
           path: .next/
           retention-days: 7
+          include-hidden-files: true
 
   # Lighthouse CI for performance auditing
   lighthouse:
