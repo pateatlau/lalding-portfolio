@@ -13,6 +13,32 @@ export const metadata = {
   title: 'Lalding | Personal Portfolio',
   description:
     'Laldingliana Tlau Vantawl -- Professional Software Engineer with 15+ years of experience.',
+  openGraph: {
+    title: 'Lalding | Personal Portfolio',
+    description:
+      'Laldingliana Tlau Vantawl -- Professional Software Engineer with 15+ years of experience.',
+    url: 'https://lalding.in',
+    siteName: 'Lalding Portfolio',
+    images: [
+      {
+        url: '/lalding.jpg',
+        width: 192,
+        height: 192,
+        alt: 'Laldingliana Tlau Vantawl - Full-stack Tech Lead',
+      },
+      // TODO: Add a dedicated OG image sized 1200x630 for better social previews
+      // { url: '/og-image.jpg', width: 1200, height: 630, alt: '...' }
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Lalding | Personal Portfolio',
+    description:
+      'Laldingliana Tlau Vantawl -- Professional Software Engineer with 15+ years of experience.',
+    images: ['/lalding.jpg'],
+  },
 };
 
 export default function RootLayout({

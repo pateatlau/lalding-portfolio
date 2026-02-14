@@ -5,9 +5,15 @@ import { Resend } from 'resend';
 import { validateString, getErrorMessage } from '@/lib/utils';
 import ContactFormEmail from '@/email/contact-form-email';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export const sendEmail = async (formData: FormData) => {
+  if (!process.env.RESEND_API_KEY) {
+    return {
+      error:
+        'RESEND_API_KEY is not configured. Email functionality is disabled.',
+    };
+  }
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
   const senderEmail = formData.get('senderEmail');
   const message = formData.get('message');
 
