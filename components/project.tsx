@@ -31,6 +31,7 @@ export default function Project({
       style={{
         scale: scaleProgess,
         opacity: opacityProgess,
+        position: 'relative',
       }}
       className="group mb-3 sm:mb-8 last:mb-0"
     >

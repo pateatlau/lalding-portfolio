@@ -79,7 +79,8 @@ function CompaniesSlider() {
               alt={company.name}
               height={80}
               width={80}
-              className="rounded-sm h-24 w-32"
+              className="rounded-sm"
+              style={{ height: '6rem', width: 'auto' }}
             />
           </div>
         ))}

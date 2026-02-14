@@ -62,6 +62,7 @@ export default function Experience() {
                     height={50}
                     width={50}
                     className="rounded-lg"
+                    style={{ height: 'auto', width: 'auto' }}
                   />
                 </div>
               </div>
