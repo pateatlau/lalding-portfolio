@@ -53,7 +53,7 @@ jobs:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: build-output
           path: .next/
