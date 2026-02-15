@@ -10,7 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@react-email/components": "^0.0.28",
+    "@react-email/components": "^1.0.7",
     "@react-email/tailwind": "^0.0.15",
     "@types/node": "20.3.2",
     "@types/react-slick": "^0.23.13",
