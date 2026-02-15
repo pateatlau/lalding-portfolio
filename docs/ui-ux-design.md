@@ -603,22 +603,26 @@ const pageVariants = {
 
 ```css
 :root {
-  --background: 0 0% 100%;
-  --foreground: 215 25% 12%;
-  --primary: 215 25% 15%;
-  --secondary: 180 10% 96%;
-  --accent: 174 60% 40%; /* Teal - primary accent */
-  --accent-warm: 38 92% 50%; /* Amber - secondary accent */
-  --muted: 215 15% 95%;
-  --border: 215 20% 90%;
+  /* shadcn/ui core tokens (OKLCH color space, subtle slate undertone) */
+  --background: oklch(0.985 0.002 247);
+  --foreground: oklch(0.145 0.015 255);
+  --primary: oklch(0.205 0.015 255);
+  --secondary: oklch(0.97 0.002 247);
+  --muted: oklch(0.97 0.002 247);
+  --muted-foreground: oklch(0.556 0.01 255);
+  --border: oklch(0.922 0.004 247);
 
-  /* Gradients - Teal/Amber replacing Purple/Cyan */
-  --gradient-start: 174 70% 42%; /* Teal */
-  --gradient-end: 38 90% 55%; /* Amber/Gold */
+  /* Custom accent tokens — teal/amber palette */
+  --accent-teal: #0d9488;
+  --accent-teal-light: #14b8a6;
+  --accent-amber: #d97706;
+  --accent-amber-light: #f59e0b;
 
-  /* Background blobs (replacing pink #fbe2e3 and purple #dbd7fb) */
-  --blob-primary: #ccfbf1; /* Teal-50 tint */
-  --blob-secondary: #fef3c7; /* Amber-50 tint */
+  /* Mesh gradient stops (layered radial gradients) */
+  --mesh-1: rgba(153, 246, 228, 0.25);
+  --mesh-2: rgba(254, 243, 199, 0.2);
+  --mesh-3: rgba(204, 251, 241, 0.18);
+  --mesh-4: rgba(245, 245, 244, 0.4);
 }
 ```
 
@@ -626,22 +630,29 @@ const pageVariants = {
 
 ```css
 .dark {
-  --background: 215 25% 6%;
-  --foreground: 210 30% 96%;
-  --primary: 210 30% 96%;
-  --secondary: 215 20% 13%;
-  --accent: 174 60% 45%; /* Teal */
-  --accent-warm: 38 90% 55%; /* Amber */
-  --muted: 215 20% 13%;
-  --border: 215 20% 18%;
+  --background: oklch(0.16 0.015 255);
+  --foreground: oklch(0.96 0.005 255);
+  --primary: oklch(0.96 0.005 255);
+  --secondary: oklch(0.22 0.012 255);
+  --muted: oklch(0.22 0.012 255);
+  --muted-foreground: oklch(0.708 0.01 255);
+  --border: oklch(1 0 0 / 10%);
 
-  /* Background blobs (replacing #946263 and #676394) */
-  --blob-primary: #134e4a; /* Teal-900 */
-  --blob-secondary: #78350f; /* Amber-900 */
+  /* Custom accent tokens — brighter for dark mode */
+  --accent-teal: #14b8a6;
+  --accent-teal-light: #2dd4bf;
+  --accent-amber: #f59e0b;
+  --accent-amber-light: #fbbf24;
+
+  /* Mesh gradient stops (deeper tones) */
+  --mesh-1: rgba(19, 78, 74, 0.35);
+  --mesh-2: rgba(120, 53, 15, 0.2);
+  --mesh-3: rgba(17, 94, 89, 0.18);
+  --mesh-4: rgba(30, 30, 35, 0.4);
 }
 ```
 
-> **Rationale:** The teal/amber combination is uncommon in portfolios and AI-generated sites. Teal conveys technical competence and calm professionalism, while amber adds warmth and energy. Together they create a distinctive identity that doesn't read as "default template".
+> **Rationale:** The teal/amber combination is uncommon in portfolios and AI-generated sites. Teal conveys technical competence and calm professionalism, while amber adds warmth and energy. OKLCH color space ensures perceptual uniformity across the design system. The mesh gradient background uses layered radial gradients at deliberate positions for a polished, editorial look.
 
 ---
 

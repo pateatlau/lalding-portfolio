@@ -15,6 +15,7 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
 
     const duration = 1500;
     const startTime = performance.now();
+    let rafId: number;
 
     function animate(currentTime: number) {
       const elapsed = currentTime - startTime;
@@ -23,11 +24,12 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
       setCount(Math.floor(eased * target));
 
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        rafId = requestAnimationFrame(animate);
       }
     }
 
-    requestAnimationFrame(animate);
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
   }, [isInView, target]);
 
   return (

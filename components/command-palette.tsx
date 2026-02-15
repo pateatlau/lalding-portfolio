@@ -272,7 +272,8 @@ export default function CommandPalette() {
                   </div>
                   {groupItems.map((item) => {
                     flatIndex++;
-                    const isSelected = flatIndex === selectedIndex;
+                    const currentIndex = flatIndex;
+                    const isSelected = currentIndex === selectedIndex;
                     return (
                       <button
                         key={item.id}
@@ -283,7 +284,7 @@ export default function CommandPalette() {
                             : 'text-foreground hover:bg-black/5 dark:hover:bg-white/5'
                         }`}
                         onClick={item.action}
-                        onMouseEnter={() => setSelectedIndex(flatIndex)}
+                        onMouseEnter={() => setSelectedIndex(currentIndex)}
                       >
                         <span className="shrink-0 text-base">{item.icon}</span>
                         {item.label}

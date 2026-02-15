@@ -24,6 +24,7 @@ function TypewriterEffect() {
 
   useEffect(() => {
     const currentTitle = titles[titleIndex];
+    let innerTimeout: ReturnType<typeof setTimeout>;
 
     const timeout = setTimeout(
       () => {
@@ -31,7 +32,7 @@ function TypewriterEffect() {
           if (charIndex < currentTitle.length) {
             setCharIndex((prev) => prev + 1);
           } else {
-            setTimeout(() => setIsDeleting(true), 2000);
+            innerTimeout = setTimeout(() => setIsDeleting(true), 2000);
           }
         } else {
           if (charIndex > 0) {
@@ -45,7 +46,10 @@ function TypewriterEffect() {
       isDeleting ? 40 : 80
     );
 
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timeout);
+      clearTimeout(innerTimeout);
+    };
   }, [charIndex, isDeleting, titleIndex]);
 
   const currentTitle = titles[titleIndex];
