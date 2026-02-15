@@ -71,6 +71,7 @@ export default function Intro() {
     >
       <div className="flex items-center justify-center">
         <motion.div
+          className="relative"
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{
@@ -78,6 +79,10 @@ export default function Intro() {
             duration: 0.2,
           }}
         >
+          <div
+            className="absolute -inset-8 -z-10 rounded-full blur-[3rem] sm:-inset-12 sm:blur-[4rem]"
+            style={{ background: 'var(--portrait-glow)' }}
+          />
           <Image
             src="/lalding.jpg"
             alt="Laldingliana Tlau Vantawl - Full-stack Tech Lead portrait"

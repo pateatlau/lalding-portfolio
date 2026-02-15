@@ -41,11 +41,8 @@
   --accent-amber: #d97706;
   --accent-amber-light: #f59e0b;
 
-  /* Mesh gradient stops */
-  --mesh-1: rgba(153, 246, 228, 0.25);
-  --mesh-2: rgba(254, 243, 199, 0.2);
-  --mesh-3: rgba(204, 251, 241, 0.18);
-  --mesh-4: rgba(245, 245, 244, 0.4);
+  /* Portrait glow */
+  --portrait-glow: rgba(153, 246, 228, 0.4);
 
   /* Timeline line color */
   --line-color: #e5e7eb;
@@ -85,11 +82,8 @@
   --accent-amber: #f59e0b;
   --accent-amber-light: #fbbf24;
 
-  /* Mesh gradient stops */
-  --mesh-1: rgba(19, 78, 74, 0.35);
-  --mesh-2: rgba(120, 53, 15, 0.2);
-  --mesh-3: rgba(17, 94, 89, 0.18);
-  --mesh-4: rgba(30, 30, 35, 0.4);
+  /* Portrait glow */
+  --portrait-glow: rgba(19, 78, 74, 0.5);
 
   /* Timeline line color */
   --line-color: rgba(255, 255, 255, 0.2);
@@ -166,15 +160,6 @@
 
 .borderBlack {
   @apply border border-black/10;
-}
-
-/* Mesh gradient background — layered radial gradients at specific anchor points */
-.mesh-gradient {
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 0%, var(--mesh-1) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 85% 5%, var(--mesh-2) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 50% 20%, var(--mesh-3) 0%, transparent 50%),
-    radial-gradient(ellipse 70% 50% at 70% 60%, var(--mesh-4) 0%, transparent 60%);
 }
 
 /* Fix for react-vertical-timeline-component is-hidden class */
