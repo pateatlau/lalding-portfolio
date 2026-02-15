@@ -27,10 +27,10 @@ Migrate hardcoded portfolio content to a Supabase-backed CMS with an admin dashb
 - Add environment variables:
   - `NEXT_PUBLIC_SUPABASE_URL`
   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-  - `SUPABASE_SERVICE_ROLE_KEY` (server-side only, for admin operations)
+  - `SUPABASE_SERVICE_ROLE_KEY` (server-side only, for bootstrap operations like seeding and setting admin roles — never exposed to the client)
 - Create Supabase client utilities:
   - `lib/supabase/client.ts` — browser client (uses anon key)
-  - `lib/supabase/server.ts` — server client (uses service role key for admin, anon key for public)
+  - `lib/supabase/server.ts` — server client (uses anon key + user's JWT for RLS-respecting operations; service role key used only in `lib/supabase/admin.ts` for specific operations that genuinely need to bypass RLS, such as setting admin roles)
 
 ### 1.2 Database Schema
 
@@ -41,9 +41,11 @@ Tables map to the current data structures in `lib/data.ts` plus hardcoded conten
 -- CONTENT TABLES
 -- ============================================
 
--- Personal info (about, intro, contact, footer — single row)
+-- Personal info (about, intro, contact, footer — singleton row)
+-- Enforced via UNIQUE constraint on a constant sentinel value.
 CREATE TABLE profile (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  singleton BOOLEAN NOT NULL DEFAULT true UNIQUE CHECK (singleton = true),
   full_name TEXT NOT NULL,
   short_name TEXT NOT NULL,           -- "Lalding"
   job_title TEXT NOT NULL,            -- "Full-stack Tech Lead"
@@ -54,7 +56,7 @@ CREATE TABLE profile (
   location TEXT,
   linkedin_url TEXT,
   github_url TEXT,
-  resume_url TEXT,                    -- Supabase Storage URL
+  resume_url TEXT,                    -- Supabase Storage path
   about_tech_stack TEXT,              -- tech stack description paragraph
   about_current_focus TEXT,           -- current focus paragraph
   about_beyond_code TEXT,             -- beyond code paragraph
@@ -84,7 +86,7 @@ CREATE TABLE nav_links (
 CREATE TABLE companies (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
-  logo_url TEXT NOT NULL,             -- path or Supabase Storage URL
+  logo_url TEXT NOT NULL,             -- Supabase Storage URL
   sort_order INTEGER NOT NULL DEFAULT 0
 );
 
@@ -94,8 +96,10 @@ CREATE TABLE experiences (
   title TEXT NOT NULL,                -- "Deputy Vice President"
   company TEXT NOT NULL,              -- "HDFC Bank Limited"
   description TEXT NOT NULL,
-  icon TEXT NOT NULL DEFAULT 'work',  -- "work" | "react" (mapped to icons in frontend)
-  date_range TEXT NOT NULL,           -- "May 2023 - 2025"
+  icon TEXT NOT NULL DEFAULT 'work',  -- string identifier mapped to React icons in frontend
+  start_date DATE NOT NULL,           -- enables sorting and date-based queries
+  end_date DATE,                      -- NULL = current/present role
+  display_date TEXT NOT NULL,         -- human-readable label, e.g. "May 2023 - Present"
   company_logo_url TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0
 );
@@ -141,11 +145,14 @@ CREATE TABLE skills (
 
 -- Visitor profiles (populated on social login)
 -- Supabase Auth handles the auth.users table automatically.
--- This table extends it with optional fields.
+-- This table extends it with optional fields not available in auth.users
+-- (company, role). The email field is denormalized here for convenience
+-- in admin views and CSV export; it is populated from auth.users on
+-- upsert and is not the source of truth.
 CREATE TABLE visitor_profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
-  email TEXT,
+  email TEXT,                         -- denormalized from auth.users for admin display
   avatar_url TEXT,
   provider TEXT,                      -- "google", "linkedin_oidc", "github"
   company TEXT,                       -- optional, asked before download
@@ -156,7 +163,7 @@ CREATE TABLE visitor_profiles (
 -- Resume download log
 CREATE TABLE resume_downloads (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  visitor_id UUID REFERENCES visitor_profiles(id),
+  visitor_id UUID REFERENCES visitor_profiles(id) ON DELETE SET NULL,
   downloaded_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -164,6 +171,15 @@ CREATE TABLE resume_downloads (
 -- Managed via Supabase Auth app_metadata: { role: "admin" }
 -- Set server-side via Supabase Admin API (supabase.auth.admin.updateUserById)
 -- No separate table needed — use RLS policies + app_metadata.
+```
+
+**Icon mapping note**: The current `lib/data.ts` stores React elements (`React.createElement(CgWorkAlt)`) for experience icons. The database stores string identifiers (e.g., `"work"`, `"react"`). The seed script maps current React elements to string keys, and the frontend maps strings back to icons via a lookup object:
+
+```typescript
+const iconMap: Record<string, React.ReactNode> = {
+  work: <CgWorkAlt />,
+  react: <FaReact />,
+};
 ```
 
 ### 1.3 Row Level Security (RLS)
@@ -177,9 +193,9 @@ CREATE POLICY "Public read" ON profile
   FOR SELECT USING (true);
 
 CREATE POLICY "Admin write" ON profile
-  FOR ALL USING (
-    (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
-  );
+  FOR ALL
+  USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+  WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 -- visitor_profiles: visitors can read/update their own row
 ALTER TABLE visitor_profiles ENABLE ROW LEVEL SECURITY;
@@ -220,7 +236,7 @@ CREATE POLICY "Admin read all downloads" ON resume_downloads
 
 ### 1.5 Seed Script
 
-Create `lib/supabase/seed.ts` to migrate current `lib/data.ts` + hardcoded content into the database. This ensures no data is lost during migration.
+Create `lib/supabase/seed.ts` to migrate current `lib/data.ts` + hardcoded content into the database. This ensures no data is lost during migration. The seed script maps `React.createElement()` icon calls to string identifiers and converts free-form date strings to `start_date`/`end_date` DATE values plus a `display_date` label.
 
 ---
 
@@ -241,12 +257,13 @@ Configure providers in Supabase dashboard:
 
 Create `middleware.ts` at the project root to handle session refresh and route protection:
 
-```
+```text
 /admin/*     → Require authenticated user with admin role
 /api/admin/* → Require authenticated user with admin role
-/api/resume/download → Require any authenticated user
 Everything else → Public
 ```
+
+Resume downloads are handled via a server action (not an API route), so auth is checked inside the action itself rather than in middleware.
 
 ### 2.3 Auth UI Components
 
@@ -259,15 +276,15 @@ Everything else → Public
 
 ### 2.4 Resume Download Flow
 
-```
+```text
 1. Visitor clicks "Download Resume" (intro.tsx or command palette)
 2. If not authenticated → show LoginModal with social login buttons
 3. On successful login:
    a. Upsert visitor_profiles row (name, email, avatar, provider from OAuth)
    b. If first login → show OptionalFieldsModal (company, role — skippable)
-   c. Fetch signed URL from Supabase Storage for the resume
-   d. Log download in resume_downloads table
-   e. Trigger browser download
+   c. Call server action to generate a short-lived signed URL for the private resume bucket
+   d. Log download in resume_downloads table (server-side)
+   e. Return signed URL to client, trigger browser download
 4. If already authenticated → skip to step 3c
 ```
 
@@ -287,22 +304,23 @@ When a visitor is logged in (has an active Supabase session):
 
 Replace static imports from `lib/data.ts` with Supabase queries. Since this is a portfolio site with infrequently changing content, we'll use **ISR (Incremental Static Regeneration)** with on-demand revalidation.
 
-| Pattern                | Where                | How                                                                 |
-| ---------------------- | -------------------- | ------------------------------------------------------------------- |
-| Server Components      | `app/page.tsx`       | Fetch data in server components, pass as props to client components |
-| ISR + revalidation     | `next.config.js`     | `revalidate: 3600` (1 hour default)                                 |
-| On-demand revalidation | Admin dashboard save | Call `revalidatePath('/')` after admin edits                        |
-| Client-side auth state | Auth context         | Supabase real-time auth listener                                    |
+| Pattern                | Where                        | How                                                                 |
+| ---------------------- | ---------------------------- | ------------------------------------------------------------------- |
+| Server Components      | `app/page.tsx`               | Fetch data in server components, pass as props to client components |
+| ISR + revalidation     | `app/page.tsx`, `layout.tsx` | `export const revalidate = 3600` (per-segment, App Router pattern)  |
+| On-demand revalidation | Admin dashboard save         | Call `revalidatePath('/')` and `revalidateTag()` after admin edits  |
+| Client-side auth state | Auth context                 | Supabase real-time auth listener                                    |
 
 ### 3.2 Refactor Component Architecture
 
-Currently all data-consuming components are client components (`'use client'`). Refactor:
+Currently `app/page.tsx` is a client component (`'use client'`) and all data-consuming components import directly from `lib/data.ts`. Refactor:
 
-1. **`app/page.tsx`** — Convert to a **server component**. Fetch all content data from Supabase here.
-2. Pass data as props to child components.
-3. Client components (`'use client'`) only needed for:
+1. **`app/page.tsx`** — Remove `'use client'` directive, convert to a **server component**. Fetch all content data from Supabase here. This requires moving Framer Motion animations out of the page component and into individual section wrapper client components.
+2. Pass data as serializable props to child components.
+3. Client components (`'use client'`) remain for:
    - Components with interactivity (animations, filters, scroll observers)
    - Auth-dependent UI (download button, contact form pre-fill)
+   - Each section already has its own client component — these receive data as props instead of importing from `lib/data.ts`
 
 ### 3.3 Data Fetching Functions
 
@@ -326,11 +344,12 @@ Create `lib/supabase/types.ts` — generate from Supabase schema using `supabase
 
 ### 3.5 Migration Path
 
-To avoid a big-bang migration, implement a **fallback pattern**:
+To avoid a big-bang migration, implement a **fallback pattern** during development only:
 
-1. Keep `lib/data.ts` as a static fallback during development
-2. Data fetching functions try Supabase first, fall back to static data if Supabase is unavailable
-3. Remove fallback once Supabase is stable and seeded
+1. Keep `lib/data.ts` as a static fallback during local development
+2. Data fetching functions try Supabase first, fall back to static data if `NEXT_PUBLIC_SUPABASE_URL` is not configured
+3. Log a warning when fallback is triggered so it's never silently active
+4. Remove fallback before production deployment — production always requires Supabase
 
 ---
 
@@ -338,7 +357,7 @@ To avoid a big-bang migration, implement a **fallback pattern**:
 
 ### 4.1 Route Structure
 
-```
+```tree
 app/admin/
 ├── login/
 │   └── page.tsx              # Admin login (email/password + social)
@@ -416,7 +435,7 @@ Create `actions/admin.ts` with server actions for each CRUD operation. All actio
 
 - Verify admin role via Supabase session
 - Perform the database operation
-- Call `revalidatePath('/')` to bust ISR cache
+- Call `revalidatePath('/')` to bust the ISR cache for the homepage; use `revalidateTag()` with granular cache tags for targeted invalidation when editing specific sections
 - Return success/error response
 
 ### 4.5 Additional shadcn/ui Components Needed
@@ -440,8 +459,8 @@ npx shadcn@latest add dropdown-menu avatar separator sheet
 ### 5.2 Resume Download (Visitor)
 
 - Authenticated visitor triggers download
-- Server action creates a short-lived signed URL (e.g., 60 seconds) for the private `resume` bucket
-- Browser downloads via the signed URL
+- Server action (`actions/resume.ts`) verifies auth, creates a short-lived signed URL (e.g., 60 seconds) for the private `resume` bucket, logs the download, and returns the URL
+- Client receives the signed URL and triggers browser download
 - Download logged in `resume_downloads`
 
 ### 5.3 Image Uploads (Admin)
@@ -457,18 +476,19 @@ npx shadcn@latest add dropdown-menu avatar separator sheet
 
 ### 6.1 Testing
 
-| Test Type | What to Test                                                  |
-| --------- | ------------------------------------------------------------- |
-| Unit      | Data fetching functions, auth utilities, admin server actions |
-| Component | LoginModal, OptionalFieldsModal, admin form components        |
-| E2E       | Resume download flow (login → optional fields → download)     |
-| E2E       | Admin login → edit content → verify on frontend               |
+| Test Type | What to Test                                                                                                             |
+| --------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Unit      | Data fetching functions, auth utilities, admin server actions                                                            |
+| Component | LoginModal, OptionalFieldsModal, admin form components                                                                   |
+| E2E       | Resume download flow (login → optional fields → download)                                                                |
+| E2E       | Admin login → edit content → verify on frontend                                                                          |
+| RLS       | Verify admin policies reject non-admin users, visitors can only access own data, public content is readable without auth |
 
 ### 6.2 Environment Variables
 
 Add to Vercel and local `.env.local`:
 
-```
+```env
 NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
@@ -495,7 +515,7 @@ Update `.env.example` and CI pipeline if needed.
 | 6    | 3     | Data fetching functions + refactor page.tsx       | Step 5       |
 | 7    | 3     | Refactor components to receive data as props      | Step 6       |
 | 8    | 2     | Auth setup (providers, middleware, auth context)  | Step 4       |
-| 9    | 2     | Visitor login modal + resume download flow        | Step 8       |
+| 9    | 2     | Visitor login modal + resume download flow        | Steps 3, 8   |
 | 10   | 2     | Optional fields modal                             | Step 9       |
 | 11   | 2     | Contact form pre-fill                             | Step 8       |
 | 12   | 4     | Admin layout + login page                         | Step 8       |
@@ -506,7 +526,7 @@ Update `.env.example` and CI pipeline if needed.
 | 17   | 4     | Admin skills CRUD                                 | Step 12      |
 | 18   | 5     | Admin resume upload + download log                | Step 12      |
 | 19   | 4     | Admin visitors page                               | Step 12      |
-| 20   | 6     | Tests (unit, component, E2E)                      | Steps 7-19   |
+| 20   | 6     | Tests (unit, component, E2E, RLS)                 | Steps 7-19   |
 | 21   | 6     | CI/CD updates + deployment                        | Step 20      |
 
 ---
@@ -515,9 +535,10 @@ Update `.env.example` and CI pipeline if needed.
 
 ### New Files
 
-```
+```tree
 lib/supabase/client.ts           # Browser Supabase client
-lib/supabase/server.ts           # Server Supabase client
+lib/supabase/server.ts           # Server Supabase client (anon key + user JWT)
+lib/supabase/admin.ts            # Admin client (service role key, RLS bypass)
 lib/supabase/queries.ts          # Typed data fetching functions
 lib/supabase/types.ts            # Generated TypeScript types
 lib/supabase/seed.ts             # Seed script for initial data migration
@@ -526,6 +547,7 @@ context/auth-context.tsx         # Supabase auth React context
 components/auth/login-modal.tsx  # Visitor social login modal
 components/auth/optional-fields-modal.tsx
 actions/admin.ts                 # Admin CRUD server actions
+actions/resume.ts                # Resume download server action (signed URL generation)
 app/admin/layout.tsx
 app/admin/page.tsx
 app/admin/login/page.tsx
@@ -539,19 +561,19 @@ app/admin/visitors/page.tsx
 
 ### Modified Files
 
-```
+```tree
 package.json                     # Add @supabase/supabase-js, @supabase/ssr
 app/layout.tsx                   # Wrap with AuthProvider
-app/page.tsx                     # Convert to server component, fetch data
+app/page.tsx                     # Remove 'use client', convert to server component, fetch data
 components/intro.tsx             # Props instead of hardcoded data, auth-gated download
 components/about.tsx             # Props instead of hardcoded data
 components/contact.tsx           # Props + session pre-fill
-components/experience.tsx        # Props instead of imported data
+components/experience.tsx        # Props instead of imported data, icon string→component mapping
 components/projects.tsx          # Props instead of imported data
 components/skills.tsx            # Props instead of imported data
 components/header.tsx            # Props instead of imported data
 components/companies-slider.tsx  # Props instead of imported data
-components/command-palette.tsx   # Props + auth-gated resume action
+components/command-palette.tsx   # Props + auth-gated resume download (wraps server action call)
 components/footer.tsx            # Props instead of hardcoded data
 lib/types.ts                     # Extended with Supabase types
 .env.example                     # Add Supabase env vars
@@ -560,7 +582,7 @@ lib/types.ts                     # Extended with Supabase types
 
 ### Eventually Deprecated
 
-```
+```tree
 lib/data.ts                      # Kept as fallback initially, removed once Supabase is stable
 ```
 
