@@ -16,6 +16,7 @@
 ## Executive Summary
 
 Next.js 16 is a significant release focused on:
+
 - **Turbopack as default bundler** (2-5x faster builds)
 - **`next lint` command removed** - must migrate to ESLint CLI
 - **Middleware renamed to Proxy** (`middleware.ts` → `proxy.ts`)
@@ -25,16 +26,16 @@ Next.js 16 is a significant release focused on:
 
 ### Impact Assessment for This Project
 
-| Area | Impact | Notes |
-|------|--------|-------|
-| `next lint` removal | **HIGH** | Must migrate lint script to ESLint CLI |
-| Turbopack default | LOW | No custom webpack config, should work |
-| Async APIs | NONE | Not using `cookies()`, `headers()`, `params`, `searchParams` |
-| Middleware → Proxy | NONE | No middleware.ts file exists |
-| Image config | LOW | May need to add `images.qualities` config |
-| Node.js version | NONE | Already on v24.11.0 (exceeds 20.9.0 minimum) |
-| React version | NONE | Already on React 19.2.4 |
-| CI/CD | MEDIUM | Need to update lint command in CI |
+| Area                | Impact   | Notes                                                        |
+| ------------------- | -------- | ------------------------------------------------------------ |
+| `next lint` removal | **HIGH** | Must migrate lint script to ESLint CLI                       |
+| Turbopack default   | LOW      | No custom webpack config, should work                        |
+| Async APIs          | NONE     | Not using `cookies()`, `headers()`, `params`, `searchParams` |
+| Middleware → Proxy  | NONE     | No middleware.ts file exists                                 |
+| Image config        | LOW      | May need to add `images.qualities` config                    |
+| Node.js version     | NONE     | Already on v24.11.0 (exceeds 20.9.0 minimum)                 |
+| React version       | NONE     | Already on React 19.2.4                                      |
+| CI/CD               | MEDIUM   | Need to update lint command in CI                            |
 
 ---
 
@@ -42,43 +43,43 @@ Next.js 16 is a significant release focused on:
 
 ### Codebase Analysis
 
-| Check | Status | Notes |
-|-------|--------|-------|
-| Using `cookies()`, `headers()`, `draftMode()` | Not used | No async API migration needed |
-| Using `params` or `searchParams` props | Not used | No async prop migration needed |
-| Has `middleware.ts` | Not present | No proxy migration needed |
-| Using `next lint` | Yes | **MUST migrate to ESLint CLI** |
-| Custom webpack config | Not present | Turbopack should work seamlessly |
-| Using `experimental.turbopack` | Not present | N/A |
-| Using `experimental.ppr` | Not present | N/A |
-| Using `images.qualities` | Not present | Add to config (already noted in CLAUDE.md) |
-| Has parallel routes | Not present | N/A |
-| Uses AMP | Not present | N/A |
-| Uses `serverRuntimeConfig`/`publicRuntimeConfig` | Not present | N/A |
+| Check                                            | Status      | Notes                                      |
+| ------------------------------------------------ | ----------- | ------------------------------------------ |
+| Using `cookies()`, `headers()`, `draftMode()`    | Not used    | No async API migration needed              |
+| Using `params` or `searchParams` props           | Not used    | No async prop migration needed             |
+| Has `middleware.ts`                              | Not present | No proxy migration needed                  |
+| Using `next lint`                                | Yes         | **MUST migrate to ESLint CLI**             |
+| Custom webpack config                            | Not present | Turbopack should work seamlessly           |
+| Using `experimental.turbopack`                   | Not present | N/A                                        |
+| Using `experimental.ppr`                         | Not present | N/A                                        |
+| Using `images.qualities`                         | Not present | Add to config (already noted in CLAUDE.md) |
+| Has parallel routes                              | Not present | N/A                                        |
+| Uses AMP                                         | Not present | N/A                                        |
+| Uses `serverRuntimeConfig`/`publicRuntimeConfig` | Not present | N/A                                        |
 
 ### Dependencies to Update
 
-| Package | Current | Target | Breaking Changes |
-|---------|---------|--------|------------------|
-| next | ^15.5.12 | ^16.x | Major release - see details below |
-| react | ^19.2.4 | ^19.2.x | Already compatible |
-| react-dom | ^19.2.4 | ^19.2.x | Already compatible |
-| eslint-config-next | ^15.5.12 | ^16.x | ESLint Flat Config default |
-| @types/react | ^19.2.14 | ^19.2.x | Keep current |
-| @types/react-dom | ^19.2.3 | ^19.2.x | Keep current |
+| Package            | Current  | Target  | Breaking Changes                  |
+| ------------------ | -------- | ------- | --------------------------------- |
+| next               | ^15.5.12 | ^16.x   | Major release - see details below |
+| react              | ^19.2.4  | ^19.2.x | Already compatible                |
+| react-dom          | ^19.2.4  | ^19.2.x | Already compatible                |
+| eslint-config-next | ^15.5.12 | ^16.x   | ESLint Flat Config default        |
+| @types/react       | ^19.2.14 | ^19.2.x | Keep current                      |
+| @types/react-dom   | ^19.2.3  | ^19.2.x | Keep current                      |
 
 ### Third-Party Library Compatibility
 
-| Library | Version | React 19 + Next 16 | Notes |
-|---------|---------|-------------------|-------|
-| framer-motion | ^12.34.0 | ✅ Compatible | Already updated for React 19 |
-| react-slick | ^0.30.3 | ✅ Compatible | Stable library |
-| react-vertical-timeline-component | ^3.6.0 | ✅ Compatible | May need `--legacy-peer-deps` |
-| @react-email/components | ^0.0.28 | ✅ Compatible | Server-side only |
-| react-hot-toast | ^2.4.1 | ✅ Compatible | Stable library |
-| react-icons | ^5.5.0 | ✅ Compatible | Icon library |
-| react-intersection-observer | ^10.0.2 | ✅ Compatible | Lightweight |
-| resend | ^4.0.0 | ✅ Compatible | Server-side only |
+| Library                           | Version  | React 19 + Next 16 | Notes                         |
+| --------------------------------- | -------- | ------------------ | ----------------------------- |
+| framer-motion                     | ^12.34.0 | ✅ Compatible      | Already updated for React 19  |
+| react-slick                       | ^0.30.3  | ✅ Compatible      | Stable library                |
+| react-vertical-timeline-component | ^3.6.0   | ✅ Compatible      | May need `--legacy-peer-deps` |
+| @react-email/components           | ^0.0.28  | ✅ Compatible      | Server-side only              |
+| react-hot-toast                   | ^2.4.1   | ✅ Compatible      | Stable library                |
+| react-icons                       | ^5.5.0   | ✅ Compatible      | Icon library                  |
+| react-intersection-observer       | ^10.0.2  | ✅ Compatible      | Lightweight                   |
+| resend                            | ^4.0.0   | ✅ Compatible      | Server-side only              |
 
 ---
 
@@ -89,11 +90,13 @@ Next.js 16 is a significant release focused on:
 The `next lint` command has been removed in Next.js 16. We must migrate to using ESLint CLI directly.
 
 **Current `package.json` script:**
+
 ```json
 "lint": "next lint"
 ```
 
 **New script after migration:**
+
 ```json
 "lint": "eslint ."
 ```
@@ -101,6 +104,7 @@ The `next lint` command has been removed in Next.js 16. We must migrate to using
 **CI/CD Impact:** The GitHub Actions workflow runs `npm run lint` which currently calls `next lint`. After migration, it will use ESLint CLI.
 
 **Action Required:**
+
 1. Update `package.json` lint script
 2. Create/update ESLint configuration (ESLint Flat Config recommended)
 3. Verify CI passes with new lint command
@@ -109,11 +113,11 @@ The `next lint` command has been removed in Next.js 16. We must migrate to using
 
 Several image configuration defaults have changed:
 
-| Setting | Old Default | New Default | Our Action |
-|---------|-------------|-------------|------------|
-| `minimumCacheTTL` | 60 seconds | 4 hours | Keep new default (better) |
-| `imageSizes` | Includes 16 | Excludes 16 | Keep new default |
-| `qualities` | All (1-100) | [75] only | Add [75, 85, 95] to config |
+| Setting           | Old Default | New Default | Our Action                 |
+| ----------------- | ----------- | ----------- | -------------------------- |
+| `minimumCacheTTL` | 60 seconds  | 4 hours     | Keep new default (better)  |
+| `imageSizes`      | Includes 16 | Excludes 16 | Keep new default           |
+| `qualities`       | All (1-100) | [75] only   | Add [75, 85, 95] to config |
 
 **Action Required:** Add `images.qualities: [75, 85, 95]` to `next.config.js` (already noted as TODO in CLAUDE.md).
 
@@ -122,6 +126,7 @@ Several image configuration defaults have changed:
 `@next/eslint-plugin-next` now defaults to ESLint Flat Config format. We should migrate to flat config.
 
 **Action Required:**
+
 - Create `eslint.config.mjs` (flat config)
 - Remove `.eslintrc.json` if exists
 - Update lint script
@@ -138,18 +143,18 @@ Turbopack is now the default bundler. Since we have no custom webpack configurat
 
 ### Low Risk
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Turbopack compatibility | Build may behave differently | Use `--webpack` flag to fall back if issues |
-| ESLint config migration | Lint may fail initially | Test lint locally before CI |
-| Image quality coercion | Images may use different quality | Explicitly set `images.qualities` array |
+| Risk                    | Impact                           | Mitigation                                  |
+| ----------------------- | -------------------------------- | ------------------------------------------- |
+| Turbopack compatibility | Build may behave differently     | Use `--webpack` flag to fall back if issues |
+| ESLint config migration | Lint may fail initially          | Test lint locally before CI                 |
+| Image quality coercion  | Images may use different quality | Explicitly set `images.qualities` array     |
 
 ### Medium Risk
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Third-party peer deps | Install warnings/failures | Continue using `--legacy-peer-deps` |
-| ESLint Flat Config | Config format completely different | Use codemod or manual migration |
+| Risk                  | Impact                             | Mitigation                          |
+| --------------------- | ---------------------------------- | ----------------------------------- |
+| Third-party peer deps | Install warnings/failures          | Continue using `--legacy-peer-deps` |
+| ESLint Flat Config    | Config format completely different | Use codemod or manual migration     |
 
 ---
 
@@ -175,6 +180,7 @@ Turbopack is now the default bundler. Since we have no custom webpack configurat
 ### Phase 1: Preparation
 
 - [ ] **1.1** Create migration branch
+
   ```bash
   git checkout main
   git pull origin main
@@ -192,6 +198,7 @@ Turbopack is now the default bundler. Since we have no custom webpack configurat
 Since `next lint` is removed in Next.js 16, we need to migrate ESLint first.
 
 - [ ] **2.1** Run Next.js ESLint migration codemod
+
   ```bash
   npx @next/codemod@canary next-lint-to-eslint-cli .
   ```
@@ -199,10 +206,11 @@ Since `next lint` is removed in Next.js 16, we need to migrate ESLint first.
 - [ ] **2.2** If codemod fails, manually create ESLint Flat Config
 
   Create `eslint.config.mjs`:
+
   ```javascript
-  import { dirname } from "path";
-  import { fileURLToPath } from "url";
-  import { FlatCompat } from "@eslint/eslintrc";
+  import { dirname } from 'path';
+  import { fileURLToPath } from 'url';
+  import { FlatCompat } from '@eslint/eslintrc';
 
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
@@ -211,19 +219,19 @@ Since `next lint` is removed in Next.js 16, we need to migrate ESLint first.
     baseDirectory: __dirname,
   });
 
-  const eslintConfig = [
-    ...compat.extends("next/core-web-vitals"),
-  ];
+  const eslintConfig = [...compat.extends('next/core-web-vitals')];
 
   export default eslintConfig;
   ```
 
 - [ ] **2.3** Update `package.json` lint script
+
   ```json
   "lint": "eslint ."
   ```
 
 - [ ] **2.4** Install ESLint dependencies if needed
+
   ```bash
   npm install -D @eslint/eslintrc --legacy-peer-deps
   ```
@@ -236,6 +244,7 @@ Since `next lint` is removed in Next.js 16, we need to migrate ESLint first.
 ### Phase 3: Update Dependencies
 
 - [ ] **3.1** Run Next.js upgrade codemod (recommended)
+
   ```bash
   npx @next/codemod@canary upgrade latest
   ```
@@ -246,6 +255,7 @@ Since `next lint` is removed in Next.js 16, we need to migrate ESLint first.
   - Apply necessary code transformations
 
 - [ ] **3.2** If codemod fails, update manually
+
   ```bash
   npm install next@latest --legacy-peer-deps
   npm install eslint-config-next@latest --legacy-peer-deps
@@ -289,12 +299,14 @@ Since `next lint` is removed in Next.js 16, we need to migrate ESLint first.
 ### Phase 5: Build & Test
 
 - [ ] **5.1** Clear build cache
+
   ```bash
   rm -rf .next
   rm -rf node_modules/.cache
   ```
 
 - [ ] **5.2** Install fresh dependencies
+
   ```bash
   rm -rf node_modules
   rm package-lock.json
@@ -302,11 +314,13 @@ Since `next lint` is removed in Next.js 16, we need to migrate ESLint first.
   ```
 
 - [ ] **5.3** Run linter
+
   ```bash
   npm run lint
   ```
 
 - [ ] **5.4** Run build
+
   ```bash
   npm run build
   ```
@@ -357,6 +371,7 @@ Since `next lint` is removed in Next.js 16, we need to migrate ESLint first.
 ### Phase 8: Commit & Deploy
 
 - [ ] **8.1** Commit changes
+
   ```bash
   git add .
   git commit -m "Migrate to Next.js 16
@@ -380,6 +395,7 @@ Since `next lint` is removed in Next.js 16, we need to migrate ESLint first.
   ```
 
 - [ ] **8.2** Push and create PR
+
   ```bash
   git push -u origin feature/nextjs-16-migration
   gh pr create --title "Migrate to Next.js 16" --body "..."
@@ -398,38 +414,38 @@ Since `next lint` is removed in Next.js 16, we need to migrate ESLint first.
 
 ### Functionality Checks
 
-| Check | Expected Result | Status |
-|-------|-----------------|--------|
-| Home page loads | All sections visible | [ ] |
-| Navigation works | Smooth scroll to sections | [ ] |
-| Dark mode toggle | Theme switches correctly | [ ] |
-| Animations work | Framer Motion animations play | [ ] |
-| Contact form | Form submits (if API key set) | [ ] |
-| External links | Open in new tabs | [ ] |
-| Resume download | PDF downloads correctly | [ ] |
-| Mobile responsive | Layout adapts correctly | [ ] |
-| Companies slider | Carousel works | [ ] |
-| Experience timeline | Timeline renders correctly | [ ] |
+| Check               | Expected Result               | Status |
+| ------------------- | ----------------------------- | ------ |
+| Home page loads     | All sections visible          | [ ]    |
+| Navigation works    | Smooth scroll to sections     | [ ]    |
+| Dark mode toggle    | Theme switches correctly      | [ ]    |
+| Animations work     | Framer Motion animations play | [ ]    |
+| Contact form        | Form submits (if API key set) | [ ]    |
+| External links      | Open in new tabs              | [ ]    |
+| Resume download     | PDF downloads correctly       | [ ]    |
+| Mobile responsive   | Layout adapts correctly       | [ ]    |
+| Companies slider    | Carousel works                | [ ]    |
+| Experience timeline | Timeline renders correctly    | [ ]    |
 
 ### Performance Checks
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| Lighthouse Performance | 90+ | [ ] |
-| Lighthouse Accessibility | 90+ | [ ] |
-| Lighthouse Best Practices | 90+ | [ ] |
-| Lighthouse SEO | 90+ | [ ] |
-| Build time | Faster than v15 (Turbopack) | [ ] |
-| Dev server startup | Faster than v15 (Turbopack) | [ ] |
+| Metric                    | Target                      | Status |
+| ------------------------- | --------------------------- | ------ |
+| Lighthouse Performance    | 90+                         | [ ]    |
+| Lighthouse Accessibility  | 90+                         | [ ]    |
+| Lighthouse Best Practices | 90+                         | [ ]    |
+| Lighthouse SEO            | 90+                         | [ ]    |
+| Build time                | Faster than v15 (Turbopack) | [ ]    |
+| Dev server startup        | Faster than v15 (Turbopack) | [ ]    |
 
 ### CI/CD Checks
 
-| Check | Status |
-|-------|--------|
-| GitHub Actions lint job passes | [ ] |
-| GitHub Actions build job passes | [ ] |
-| Lighthouse CI passes | [ ] |
-| Vercel preview deployment works | [ ] |
+| Check                           | Status |
+| ------------------------------- | ------ |
+| GitHub Actions lint job passes  | [ ]    |
+| GitHub Actions build job passes | [ ]    |
+| Lighthouse CI passes            | [ ]    |
+| Vercel preview deployment works | [ ]    |
 
 ---
 
@@ -438,18 +454,21 @@ Since `next lint` is removed in Next.js 16, we need to migrate ESLint first.
 If critical issues are found after migration:
 
 1. **Revert the PR** (if not merged)
+
    ```bash
    git checkout main
    git branch -D feature/nextjs-16-migration
    ```
 
 2. **Revert the merge** (if merged)
+
    ```bash
    git revert <merge-commit-hash>
    git push origin main
    ```
 
 3. **Pin to previous versions** in `package.json`:
+
    ```json
    {
      "next": "^15.5.12",
@@ -473,6 +492,7 @@ If critical issues are found after migration:
 ### Issue: Third-party library peer dependency warnings
 
 **Workaround:** Continue using `--legacy-peer-deps` flag
+
 ```bash
 npm install --legacy-peer-deps
 ```
@@ -480,6 +500,7 @@ npm install --legacy-peer-deps
 ### Issue: ESLint Flat Config migration fails
 
 **Workaround:** Keep using `.eslintrc.json` with compatibility layer
+
 ```bash
 npm install -D @eslint/eslintrc
 ```
@@ -487,6 +508,7 @@ npm install -D @eslint/eslintrc
 ### Issue: Turbopack build issues
 
 **Workaround:** Use Webpack fallback
+
 ```bash
 npm run build -- --webpack
 # Or update package.json:
@@ -504,6 +526,7 @@ npm run build -- --webpack
 After migration, these Next.js 16 features become available:
 
 ### Cache Components (Optional)
+
 ```javascript
 // next.config.js
 const nextConfig = {
@@ -512,15 +535,18 @@ const nextConfig = {
 ```
 
 ### React Compiler (Optional)
+
 ```javascript
 // next.config.js
 const nextConfig = {
   reactCompiler: true,
 };
 ```
+
 Requires: `npm install -D babel-plugin-react-compiler`
 
 ### Turbopack File System Caching (Beta)
+
 ```javascript
 // next.config.js
 const nextConfig = {
@@ -553,11 +579,13 @@ This migration is **relatively straightforward** for this portfolio project beca
 5. **Already on Node.js 24** - Exceeds minimum requirement
 
 The main work involves:
+
 1. **ESLint migration** - Moving from `next lint` to ESLint CLI
 2. **Image config** - Adding `images.qualities` array
 3. **Testing** - Verifying everything works with Turbopack
 
 Expected benefits:
+
 - **2-5x faster builds** with Turbopack
 - **Up to 10x faster Fast Refresh** in development
 - **Better caching** with new image defaults

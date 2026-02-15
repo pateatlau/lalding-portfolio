@@ -1,9 +1,11 @@
 # Next.js 14 Migration Plan
 
 ## Overview
+
 This document outlines the migration plan for upgrading the portfolio project from Next.js 13.4.8 to Next.js 14.x. The migration addresses breaking changes and updates dependencies accordingly.
 
 ## Prerequisites
+
 - Node.js 18.17 or higher (Next.js 14 requirement)
 - Current Next.js version: 13.4.8
 - Target Next.js version: 14.2.0 (or latest 14.x)
@@ -11,14 +13,17 @@ This document outlines the migration plan for upgrading the portfolio project fr
 ## Breaking Changes Affecting This Project
 
 ### 1. Server Actions No Longer Experimental
+
 Server Actions are now stable in Next.js 14, so the experimental flag must be removed.
 
 ### 2. useFormStatus Hook Stable
+
 The `experimental_useFormStatus` hook is now stable and should be imported directly as `useFormStatus`.
 
 ## Migration Steps
 
 ### Step 1: Update Dependencies
+
 **File**: `package.json`
 
 Update the following dependencies:
@@ -26,12 +31,12 @@ Update the following dependencies:
 ```json
 {
   "dependencies": {
-    "next": "^14.2.0",  // Update from 13.4.8
-    "react": "^18.2.0",  // Keep compatible version
-    "react-dom": "^18.2.0",  // Keep compatible version
-    "eslint-config-next": "^14.2.0",  // Update from 13.4.7
-    "@types/react": "^18.2.0",  // Update if needed
-    "@types/react-dom": "^18.2.0"  // Update if needed
+    "next": "^14.2.0", // Update from 13.4.8
+    "react": "^18.2.0", // Keep compatible version
+    "react-dom": "^18.2.0", // Keep compatible version
+    "eslint-config-next": "^14.2.0", // Update from 13.4.7
+    "@types/react": "^18.2.0", // Update if needed
+    "@types/react-dom": "^18.2.0" // Update if needed
   }
 }
 ```
@@ -39,9 +44,11 @@ Update the following dependencies:
 **Action**: Update these versions in `package.json` and run `npm install`.
 
 ### Step 2: Remove Experimental Server Actions Flag
+
 **File**: `next.config.js`
 
 **Current configuration**:
+
 ```javascript
 const nextConfig = {
   images: {
@@ -53,12 +60,13 @@ const nextConfig = {
     ],
   },
   experimental: {
-    serverActions: true,  // Remove this
+    serverActions: true, // Remove this
   },
 };
 ```
 
 **Updated configuration**:
+
 ```javascript
 const nextConfig = {
   images: {
@@ -76,14 +84,17 @@ const nextConfig = {
 **Action**: Remove the `experimental.serverActions: true` line from `next.config.js`.
 
 ### Step 3: Fix useFormStatus Import
+
 **File**: `components/submit-btn.tsx`
 
 **Current code** (line 3):
+
 ```typescript
 import { experimental_useFormStatus as useFormStatus } from 'react-dom';
 ```
 
 **Updated code**:
+
 ```typescript
 import { useFormStatus } from 'react-dom';
 ```
@@ -91,19 +102,23 @@ import { useFormStatus } from 'react-dom';
 **Action**: Replace the experimental import with the stable import.
 
 ### Step 4: Update Dockerfile (Optional but Recommended)
+
 **File**: `Dockerfile`
 
 **Current configuration**:
+
 ```dockerfile
 FROM node:18-alpine
 ```
 
 **Recommended update**:
+
 ```dockerfile
 FROM node:18.17-alpine
 ```
 
 Or for better future compatibility:
+
 ```dockerfile
 FROM node:20-alpine
 ```
@@ -151,6 +166,7 @@ If issues arise after migration:
 **Risk Level**: Low
 
 **Reasoning**:
+
 - The codebase uses standard Next.js 13 App Router patterns
 - Only one breaking change affects this project (`useFormStatus`)
 - Server Actions are already properly implemented
@@ -178,4 +194,3 @@ Once Next.js 14 migration is complete and verified:
 
 - [Next.js 14 Upgrade Guide](https://nextjs.org/docs/app/building-your-application/upgrading/version-14)
 - [Next.js 14 Release Notes](https://nextjs.org/blog/next-14)
-

@@ -7,22 +7,22 @@ This document provides context for AI assistants working on this codebase.
 **Lalding's Portfolio Website** - A personal portfolio site for Laldingliana Tlau Vantawl, a Full-stack Tech Lead with 15+ years of experience.
 
 - **Live URL**: https://lalding.in/
-- **Framework**: Next.js 14 with App Router
+- **Framework**: Next.js 16 with App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS with dark mode support
 
 ## Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| Framework | Next.js 14.2.0 (App Router) |
-| UI | React 18.3.0, TypeScript 5.1.5 |
-| Styling | Tailwind CSS 3.3.2, PostCSS |
-| Animation | Framer Motion 10.12.17 |
-| Forms/Email | Resend API, React Email |
-| Icons | React Icons |
-| Timeline | react-vertical-timeline-component |
-| Carousel | React Slick |
+| Category    | Technology                        |
+| ----------- | --------------------------------- |
+| Framework   | Next.js 16.1.6 (App Router)       |
+| UI          | React 19.2.4, TypeScript 5.1.5    |
+| Styling     | Tailwind CSS 4.1.18, PostCSS      |
+| Animation   | Framer Motion 12.34.0             |
+| Forms/Email | Resend API, React Email           |
+| Icons       | React Icons                       |
+| Timeline    | react-vertical-timeline-component |
+| Carousel    | React Slick                       |
 
 ## Project Structure
 
@@ -77,23 +77,27 @@ npm run lint     # Run ESLint
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
+| Variable         | Description                      |
+| ---------------- | -------------------------------- |
 | `RESEND_API_KEY` | API key for Resend email service |
 
 ## Key Patterns
 
 ### Server Actions
+
 Contact form uses React Server Actions in `actions/sendEmail.ts`.
 
 ### Context Providers
+
 - `ThemeContextProvider` - Manages dark/light theme
 - `ActiveSectionContextProvider` - Tracks current navigation section
 
 ### Custom Hooks
+
 - `useSectionInView()` - Intersection Observer for section tracking
 
 ### Animation
+
 Framer Motion is used throughout for scroll-triggered animations and transitions.
 
 ---
@@ -101,10 +105,12 @@ Framer Motion is used throughout for scroll-triggered animations and transitions
 ## Git Workflow
 
 **Branching Strategy**: Trunk-based development
+
 - `main` - Production branch
 - `feature/*` - Feature branches merged directly to main via PR
 
 **CI/CD**: GitHub Actions (`.github/workflows/ci.yml`)
+
 - Lint → Build pipeline
 - Lighthouse CI for performance audits on PRs
 - Deploy job (currently disabled - see TODO below)
@@ -113,9 +119,9 @@ Framer Motion is used throughout for scroll-triggered animations and transitions
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| [`docs/ui-ux-design.md`](docs/ui-ux-design.md) | Comprehensive UI/UX modernization plan |
+| Document                                                                           | Description                                   |
+| ---------------------------------------------------------------------------------- | --------------------------------------------- |
+| [`docs/ui-ux-design.md`](docs/ui-ux-design.md)                                     | Comprehensive UI/UX modernization plan        |
 | [`docs/improvements-and-optimizations.md`](docs/improvements-and-optimizations.md) | Known issues and optimization recommendations |
 
 ---

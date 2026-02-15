@@ -18,13 +18,13 @@ This document outlines the comprehensive UI/UX modernization plan for Lalding's 
 
 ### Visual Identity
 
-| Element | Current | Proposed |
-|---------|---------|----------|
-| Primary Color | Gray-based | Deep navy with accent gradients |
-| Typography | Inter | Inter + JetBrains Mono (code) |
-| Spacing | Inconsistent | 8px grid system |
-| Border Radius | Mixed | Consistent rounded-lg (12px) |
-| Shadows | Basic | Layered, subtle depth |
+| Element       | Current      | Proposed                        |
+| ------------- | ------------ | ------------------------------- |
+| Primary Color | Gray-based   | Deep navy with accent gradients |
+| Typography    | Inter        | Inter + JetBrains Mono (code)   |
+| Spacing       | Inconsistent | 8px grid system                 |
+| Border Radius | Mixed        | Consistent rounded-lg (12px)    |
+| Shadows       | Basic        | Layered, subtle depth           |
 
 ---
 
@@ -33,6 +33,7 @@ This document outlines the comprehensive UI/UX modernization plan for Lalding's 
 ### Recommended: shadcn/ui + Radix
 
 **Why shadcn/ui?**
+
 - Copy-paste components (not a dependency)
 - Built on Radix primitives (accessibility built-in)
 - Tailwind CSS native
@@ -73,6 +74,7 @@ components/
 ### 1. Hero Section
 
 **Current State:**
+
 - Static profile image
 - Basic text introduction
 - Standard CTA buttons
@@ -106,6 +108,7 @@ components/
 ```
 
 **Interactions:**
+
 - Gradient blob follows cursor subtly (parallax)
 - Profile image has subtle floating animation
 - Typewriter effect cycles through titles
@@ -113,6 +116,7 @@ components/
 - Scroll indicator bounces to draw attention
 
 **Implementation:**
+
 ```tsx
 // Gradient blob with cursor follow
 const GradientBlob = () => {
@@ -120,11 +124,9 @@ const GradientBlob = () => {
 
   return (
     <motion.div
-      className="absolute w-[500px] h-[500px] rounded-full
-                 bg-gradient-to-r from-purple-500/30 to-cyan-500/30
-                 blur-3xl"
+      className="absolute h-[500px] w-[500px] rounded-full bg-gradient-to-r from-purple-500/30 to-cyan-500/30 blur-3xl"
       animate={{ x: position.x * 0.1, y: position.y * 0.1 }}
-      transition={{ type: "spring", damping: 30 }}
+      transition={{ type: 'spring', damping: 30 }}
     />
   );
 };
@@ -135,6 +137,7 @@ const GradientBlob = () => {
 ### 2. About Section
 
 **Current State:**
+
 - Text-heavy paragraph
 - Basic card layout
 
@@ -175,6 +178,7 @@ const GradientBlob = () => {
 ```
 
 **Interactions:**
+
 - Stats animate on scroll into view (count up)
 - Bento cards have tilt effect on hover (react-tilt)
 - Cards reveal additional info on hover
@@ -185,6 +189,7 @@ const GradientBlob = () => {
 ### 3. Projects Section
 
 **Current State:**
+
 - Vertical card list
 - Basic hover effects
 - Limited interactivity
@@ -229,6 +234,7 @@ const GradientBlob = () => {
 ```
 
 **Interactions:**
+
 - Filter tabs animate project transitions
 - Cards flip or expand on click for details
 - Image parallax on scroll
@@ -236,6 +242,7 @@ const GradientBlob = () => {
 - Project card hover reveals quick actions
 
 **New Features:**
+
 - Case study modal/page for each project
 - GitHub stats integration (stars, forks)
 - Live preview iframe option
@@ -245,6 +252,7 @@ const GradientBlob = () => {
 ### 4. Skills Section
 
 **Current State:**
+
 - Flat list of skill badges
 - No hierarchy or grouping
 
@@ -290,6 +298,7 @@ const GradientBlob = () => {
 ```
 
 **Interactions:**
+
 - Skill badges animate in with stagger
 - Hover shows proficiency level (years/projects)
 - Click filters projects by that skill
@@ -300,6 +309,7 @@ const GradientBlob = () => {
 ### 5. Experience Section
 
 **Current State:**
+
 - react-vertical-timeline-component
 - Linear, predictable layout
 
@@ -348,6 +358,7 @@ const GradientBlob = () => {
 ```
 
 **Interactions:**
+
 - Cards reveal with scroll-triggered animations
 - Timeline progress fills as you scroll
 - Expandable cards for more details
@@ -358,6 +369,7 @@ const GradientBlob = () => {
 ### 6. Contact Section
 
 **Current State:**
+
 - Basic contact form
 - Minimal styling
 
@@ -398,6 +410,7 @@ const GradientBlob = () => {
 ```
 
 **Interactions:**
+
 - Form inputs have floating labels
 - Real-time validation with helpful error states
 - Submit button has loading state animation
@@ -503,8 +516,8 @@ const fadeUpVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: "easeOut" }
-  }
+    transition: { duration: 0.6, ease: 'easeOut' },
+  },
 };
 
 // Stagger children animation
@@ -514,22 +527,22 @@ const staggerContainer = {
     opacity: 1,
     transition: {
       staggerChildren: 0.1,
-      delayChildren: 0.2
-    }
-  }
+      delayChildren: 0.2,
+    },
+  },
 };
 ```
 
 ### Micro-interactions
 
-| Element | Trigger | Animation |
-|---------|---------|-----------|
-| Buttons | Hover | Scale 1.02 + shadow lift |
-| Cards | Hover | Subtle tilt (3D) + border glow |
-| Links | Hover | Underline slide in |
-| Icons | Hover | Rotate/bounce |
-| Form inputs | Focus | Border color + label float |
-| Submit | Loading | Spinner + text change |
+| Element     | Trigger | Animation                      |
+| ----------- | ------- | ------------------------------ |
+| Buttons     | Hover   | Scale 1.02 + shadow lift       |
+| Cards       | Hover   | Subtle tilt (3D) + border glow |
+| Links       | Hover   | Underline slide in             |
+| Icons       | Hover   | Rotate/bounce                  |
+| Form inputs | Focus   | Border color + label float     |
+| Submit      | Loading | Spinner + text change          |
 
 ### Page Transitions
 
@@ -538,7 +551,7 @@ const staggerContainer = {
 const pageVariants = {
   initial: { opacity: 0, x: -20 },
   animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: 20 }
+  exit: { opacity: 0, x: 20 },
 };
 ```
 
@@ -559,8 +572,8 @@ const pageVariants = {
   --border: 214.3 31.8% 91.4%;
 
   /* Gradients */
-  --gradient-start: 192 100% 67%;  /* Cyan */
-  --gradient-end: 280 100% 70%;    /* Purple */
+  --gradient-start: 192 100% 67%; /* Cyan */
+  --gradient-end: 280 100% 70%; /* Purple */
 }
 ```
 
@@ -584,16 +597,16 @@ const pageVariants = {
 
 ```css
 /* Using Tailwind's default scale with customizations */
---text-xs: 0.75rem;      /* 12px */
---text-sm: 0.875rem;     /* 14px */
---text-base: 1rem;       /* 16px */
---text-lg: 1.125rem;     /* 18px */
---text-xl: 1.25rem;      /* 20px */
---text-2xl: 1.5rem;      /* 24px */
---text-3xl: 1.875rem;    /* 30px */
---text-4xl: 2.25rem;     /* 36px */
---text-5xl: 3rem;        /* 48px */
---text-6xl: 3.75rem;     /* 60px - Hero title */
+--text-xs: 0.75rem; /* 12px */
+--text-sm: 0.875rem; /* 14px */
+--text-base: 1rem; /* 16px */
+--text-lg: 1.125rem; /* 18px */
+--text-xl: 1.25rem; /* 20px */
+--text-2xl: 1.5rem; /* 24px */
+--text-3xl: 1.875rem; /* 30px */
+--text-4xl: 2.25rem; /* 36px */
+--text-5xl: 3rem; /* 48px */
+--text-6xl: 3.75rem; /* 60px - Hero title */
 ```
 
 ---
@@ -647,30 +660,35 @@ xl: 1280px  /* Desktops */
 ## Implementation Priority
 
 ### Phase 1: Foundation (Week 1)
+
 - [ ] Install shadcn/ui base components
 - [ ] Set up new color system with CSS variables
 - [ ] Implement new navigation
 - [ ] Add scroll progress indicator
 
 ### Phase 2: Hero & About (Week 2)
+
 - [ ] Redesign hero with gradient blob
 - [ ] Add typewriter effect
 - [ ] Create bento grid for about
 - [ ] Add stats counter animation
 
 ### Phase 3: Projects & Skills (Week 3)
+
 - [ ] Implement project filtering
 - [ ] Create featured project card
 - [ ] Add skill visualization
 - [ ] Project hover effects
 
 ### Phase 4: Experience & Contact (Week 4)
+
 - [ ] Redesign timeline component
 - [ ] Add scroll-triggered animations
 - [ ] Modernize contact form
 - [ ] Add success/error states
 
 ### Phase 5: Polish (Week 5)
+
 - [ ] Command palette (⌘K)
 - [ ] Page transitions
 - [ ] Mobile optimizations

@@ -184,14 +184,7 @@ export const projectsData = [
     title: 'Weather App',
     description:
       'Dynamic web app for weather forecast. It has features like search, weather history, and weather forecast.',
-    tags: [
-      'React',
-      'Typescript',
-      'Tailwind',
-      'Vite',
-      'React Query',
-      'Recharts',
-    ],
+    tags: ['React', 'Typescript', 'Tailwind', 'Vite', 'React Query', 'Recharts'],
     imageUrl: weatherImg,
     sourceCode: 'https://github.com/pateatlau/weather-app',
     liveSite: 'https://weather.lalding.in/',

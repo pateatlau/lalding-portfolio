@@ -1,0 +1,7 @@
+.next
+node_modules
+coverage
+playwright-report
+*.min.js
+pnpm-lock.yaml
+package-lock.json
