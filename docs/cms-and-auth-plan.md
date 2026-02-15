@@ -147,18 +147,34 @@ CREATE TABLE skills (
 -- Supabase Auth handles the auth.users table automatically.
 -- This table extends it with optional fields not available in auth.users
 -- (company, role). The email field is denormalized here for convenience
--- in admin views and CSV export; it is populated from auth.users on
--- upsert and is not the source of truth.
+-- in admin views and CSV export; it is kept in sync via a DB trigger
+-- (see below) and refreshed on every login upsert. auth.users is the
+-- source of truth for email.
 CREATE TABLE visitor_profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name TEXT,
-  email TEXT,                         -- denormalized from auth.users for admin display
+  email TEXT,                         -- denormalized from auth.users, synced via trigger
   avatar_url TEXT,
   provider TEXT,                      -- "google", "linkedin_oidc", "github"
   company TEXT,                       -- optional, asked before download
   role TEXT,                          -- optional, asked before download
   created_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Keep visitor_profiles.email in sync when auth.users.email changes
+CREATE OR REPLACE FUNCTION sync_visitor_email()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF OLD.email IS DISTINCT FROM NEW.email THEN
+    UPDATE visitor_profiles SET email = NEW.email WHERE id = NEW.id;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_email_updated
+  AFTER UPDATE OF email ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION sync_visitor_email();
 
 -- Resume download log
 CREATE TABLE resume_downloads (
@@ -236,7 +252,25 @@ CREATE POLICY "Admin read all downloads" ON resume_downloads
 
 ### 1.5 Seed Script
 
-Create `lib/supabase/seed.ts` to migrate current `lib/data.ts` + hardcoded content into the database. This ensures no data is lost during migration. The seed script maps `React.createElement()` icon calls to string identifiers and converts free-form date strings to `start_date`/`end_date` DATE values plus a `display_date` label.
+Create `lib/supabase/seed.ts` to migrate current `lib/data.ts` + hardcoded content into the database. This ensures no data is lost during migration. The seed script:
+
+- Maps `React.createElement()` icon calls to string identifiers
+- Parses free-form date strings into structured date fields using a `parseDateRange()` function
+
+**Date parsing rules** (`parseDateRange`):
+
+| Input pattern               | start_date   | end_date     | display_date    |
+| --------------------------- | ------------ | ------------ | --------------- |
+| `"Month Year - Month Year"` | 1st of month | 1st of month | original string |
+| `"Month Year - Year"`       | 1st of month | Jan 1st      | original string |
+| `"Month Year - Present"`    | 1st of month | `NULL`       | original string |
+| Year-only (e.g., `"2025"`)  | Jan 1st      | `NULL`       | original string |
+
+- "Present", "Current", and "Now" (case-insensitive) → `end_date = NULL`
+- Unparseable values → log a warning, use current date as `start_date`, `NULL` as `end_date`, and flag for manual review
+- The original string is always preserved as `display_date`
+
+Example: `"May 2023 - 2025"` → `{ start_date: "2023-05-01", end_date: "2025-01-01", display_date: "May 2023 - 2025" }`
 
 ---
 
@@ -282,7 +316,7 @@ Resume downloads are handled via a server action (not an API route), so auth is 
 3. On successful login:
    a. Upsert visitor_profiles row (name, email, avatar, provider from OAuth)
    b. If first login → show OptionalFieldsModal (company, role — skippable)
-   c. Call server action to generate a short-lived signed URL for the private resume bucket
+   c. Call server action to generate a signed URL (5-minute expiry) for the private resume bucket
    d. Log download in resume_downloads table (server-side)
    e. Return signed URL to client, trigger browser download
 4. If already authenticated → skip to step 3c
@@ -311,7 +345,21 @@ Replace static imports from `lib/data.ts` with Supabase queries. Since this is a
 | On-demand revalidation | Admin dashboard save         | Call `revalidatePath('/')` and `revalidateTag()` after admin edits  |
 | Client-side auth state | Auth context                 | Supabase real-time auth listener                                    |
 
-### 3.2 Refactor Component Architecture
+### 3.2 Cache Tag Strategy
+
+Use `revalidateTag()` for granular cache invalidation. Each data fetch is tagged, and admin actions invalidate only the relevant tag(s).
+
+| Tag           | Scope                                | Attached to                               | Invalidated by                                                   |
+| ------------- | ------------------------------------ | ----------------------------------------- | ---------------------------------------------------------------- |
+| `profile`     | Profile info, stats, contact, footer | `getProfile()`, `getProfileStats()`       | `updateProfile()`, `updateStats()`                               |
+| `experiences` | Career timeline + companies slider   | `getExperiences()`, `getCompanies()`      | `createExperience()`, `updateExperience()`, `deleteExperience()` |
+| `projects`    | Project cards + categories           | `getProjects()`, `getProjectCategories()` | `createProject()`, `updateProject()`, `deleteProject()`          |
+| `skills`      | Skill groups and individual skills   | `getSkillGroups()`                        | `createSkill()`, `updateSkill()`, `deleteSkill()`                |
+| `navigation`  | Header nav links                     | `getNavLinks()`                           | `updateNavLinks()`                                               |
+
+Tags are attached in query functions via `next: { tags: ['profile'] }` options. Admin server actions call `revalidateTag('<tag>')` after mutations, with `revalidatePath('/')` as a fallback to ensure full-page invalidation when needed.
+
+### 3.3 Refactor Component Architecture
 
 Currently `app/page.tsx` is a client component (`'use client'`) and all data-consuming components import directly from `lib/data.ts`. Refactor:
 
@@ -322,7 +370,7 @@ Currently `app/page.tsx` is a client component (`'use client'`) and all data-con
    - Auth-dependent UI (download button, contact form pre-fill)
    - Each section already has its own client component — these receive data as props instead of importing from `lib/data.ts`
 
-### 3.3 Data Fetching Functions
+### 3.4 Data Fetching Functions
 
 Create `lib/supabase/queries.ts` with typed query functions:
 
@@ -338,11 +386,11 @@ getProjects()         → Project[]
 getSkillGroups()      → SkillGroup[] (with nested skills)
 ```
 
-### 3.4 TypeScript Types
+### 3.5 TypeScript Types
 
 Create `lib/supabase/types.ts` — generate from Supabase schema using `supabase gen types typescript`. These types replace the current `lib/types.ts` and inline types in `lib/data.ts`.
 
-### 3.5 Migration Path
+### 3.6 Migration Path
 
 To avoid a big-bang migration, implement a **fallback pattern** during development only:
 
@@ -459,7 +507,7 @@ npx shadcn@latest add dropdown-menu avatar separator sheet
 ### 5.2 Resume Download (Visitor)
 
 - Authenticated visitor triggers download
-- Server action (`actions/resume.ts`) verifies auth, creates a short-lived signed URL (e.g., 60 seconds) for the private `resume` bucket, logs the download, and returns the URL
+- Server action (`actions/resume.ts`) verifies auth, creates a signed URL (300 seconds / 5 minutes, to accommodate slow connections while keeping links short-lived) for the private `resume` bucket, logs the download, and returns the URL
 - Client receives the signed URL and triggers browser download
 - Download logged in `resume_downloads`
 
@@ -498,8 +546,10 @@ Update `.env.example` and CI pipeline if needed.
 
 ### 6.3 CI/CD Updates
 
-- Add Supabase env vars to GitHub Actions secrets
-- Ensure build works without Supabase connection (fallback to static data during CI builds)
+- Add Supabase env vars to GitHub Actions secrets (use a test/staging Supabase project)
+- CI builds use real Supabase connection — if queries fail, the build fails (fail-fast strategy)
+- Add a `validate-supabase` script that tests the connection before build
+- For fork contributors without Supabase access: document that `NEXT_PUBLIC_SUPABASE_URL` must be set, and builds will use the static data fallback with a logged warning
 
 ---
 
