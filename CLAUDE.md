@@ -7,7 +7,7 @@ This document provides context for AI assistants working on this codebase.
 **Lalding's Portfolio Website** - A personal portfolio site for Laldingliana Tlau Vantawl, a Full-stack Tech Lead with 15+ years of experience.
 
 - **Live URL**: https://lalding.in/
-- **Framework**: Next.js 14 with App Router
+- **Framework**: Next.js 16 with App Router
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS with dark mode support
 
@@ -15,10 +15,10 @@ This document provides context for AI assistants working on this codebase.
 
 | Category    | Technology                        |
 | ----------- | --------------------------------- |
-| Framework   | Next.js 14.2.0 (App Router)       |
-| UI          | React 18.3.0, TypeScript 5.1.5    |
-| Styling     | Tailwind CSS 3.3.2, PostCSS       |
-| Animation   | Framer Motion 10.12.17            |
+| Framework   | Next.js 16.1.6 (App Router)       |
+| UI          | React 19.2.4, TypeScript 5.1.5    |
+| Styling     | Tailwind CSS 4.1.18, PostCSS      |
+| Animation   | Framer Motion 12.34.0             |
 | Forms/Email | Resend API, React Email           |
 | Icons       | React Icons                       |
 | Timeline    | react-vertical-timeline-component |

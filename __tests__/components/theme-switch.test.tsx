@@ -18,6 +18,7 @@ describe('ThemeSwitch', () => {
     Object.defineProperty(document.documentElement, 'classList', {
       value: mockClassList,
       writable: true,
+      configurable: true,
     });
   });
 

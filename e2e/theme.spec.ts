@@ -21,10 +21,7 @@ test.describe('Theme Toggle', () => {
     // Click to toggle
     await themeButton.click();
 
-    // Wait for theme change
-    await page.waitForTimeout(100);
-
-    // Should be opposite now
+    // Should be opposite now (Playwright auto-waits for the class change)
     if (initiallyDark) {
       await expect(html).not.toHaveClass(/dark/);
     } else {
@@ -43,7 +40,6 @@ test.describe('Theme Toggle', () => {
 
     // Toggle to opposite state
     await themeButton.click();
-    await page.waitForTimeout(100);
 
     // Verify toggle worked
     if (initiallyDark) {
@@ -67,20 +63,13 @@ test.describe('Theme Toggle', () => {
     await page.goto('/');
 
     const body = page.locator('body');
-
-    // In light mode, body should have light background
-    // In dark mode, body should have dark background
-    // We just verify the page renders without errors in both modes
-
     const themeButton = page.getByRole('button', { name: /switch to (dark|light) mode/i });
 
-    // Toggle twice to ensure both modes render
+    // Toggle twice to ensure both modes render without errors
     await themeButton.click();
-    await page.waitForTimeout(100);
     await expect(body).toBeVisible();
 
     await themeButton.click();
-    await page.waitForTimeout(100);
     await expect(body).toBeVisible();
   });
 });

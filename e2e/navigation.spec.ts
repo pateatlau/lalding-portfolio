@@ -22,7 +22,7 @@ test.describe('Navigation', () => {
     await page.getByRole('link', { name: 'About' }).click();
 
     // Check that the About section is in viewport
-    await expect(page.locator('#about')).toBeInViewport();
+    await expect(page.locator('#about')).toBeInViewport({ timeout: 3000 });
   });
 
   test('navigates to Projects section', async ({ page }) => {
@@ -32,7 +32,7 @@ test.describe('Navigation', () => {
     await page.getByRole('link', { name: 'Projects' }).click();
 
     // Check that the Projects section is in viewport
-    await expect(page.locator('#projects')).toBeInViewport();
+    await expect(page.locator('#projects')).toBeInViewport({ timeout: 3000 });
   });
 
   test('navigates to Skills section', async ({ page }) => {
@@ -42,7 +42,7 @@ test.describe('Navigation', () => {
     await page.getByRole('link', { name: 'Skills' }).click();
 
     // Check that the Skills section is in viewport
-    await expect(page.locator('#skills')).toBeInViewport();
+    await expect(page.locator('#skills')).toBeInViewport({ timeout: 3000 });
   });
 
   test('navigates to Experience section', async ({ page }) => {
@@ -52,7 +52,7 @@ test.describe('Navigation', () => {
     await page.getByRole('link', { name: 'Experience' }).click();
 
     // Check that the Experience section is in viewport
-    await expect(page.locator('#experience')).toBeInViewport();
+    await expect(page.locator('#experience')).toBeInViewport({ timeout: 3000 });
   });
 
   test('navigates to Contact section', async ({ page }) => {
@@ -62,7 +62,7 @@ test.describe('Navigation', () => {
     await page.locator('nav').getByRole('link', { name: 'Contact' }).click();
 
     // Check that the Contact section is in viewport
-    await expect(page.locator('#contact')).toBeInViewport();
+    await expect(page.locator('#contact')).toBeInViewport({ timeout: 3000 });
   });
 
   test('all navigation links are present', async ({ page }) => {

@@ -46,7 +46,7 @@ npm install --save-dev prettier eslint-config-prettier --legacy-peer-deps
 
 **`.prettierignore`**:
 
-```
+```text
 .next
 node_modules
 coverage
@@ -190,7 +190,7 @@ Object.defineProperty(window, 'matchMedia', {
 
 ### Test Structure
 
-```
+```text
 __tests__/
 ├── unit/
 │   ├── lib/
@@ -353,6 +353,7 @@ describe('ThemeSwitch', () => {
 ```typescript
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { useFormStatus } from 'react-dom';
 import SubmitBtn from '@/components/submit-btn';
 
 // Mock useFormStatus
@@ -360,7 +361,7 @@ vi.mock('react-dom', async () => {
   const actual = await vi.importActual('react-dom');
   return {
     ...actual,
-    useFormStatus: () => ({ pending: false }),
+    useFormStatus: vi.fn(() => ({ pending: false })),
   };
 });
 
@@ -431,7 +432,7 @@ export default defineConfig({
 
 ### Test Structure
 
-```
+```text
 e2e/
 ├── navigation.spec.ts      # Header navigation, section scrolling
 ├── theme.spec.ts           # Theme toggle, persistence

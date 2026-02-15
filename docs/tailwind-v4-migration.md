@@ -597,12 +597,12 @@ Only proceed with this phase if the automated upgrade tool fails.
 ### Visual Checks
 
 | Element           | Light Mode             | Dark Mode                 |
-| ----------------- | ---------------------- | ------------------------- | --- |
-| Header background | Semi-transparent white | Semi-transparent dark     | [ ] |
-| Buttons           | Correct opacity        | Correct opacity           | [ ] |
-| Input fields      | Correct styling        | White with opacity        | [ ] |
-| Section divider   | Gray                   | Gray with reduced opacity | [ ] |
-| Theme toggle      | Yellow with opacity    | Correct styling           | [ ] |
+| ----------------- | ---------------------- | ------------------------- |
+| Header background | Semi-transparent white | Semi-transparent dark     |
+| Buttons           | Correct opacity        | Correct opacity           |
+| Input fields      | Correct styling        | White with opacity        |
+| Section divider   | Gray                   | Gray with reduced opacity |
+| Theme toggle      | Yellow with opacity    | Correct styling           |
 
 ### Performance Checks
 
@@ -678,7 +678,7 @@ npm install --legacy-peer-deps
 
 ```css
 @theme {
-  --background-image-gradient-radial: radial-gradient(var(--color- *));
+  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
 }
 ```
 

@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { renderHook } from '@testing-library/react';
 import { useSectionInView } from '@/lib/hooks';
+import { useActiveSectionContext } from '@/context/active-section-context';
 import ActiveSectionContextProvider from '@/context/active-section-context';
 import { ReactNode } from 'react';
 
@@ -22,6 +23,10 @@ describe('useSectionInView', () => {
       ref: vi.fn(),
       inView: false,
     });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('returns a ref object', () => {
@@ -57,42 +62,44 @@ describe('useSectionInView', () => {
     expect(mockUseInView).toHaveBeenCalledWith({ threshold: 0.5 });
   });
 
-  it('updates active section when in view and cooldown has passed', async () => {
-    // Mock Date.now to return a time > 1000ms after last click (which starts at 0)
-    const originalDateNow = Date.now;
-    Date.now = vi.fn().mockReturnValue(2000);
+  it('updates active section when in view and cooldown has passed', () => {
+    vi.spyOn(Date, 'now').mockReturnValue(2000);
 
     mockUseInView.mockReturnValue({
       ref: vi.fn(),
       inView: true,
     });
 
-    const { result } = renderHook(() => useSectionInView('About'), { wrapper });
+    const { result } = renderHook(
+      () => ({
+        section: useSectionInView('About'),
+        context: useActiveSectionContext(),
+      }),
+      { wrapper }
+    );
 
-    // The hook should have triggered setActiveSection
-    // We can verify by checking the ref is returned (hook completed without error)
-    expect(result.current.ref).toBeDefined();
-
-    // Restore Date.now
-    Date.now = originalDateNow;
+    expect(result.current.context.activeSection).toBe('About');
   });
 
   it('does not update active section during cooldown period', () => {
-    // Mock Date.now to return a time within cooldown (< 1000ms after last click)
-    const originalDateNow = Date.now;
-    Date.now = vi.fn().mockReturnValue(500);
+    vi.spyOn(Date, 'now').mockReturnValue(500);
 
     mockUseInView.mockReturnValue({
       ref: vi.fn(),
       inView: true,
     });
 
-    const { result } = renderHook(() => useSectionInView('Projects'), { wrapper });
+    const { result } = renderHook(
+      () => ({
+        section: useSectionInView('Projects'),
+        context: useActiveSectionContext(),
+      }),
+      { wrapper }
+    );
 
-    // Hook should still return ref without error
-    expect(result.current.ref).toBeDefined();
-
-    Date.now = originalDateNow;
+    // timeOfLastClick defaults to 0, Date.now() returns 500, cooldown is 1000ms
+    // 500 - 0 = 500 < 1000, so section should NOT update
+    expect(result.current.context.activeSection).toBe('Home');
   });
 
   it('does not update active section when not in view', () => {
@@ -101,8 +108,14 @@ describe('useSectionInView', () => {
       inView: false,
     });
 
-    const { result } = renderHook(() => useSectionInView('Skills'), { wrapper });
+    const { result } = renderHook(
+      () => ({
+        section: useSectionInView('Skills'),
+        context: useActiveSectionContext(),
+      }),
+      { wrapper }
+    );
 
-    expect(result.current.ref).toBeDefined();
+    expect(result.current.context.activeSection).toBe('Home');
   });
 });

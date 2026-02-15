@@ -55,17 +55,15 @@ test.describe('Accessibility', () => {
     expect(count).toBeGreaterThan(0);
   });
 
-  test('color contrast is maintained in both themes', async ({ page }) => {
+  test('page remains visible after theme toggle', async ({ page }) => {
     await page.goto('/');
 
-    // Check page is readable (basic check)
     const body = page.locator('body');
     await expect(body).toBeVisible();
 
-    // Toggle theme and check again
+    // Toggle theme and verify page still renders
     const themeButton = page.getByRole('button', { name: /switch to (dark|light) mode/i });
     await themeButton.click();
-    await page.waitForTimeout(100);
 
     await expect(body).toBeVisible();
   });
@@ -84,18 +82,18 @@ test.describe('Accessibility', () => {
     }
   });
 
-  test('form inputs have associated labels', async ({ page }) => {
+  test('form inputs have placeholder text', async ({ page }) => {
     await page.goto('/');
 
     // Navigate to contact via nav link
     await page.locator('nav').getByRole('link', { name: 'Contact' }).click();
 
-    // Check email input has label or placeholder
+    // Check email input has placeholder
     const emailInput = page.locator('input[name="senderEmail"]');
     const emailPlaceholder = await emailInput.getAttribute('placeholder');
     expect(emailPlaceholder?.length).toBeGreaterThan(0);
 
-    // Check message textarea has label or placeholder
+    // Check message textarea has placeholder
     const messageInput = page.locator('textarea[name="message"]');
     const messagePlaceholder = await messageInput.getAttribute('placeholder');
     expect(messagePlaceholder?.length).toBeGreaterThan(0);

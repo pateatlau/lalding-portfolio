@@ -26,6 +26,7 @@ describe('ThemeContextProvider', () => {
     Object.defineProperty(document.documentElement, 'classList', {
       value: mockClassList,
       writable: true,
+      configurable: true,
     });
   });
 
@@ -74,7 +75,7 @@ describe('ThemeContextProvider', () => {
     const { result } = renderHook(() => useTheme(), { wrapper });
 
     await waitFor(() => {
-      // Wait for initial effect
+      expect(localStorage.getItem).toHaveBeenCalledWith('theme');
     });
 
     act(() => {
@@ -101,6 +102,7 @@ describe('useTheme', () => {
     Object.defineProperty(document.documentElement, 'classList', {
       value: mockClassList,
       writable: true,
+      configurable: true,
     });
   });
 
@@ -129,6 +131,7 @@ describe('Theme toggle button integration', () => {
     Object.defineProperty(document.documentElement, 'classList', {
       value: mockClassList,
       writable: true,
+      configurable: true,
     });
   });
 
