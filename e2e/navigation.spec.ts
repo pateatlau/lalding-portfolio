@@ -71,9 +71,7 @@ test.describe('Navigation', () => {
     const links = ['Home', 'About', 'Projects', 'Skills', 'Experience', 'Contact'];
 
     for (const link of links) {
-      await expect(
-        page.locator('nav').getByRole('link', { name: link }),
-      ).toBeVisible();
+      await expect(page.locator('nav').getByRole('link', { name: link })).toBeVisible();
     }
   });
 });
