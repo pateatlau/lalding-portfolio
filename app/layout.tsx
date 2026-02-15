@@ -67,7 +67,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className="!scroll-smooth"
+      className="scroll-smooth!"
     >
       <head>
         <link
@@ -107,7 +107,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.className} bg-gray-50 text-gray-950 relative pt-28 sm:pt-36 dark:bg-gray-900 dark:text-gray-50 dark:text-opacity-90`}
+        className={`${inter.className} bg-gray-50 text-gray-950 relative pt-28 sm:pt-36 dark:bg-gray-900 dark:text-gray-50/90`}
         suppressHydrationWarning
       >
         <a
@@ -116,8 +116,8 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <div className="bg-[#fbe2e3] absolute top-[-6rem] -z-10 right-[11rem] h-[31.25rem] w-[31.25rem] rounded-full blur-[10rem] sm:w-[68.75rem] dark:bg-[#946263]"></div>
-        <div className="bg-[#dbd7fb] absolute top-[-1rem] -z-10 left-[-35rem] h-[31.25rem] w-[50rem] rounded-full blur-[10rem] sm:w-[68.75rem] md:left-[-33rem] lg:left-[-28rem] xl:left-[-15rem] 2xl:left-[-5rem] dark:bg-[#676394]"></div>
+        <div className="bg-[#fbe2e3] absolute -top-24 -z-10 right-44 h-[31.25rem] w-[31.25rem] rounded-full blur-[10rem] sm:w-[68.75rem] dark:bg-[#946263]"></div>
+        <div className="bg-[#dbd7fb] absolute -top-4 -z-10 -left-[35rem] h-[31.25rem] w-[50rem] rounded-full blur-[10rem] sm:w-[68.75rem] md:-left-[33rem] lg:-left-[28rem] xl:-left-60 2xl:-left-20 dark:bg-[#676394]"></div>
 
         <ThemeContextProvider>
           <ActiveSectionContextProvider>
