@@ -161,8 +161,9 @@ CREATE TABLE resume_downloads (
 );
 
 -- Admin users (subset of auth.users with admin role)
--- Managed via Supabase Auth metadata: { role: "admin" }
--- No separate table needed — use RLS policies + user_metadata.
+-- Managed via Supabase Auth app_metadata: { role: "admin" }
+-- Set server-side via Supabase Admin API (supabase.auth.admin.updateUserById)
+-- No separate table needed — use RLS policies + app_metadata.
 ```
 
 ### 1.3 Row Level Security (RLS)
@@ -177,8 +178,7 @@ CREATE POLICY "Public read" ON profile
 
 CREATE POLICY "Admin write" ON profile
   FOR ALL USING (
-    auth.jwt() ->> 'role' = 'admin'
-    OR (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'
+    (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
   );
 
 -- visitor_profiles: visitors can read/update their own row
@@ -195,7 +195,7 @@ CREATE POLICY "Users insert own profile" ON visitor_profiles
 
 CREATE POLICY "Admin read all" ON visitor_profiles
   FOR SELECT USING (
-    (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'
+    (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
   );
 
 -- resume_downloads: visitors insert own, admin read all
@@ -206,7 +206,7 @@ CREATE POLICY "Users insert own download" ON resume_downloads
 
 CREATE POLICY "Admin read all downloads" ON resume_downloads
   FOR SELECT USING (
-    (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'
+    (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
   );
 ```
 
