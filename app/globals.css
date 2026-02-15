@@ -1,8 +1,143 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
-@theme {
+/* ===== Design Tokens: Light Mode ===== */
+:root {
+  --radius: 0.625rem;
+
+  /* shadcn/ui core tokens */
+  --background: oklch(0.985 0.002 247);
+  --foreground: oklch(0.145 0.015 255);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0.015 255);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0.015 255);
+  --primary: oklch(0.205 0.015 255);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0.002 247);
+  --secondary-foreground: oklch(0.205 0.015 255);
+  --muted: oklch(0.97 0.002 247);
+  --muted-foreground: oklch(0.556 0.01 255);
+  --accent: oklch(0.97 0.002 247);
+  --accent-foreground: oklch(0.205 0.015 255);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0.004 247);
+  --input: oklch(0.922 0.004 247);
+  --ring: oklch(0.708 0.01 255);
+
+  /* Chart tokens */
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+
+  /* Custom accent tokens — teal/amber palette */
+  --accent-teal: #0d9488;
+  --accent-teal-light: #14b8a6;
+  --accent-amber: #d97706;
+  --accent-amber-light: #f59e0b;
+
+  /* Background blobs (replacing pink #fbe2e3 and purple #dbd7fb) */
+  --blob-primary: #ccfbf1;
+  --blob-secondary: #fef3c7;
+
+  /* Timeline line color */
+  --line-color: #e5e7eb;
+}
+
+/* ===== Design Tokens: Dark Mode ===== */
+.dark {
+  --background: oklch(0.16 0.015 255);
+  --foreground: oklch(0.96 0.005 255);
+  --card: oklch(0.16 0.015 255);
+  --card-foreground: oklch(0.96 0.005 255);
+  --popover: oklch(0.16 0.015 255);
+  --popover-foreground: oklch(0.96 0.005 255);
+  --primary: oklch(0.96 0.005 255);
+  --primary-foreground: oklch(0.205 0.015 255);
+  --secondary: oklch(0.22 0.012 255);
+  --secondary-foreground: oklch(0.96 0.005 255);
+  --muted: oklch(0.22 0.012 255);
+  --muted-foreground: oklch(0.708 0.01 255);
+  --accent: oklch(0.22 0.012 255);
+  --accent-foreground: oklch(0.96 0.005 255);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+
+  /* Chart tokens */
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+
+  /* Custom accent tokens — teal/amber palette (brighter for dark mode) */
+  --accent-teal: #14b8a6;
+  --accent-teal-light: #2dd4bf;
+  --accent-amber: #f59e0b;
+  --accent-amber-light: #fbbf24;
+
+  /* Background blobs (replacing #946263 and #676394) */
+  --blob-primary: #134e4a;
+  --blob-secondary: #78350f;
+
+  /* Timeline line color */
+  --line-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ===== Tailwind Theme Mappings ===== */
+@theme inline {
+  /* Radius tokens */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+
+  /* shadcn/ui core color mappings */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Custom accent color mappings (enables bg-accent-teal, text-accent-amber, etc.) */
+  --color-accent-teal: var(--accent-teal);
+  --color-accent-teal-light: var(--accent-teal-light);
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-amber-light: var(--accent-amber-light);
+
+  /* Blob color mappings (enables bg-blob-primary, bg-blob-secondary) */
+  --color-blob-primary: var(--blob-primary);
+  --color-blob-secondary: var(--blob-secondary);
+
+  /* Custom gradient utilities (preserved from original) */
   --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
   --background-image-gradient-conic: conic-gradient(
     from 180deg at 50% 50%,
@@ -10,14 +145,7 @@
   );
 }
 
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
+/* ===== Base Styles ===== */
 @layer base {
   *,
   ::after,
@@ -26,21 +154,21 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
   }
-}
 
-html {
-  --line-color: #e5e7eb;
-}
+  * {
+    @apply border-border outline-ring/50;
+  }
 
-html.dark {
-  --line-color: rgba(255, 255, 255, 0.2);
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
 .borderBlack {
   @apply border border-black/10;
 }
 
-/* Fix for react-vertical-timeline-component is-hidden class in Next.js 14 */
+/* Fix for react-vertical-timeline-component is-hidden class */
 .vertical-timeline-element.is-hidden,
 .vertical-timeline-element-icon.is-hidden,
 .vertical-timeline-element-content.is-hidden {

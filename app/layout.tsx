@@ -1,4 +1,5 @@
 import Header from '@/components/header';
+import ScrollProgress from '@/components/scroll-progress';
 import './globals.css';
 import { Inter } from 'next/font/google';
 import ActiveSectionContextProvider from '@/context/active-section-context';
@@ -95,21 +96,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body
-        className={`${inter.className} relative bg-gray-50 pt-28 text-gray-950 sm:pt-36 dark:bg-gray-900 dark:text-gray-50/90`}
-        suppressHydrationWarning
-      >
+      <body className={`${inter.className} relative pt-28 sm:pt-36`} suppressHydrationWarning>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-gray-900 focus:px-4 focus:py-2 focus:text-white dark:focus:bg-white dark:focus:text-gray-900"
         >
           Skip to main content
         </a>
-        <div className="absolute -top-24 right-44 -z-10 h-[31.25rem] w-[31.25rem] rounded-full bg-[#fbe2e3] blur-[10rem] sm:w-[68.75rem] dark:bg-[#946263]"></div>
-        <div className="absolute -top-4 -left-[35rem] -z-10 h-[31.25rem] w-[50rem] rounded-full bg-[#dbd7fb] blur-[10rem] sm:w-[68.75rem] md:-left-[33rem] lg:-left-[28rem] xl:-left-60 2xl:-left-20 dark:bg-[#676394]"></div>
+        <div className="bg-blob-primary absolute -top-24 right-44 -z-10 h-[31.25rem] w-[31.25rem] rounded-full blur-[10rem] sm:w-[68.75rem]"></div>
+        <div className="bg-blob-secondary absolute -top-4 -left-[35rem] -z-10 h-[31.25rem] w-[50rem] rounded-full blur-[10rem] sm:w-[68.75rem] md:-left-[33rem] lg:-left-[28rem] xl:-left-60 2xl:-left-20"></div>
 
         <ThemeContextProvider>
           <ActiveSectionContextProvider>
+            <ScrollProgress />
             <Header />
             <main id="main">{children}</main>
             <Footer />
