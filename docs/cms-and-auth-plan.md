@@ -86,7 +86,7 @@ CREATE TABLE nav_links (
 CREATE TABLE companies (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
-  logo_url TEXT NOT NULL,             -- Supabase Storage URL
+  logo_url TEXT NOT NULL,             -- Supabase Storage path
   sort_order INTEGER NOT NULL DEFAULT 0
 );
 
@@ -117,7 +117,8 @@ CREATE TABLE projects (
   title TEXT NOT NULL,
   description TEXT NOT NULL,
   tags TEXT[] NOT NULL,
-  image_url TEXT,                     -- Supabase Storage URL
+  image_url TEXT,                     -- Supabase Storage path (e.g. "project-images/my-project.png")
+  demo_video_url TEXT,               -- Supabase Storage path (optional, e.g. "project-videos/demo.mp4")
   source_code_url TEXT,
   live_site_url TEXT,
   category_id UUID REFERENCES project_categories(id),
@@ -248,6 +249,7 @@ CREATE POLICY "Admin read all downloads" ON resume_downloads
 | ---------------- | ------- | ------------------------------------------ |
 | `resume`         | Private | Resume PDF (served via signed URL on auth) |
 | `project-images` | Public  | Project screenshot images                  |
+| `project-videos` | Public  | Optional short demo videos for projects    |
 | `company-logos`  | Public  | Company logo images                        |
 
 ### 1.5 Seed Script
@@ -256,6 +258,7 @@ Create `lib/supabase/seed.ts` to migrate current `lib/data.ts` + hardcoded conte
 
 - Maps `React.createElement()` icon calls to string identifiers
 - Parses free-form date strings into structured date fields using a `parseDateRange()` function
+- Sets `demo_video_url` to `NULL` for all existing projects (videos will be added later via admin dashboard)
 
 **Date parsing rules** (`parseDateRange`):
 
@@ -382,7 +385,7 @@ getNavLinks()         → NavLink[]
 getCompanies()        → Company[]
 getExperiences()      → Experience[]
 getProjectCategories()→ ProjectCategory[]
-getProjects()         → Project[]
+getProjects()         → Project[] (includes optional demo_video_url)
 getSkillGroups()      → SkillGroup[] (with nested skills)
 ```
 
@@ -458,6 +461,7 @@ app/admin/
 - Card-based list of projects
 - Add/edit/delete projects
 - Upload project images
+- Upload optional demo videos (short clips hosted in Supabase Storage; YouTube embedding planned for the future but not in scope yet)
 - Manage categories
 
 **Skills** (`/admin/skills`)
@@ -515,8 +519,17 @@ npx shadcn@latest add dropdown-menu avatar separator sheet
 
 - Project images → `project-images` bucket (public)
 - Company logos → `company-logos` bucket (public)
-- On upload, generate a public URL and store in the respective table
+- On upload, store the **storage path** in the respective table; derive public URLs at read time via `getPublicUrl()`
 - Support image preview before saving
+
+### 5.4 Demo Video Uploads (Admin)
+
+- Optional short demo videos for projects → `project-videos` bucket (public)
+- On upload, store the **storage path** (e.g. `project-videos/demo.mp4`) in `projects.demo_video_url` — the public URL is derived at read time via `supabase.storage.from('project-videos').getPublicUrl(path)`. Storing the path (not the full URL) makes deletion straightforward and is resilient to CDN/URL changes.
+- Old video is deleted from storage on replacement (using the stored path)
+- Support video preview before saving
+- Visitors can view the demo video inline on the project card and download it
+- **Future**: YouTube embedding is planned but not in scope for this implementation; the `demo_video_url` field will initially store Supabase Storage paths only
 
 ---
 
@@ -619,6 +632,7 @@ components/intro.tsx             # Props instead of hardcoded data, auth-gated d
 components/about.tsx             # Props instead of hardcoded data
 components/contact.tsx           # Props + session pre-fill
 components/experience.tsx        # Props instead of imported data, icon string→component mapping
+components/project.tsx           # Inline video playback + download button when demo_video_url is present
 components/projects.tsx          # Props instead of imported data
 components/skills.tsx            # Props instead of imported data
 components/header.tsx            # Props instead of imported data
