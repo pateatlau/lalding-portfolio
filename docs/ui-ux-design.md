@@ -739,12 +739,12 @@ xl: 1280px  /* Desktops */
 - [x] Redesign skills section — grouped by 8 categories with teal category headings
 - [x] Restructure skillsData into skillsGrouped (Leadership, Frontend, Mobile, Backend, UI Libraries, Tools, Testing, Auth)
 
-### Phase 4: Experience & Contact (Week 4)
+### Phase 4: Experience & Contact (Week 4) ✅
 
-- [ ] Redesign timeline component
-- [ ] Add scroll-triggered animations
-- [ ] Modernize contact form
-- [ ] Add success/error states
+- [x] Redesign timeline with teal accents, glassmorphism cards, and company logos
+- [x] Add scroll-triggered animations and grayscale-to-color company slider
+- [x] Modernize contact form with split layout (info cards + form)
+- [x] Add social links, teal focus states, and consistent accent styling
 
 ### Phase 5: Polish (Week 5)
 

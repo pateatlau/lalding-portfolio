@@ -79,7 +79,7 @@ function CompaniesSlider() {
               alt={company.name}
               height={80}
               width={80}
-              className="h-24 w-32 rounded-xs"
+              className="h-24 w-32 rounded-xs opacity-60 grayscale transition-all duration-300 hover:opacity-100 hover:grayscale-0"
             />
           </div>
         ))}
