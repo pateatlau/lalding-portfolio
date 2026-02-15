@@ -29,7 +29,7 @@ function getInitialTheme(): Theme {
     return 'dark';
   }
 
-  return 'dark';
+  return 'light';
 }
 
 export default function ThemeContextProvider({

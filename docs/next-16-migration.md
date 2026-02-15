@@ -76,7 +76,7 @@ Next.js 16 is a significant release focused on:
 | react-vertical-timeline-component | ^3.6.0 | ✅ Compatible | May need `--legacy-peer-deps` |
 | @react-email/components | ^0.0.28 | ✅ Compatible | Server-side only |
 | react-hot-toast | ^2.4.1 | ✅ Compatible | Stable library |
-| react-icons | ^4.10.1 | ✅ Compatible | Icon library |
+| react-icons | ^5.5.0 | ✅ Compatible | Icon library |
 | react-intersection-observer | ^10.0.2 | ✅ Compatible | Lightweight |
 | resend | ^4.0.0 | ✅ Compatible | Server-side only |
 
@@ -95,7 +95,7 @@ The `next lint` command has been removed in Next.js 16. We must migrate to using
 
 **New script after migration:**
 ```json
-"lint": "eslint . --ext .ts,.tsx,.js,.jsx"
+"lint": "eslint ."
 ```
 
 **CI/CD Impact:** The GitHub Actions workflow runs `npm run lint` which currently calls `next lint`. After migration, it will use ESLint CLI.
