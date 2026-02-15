@@ -70,7 +70,7 @@ function CompaniesSlider() {
   };
 
   return (
-    <div className="container pt-2 pb-0 mt-10 hidden sm:block">
+    <div className="container mt-10 hidden pt-2 pb-0 sm:block">
       <Slider {...settings}>
         {companiesSliderData.map((company) => (
           <div key={company.name}>
@@ -79,7 +79,7 @@ function CompaniesSlider() {
               alt={company.name}
               height={80}
               width={80}
-              className="rounded-xs h-24 w-32"
+              className="h-24 w-32 rounded-xs"
             />
           </div>
         ))}

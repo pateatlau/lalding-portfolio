@@ -3,14 +3,17 @@
 ## 🔴 Critical Security Issues
 
 ### 1. Missing `rel="noopener noreferrer"` on External Links
+
 **Issue**: External links with `target="_blank"` are vulnerable to tabnabbing attacks.
 
 **Files Affected**:
+
 - `components/intro.tsx` (lines 107, 116)
 - `components/project.tsx` (lines 57, 68)
 - `components/footer.tsx` (line 15)
 
 **Fix**: Add `rel="noopener noreferrer"` to all external links:
+
 ```tsx
 <a href="..." target="_blank" rel="noopener noreferrer">
 ```
@@ -22,9 +25,11 @@
 ## 🟡 Performance Optimizations
 
 ### 2. Add `sharp` Package for Image Optimization
+
 **Issue**: Build warning suggests using `sharp` for better image optimization in production.
 
-**Fix**: 
+**Fix**:
+
 ```bash
 npm install sharp
 ```
@@ -32,13 +37,16 @@ npm install sharp
 **Priority**: MEDIUM - Improves image loading performance
 
 ### 3. Image Alt Text Improvements
+
 **Issue**: Generic alt text like "Personal projects I worked on" doesn't describe the actual project.
 
 **Files Affected**:
+
 - `components/project.tsx` (line 81)
 - `components/experience.tsx` (line 61)
 
 **Fix**: Use descriptive, project-specific alt text:
+
 ```tsx
 // project.tsx
 alt={`${title} project screenshot`}
@@ -50,6 +58,7 @@ alt={`${item.location} company logo`}
 **Priority**: MEDIUM - Better accessibility and SEO
 
 ### 4. Image Quality Optimization
+
 **Issue**: Using `quality={95}` is high and increases file size.
 
 **File**: `components/intro.tsx` (line 38), `components/project.tsx` (line 82)
@@ -59,6 +68,7 @@ alt={`${item.location} company logo`}
 **Priority**: LOW - Minor performance gain
 
 ### 5. Lazy Load Non-Critical Images
+
 **Issue**: All images load immediately, even below the fold.
 
 **Fix**: Remove `priority` from non-critical images, or add `loading="lazy"` where appropriate.
@@ -70,15 +80,18 @@ alt={`${item.location} company logo`}
 ## 🟢 SEO Improvements
 
 ### 6. Enhanced Metadata
+
 **Issue**: Basic metadata only. Missing Open Graph, Twitter cards, and structured data.
 
 **File**: `app/layout.tsx`
 
 **Fix**: Add comprehensive metadata:
+
 ```tsx
 export const metadata = {
   title: 'Lalding | Personal Portfolio',
-  description: 'Laldingliana Tlau Vantawl -- Professional Software Engineer with 15+ years of experience.',
+  description:
+    'Laldingliana Tlau Vantawl -- Professional Software Engineer with 15+ years of experience.',
   keywords: ['Software Engineer', 'Full-stack Developer', 'React', 'Next.js', 'Portfolio'],
   authors: [{ name: 'Laldingliana Tlau Vantawl' }],
   creator: 'Laldingliana Tlau Vantawl',
@@ -114,9 +127,11 @@ export const metadata = {
 **Priority**: MEDIUM - Better social sharing and search visibility
 
 ### 7. Add Structured Data (JSON-LD)
+
 **Issue**: No structured data for better search engine understanding.
 
 **Fix**: Add JSON-LD schema for Person/Professional profile in `app/layout.tsx`:
+
 ```tsx
 <script
   type="application/ld+json"
@@ -127,10 +142,7 @@ export const metadata = {
       name: 'Laldingliana Tlau Vantawl',
       jobTitle: 'Full-stack Tech Lead',
       url: 'https://lalding.in',
-      sameAs: [
-        'https://www.linkedin.com/in/laldingliana-tv/',
-        'https://github.com/pateatlau',
-      ],
+      sameAs: ['https://www.linkedin.com/in/laldingliana-tv/', 'https://github.com/pateatlau'],
     }),
   }}
 />
@@ -143,14 +155,17 @@ export const metadata = {
 ## 🟢 Accessibility Improvements
 
 ### 8. Missing ARIA Labels
+
 **Issue**: Icon-only buttons and interactive elements lack proper ARIA labels.
 
 **Files Affected**:
+
 - `components/intro.tsx` (social media links)
 - `components/theme-switch.tsx`
 - `components/submit-btn.tsx`
 
 **Fix**: Add `aria-label` attributes:
+
 ```tsx
 <a aria-label="Visit LinkedIn profile" ...>
 <button aria-label="Toggle dark mode" ...>
@@ -159,13 +174,15 @@ export const metadata = {
 **Priority**: MEDIUM - WCAG compliance
 
 ### 9. Skip to Main Content Link
+
 **Issue**: No skip navigation for keyboard users.
 
 **Fix**: Add skip link in `app/layout.tsx`:
+
 ```tsx
 <a
   href="#main-content"
-  className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-gray-900 focus:text-white rounded-xs"
+  className="sr-only rounded-xs focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-gray-900 focus:px-4 focus:py-2 focus:text-white"
 >
   Skip to main content
 </a>
@@ -174,6 +191,7 @@ export const metadata = {
 **Priority**: MEDIUM - Better keyboard navigation
 
 ### 10. Focus Visible States
+
 **Issue**: Some interactive elements may not have clear focus indicators.
 
 **Fix**: Ensure all focusable elements have visible focus states (already using `focus:scale-110` in many places, but verify all).
@@ -181,9 +199,11 @@ export const metadata = {
 **Priority**: LOW - Mostly covered
 
 ### 11. Semantic HTML Improvements
+
 **Issue**: Some sections could use better semantic HTML.
 
-**Fix**: 
+**Fix**:
+
 - Use `<nav>` for navigation (already done in header)
 - Use `<article>` for project cards
 - Use `<time>` for dates in experience section
@@ -195,6 +215,7 @@ export const metadata = {
 ## 🟡 Code Quality Improvements
 
 ### 12. Typo in CSS Class
+
 **Issue**: `flew-row` should be `flex-row` in experience component.
 
 **File**: `components/experience.tsx` (line 53)
@@ -204,13 +225,16 @@ export const metadata = {
 **Priority**: HIGH - Bug fix
 
 ### 13. Image Props Type Consistency
+
 **Issue**: Mixing string and number types for width/height props.
 
-**Files**: 
+**Files**:
+
 - `components/intro.tsx` (lines 36-37) - uses strings
 - `components/project.tsx` (line 82) - missing width/height
 
 **Fix**: Use numbers consistently:
+
 ```tsx
 width={192}
 height={192}
@@ -219,14 +243,17 @@ height={192}
 **Priority**: MEDIUM - Type consistency
 
 ### 14. Key Prop Using Index
+
 **Issue**: Using array index as key in some places.
 
 **Files**:
+
 - `components/projects.tsx` (line 21)
 - `components/skills.tsx` (line 37)
 - `components/experience.tsx` (line 29)
 
 **Fix**: Use unique identifiers when possible:
+
 ```tsx
 // For projects, use title or create unique ID
 key={project.title}
@@ -238,6 +265,7 @@ key={skill}
 **Priority**: LOW - Works but not ideal
 
 ### 15. Unused Import
+
 **Issue**: `useEffect` imported but not used in `app/global-error.tsx`.
 
 **File**: `app/global-error.tsx` (line 4)
@@ -247,11 +275,13 @@ key={skill}
 **Priority**: LOW - Code cleanup
 
 ### 16. Magic Numbers
+
 **Issue**: Hard-coded values like `1000` (milliseconds) in hooks.
 
 **File**: `lib/hooks.ts` (line 13)
 
 **Fix**: Extract to constant:
+
 ```tsx
 const SCROLL_DEBOUNCE_MS = 1000;
 ```
@@ -263,9 +293,11 @@ const SCROLL_DEBOUNCE_MS = 1000;
 ## 🟡 React/Next.js Best Practices
 
 ### 17. Dynamic Imports for Heavy Components
+
 **Issue**: All components load upfront, including heavy ones like VerticalTimeline.
 
 **Fix**: Consider lazy loading non-critical components:
+
 ```tsx
 const Experience = dynamic(() => import('@/components/experience'), {
   loading: () => <div>Loading...</div>,
@@ -275,9 +307,11 @@ const Experience = dynamic(() => import('@/components/experience'), {
 **Priority**: LOW - Current approach is fine for portfolio site
 
 ### 18. Memoization Opportunities
+
 **Issue**: Some components re-render unnecessarily.
 
 **Fix**: Consider `React.memo` for expensive components like `Project`:
+
 ```tsx
 export default React.memo(Project);
 ```
@@ -285,13 +319,15 @@ export default React.memo(Project);
 **Priority**: LOW - Performance is likely fine
 
 ### 19. Font Display Strategy
+
 **Issue**: No font-display strategy specified.
 
 **File**: `app/layout.tsx` (line 10)
 
 **Fix**: Add `display: 'swap'` to font config:
+
 ```tsx
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
 });
@@ -300,11 +336,13 @@ const inter = Inter({
 **Priority**: MEDIUM - Prevents invisible text during font load
 
 ### 20. Favicon Optimization
+
 **Issue**: Using JPG for favicon instead of ICO/PNG.
 
 **File**: `app/layout.tsx` (line 31)
 
 **Fix**: Use proper favicon format (`.ico` or `.png`) and add multiple sizes:
+
 ```tsx
 <link rel="icon" href="/favicon.ico" sizes="any" />
 <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png" />
@@ -318,9 +356,11 @@ const inter = Inter({
 ## 🟢 Configuration & Build
 
 ### 21. Update Browserslist Data
+
 **Issue**: Build warning about outdated browserslist data.
 
-**Fix**: 
+**Fix**:
+
 ```bash
 npx update-browserslist-db@latest
 ```
@@ -328,9 +368,11 @@ npx update-browserslist-db@latest
 **Priority**: LOW - Minor optimization
 
 ### 22. Add Compression
+
 **Issue**: No explicit compression configuration.
 
 **Fix**: Vercel handles this automatically, but can add to `next.config.js`:
+
 ```js
 compress: true,
 ```
@@ -338,9 +380,11 @@ compress: true,
 **Priority**: LOW - Already handled by Vercel
 
 ### 23. Environment Variable Validation
+
 **Issue**: No validation for required environment variables.
 
 **Fix**: Add validation in `actions/sendEmail.ts`:
+
 ```tsx
 if (!process.env.RESEND_API_KEY) {
   throw new Error('RESEND_API_KEY is not configured');
@@ -354,6 +398,7 @@ if (!process.env.RESEND_API_KEY) {
 ## 🟢 User Experience
 
 ### 24. Loading States
+
 **Issue**: No loading states for async operations (email sending).
 
 **File**: `components/contact.tsx`
@@ -363,6 +408,7 @@ if (!process.env.RESEND_API_KEY) {
 **Priority**: LOW - Current UX is acceptable
 
 ### 25. Error Boundaries
+
 **Issue**: Only global error boundary exists.
 
 **Fix**: Add error boundaries around major sections for better error isolation.
@@ -370,6 +416,7 @@ if (!process.env.RESEND_API_KEY) {
 **Priority**: LOW - Global error boundary is sufficient
 
 ### 26. Form Validation Feedback
+
 **Issue**: Client-side validation exists but could be more user-friendly.
 
 **File**: `components/contact.tsx`
@@ -383,10 +430,12 @@ if (!process.env.RESEND_API_KEY) {
 ## 📊 Summary by Priority
 
 ### High Priority (Security & Bugs)
+
 1. ✅ Add `rel="noopener noreferrer"` to external links
 2. ✅ Fix typo: `flew-row` → `flex-row`
 
 ### Medium Priority (SEO & Performance)
+
 3. Add comprehensive metadata (Open Graph, Twitter cards)
 4. Add structured data (JSON-LD)
 5. Add ARIA labels for accessibility
@@ -397,6 +446,7 @@ if (!process.env.RESEND_API_KEY) {
 10. Add `sharp` package for image optimization
 
 ### Low Priority (Nice to Have)
+
 11. Reduce image quality slightly
 12. Fix key prop usage
 13. Remove unused imports
@@ -424,4 +474,3 @@ if (!process.env.RESEND_API_KEY) {
 - Critical security issue (external links) should be fixed before production
 - SEO improvements will help with discoverability
 - Accessibility improvements ensure WCAG compliance
-

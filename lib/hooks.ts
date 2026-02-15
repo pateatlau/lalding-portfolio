@@ -1,7 +1,7 @@
-import { useActiveSectionContext } from "@/context/active-section-context";
-import { useEffect } from "react";
-import { useInView } from "react-intersection-observer";
-import type { SectionName } from "./types";
+import { useActiveSectionContext } from '@/context/active-section-context';
+import { useEffect } from 'react';
+import { useInView } from 'react-intersection-observer';
+import type { SectionName } from './types';
 
 /** Default threshold for intersection observer (75% of element visible) */
 const DEFAULT_INTERSECTION_THRESHOLD = 0.75;

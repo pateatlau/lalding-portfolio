@@ -43,14 +43,8 @@ function setThemeValue(newTheme: Theme): void {
   listeners.forEach((listener) => listener());
 }
 
-export default function ThemeContextProvider({
-  children,
-}: ThemeContextProviderProps) {
-  const theme = useSyncExternalStore(
-    subscribeToTheme,
-    getThemeSnapshot,
-    getServerSnapshot
-  );
+export default function ThemeContextProvider({ children }: ThemeContextProviderProps) {
+  const theme = useSyncExternalStore(subscribeToTheme, getThemeSnapshot, getServerSnapshot);
 
   const toggleTheme = useCallback(() => {
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';

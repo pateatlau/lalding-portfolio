@@ -8,7 +8,7 @@ export default function SubmitBtn() {
   return (
     <button
       type="submit"
-      className="group flex items-center justify-center gap-2 h-12 w-32 bg-gray-900 text-white rounded-full outline-hidden transition-all focus:scale-110 hover:scale-110 hover:bg-gray-950 active:scale-105 dark:bg-white/10 disabled:scale-100 disabled:bg-gray-900/65"
+      className="group flex h-12 w-32 items-center justify-center gap-2 rounded-full bg-gray-900 text-white outline-hidden transition-all hover:scale-110 hover:bg-gray-950 focus:scale-110 active:scale-105 disabled:scale-100 disabled:bg-gray-900/65 dark:bg-white/10"
       disabled={pending}
       title="Submit your message to my email address"
       aria-label={pending ? 'Sending message...' : 'Submit contact form'}
