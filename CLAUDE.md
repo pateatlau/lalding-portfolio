@@ -110,6 +110,7 @@ Framer Motion is used throughout for scroll-triggered animations and transitions
 - `feature/*` - Feature branches merged directly to main via PR
 
 **CI/CD**: GitHub Actions (`.github/workflows/ci.yml`)
+
 - Lint → parallel Build, Test, E2E pipeline
 - Lighthouse CI for performance audits on PRs
 - Automated Vercel production deployment on main (gated behind all CI jobs)

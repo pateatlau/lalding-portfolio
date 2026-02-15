@@ -6,11 +6,11 @@ The CI pipeline at `.github/workflows/ci.yml` has suboptimal job dependencies th
 
 ## Files to Modify
 
-| File | Action | Description |
-|------|--------|-------------|
-| `.github/workflows/ci.yml` | Edit | Fix job dependencies + uncomment deploy job |
-| `vercel.json` | Create | Disable Vercel auto-deploy on main |
-| `CLAUDE.md` | Edit | Remove deployment TODO, update CI/CD description |
+| File                       | Action | Description                                      |
+| -------------------------- | ------ | ------------------------------------------------ |
+| `.github/workflows/ci.yml` | Edit   | Fix job dependencies + uncomment deploy job      |
+| `vercel.json`              | Create | Disable Vercel auto-deploy on main               |
+| `CLAUDE.md`                | Edit   | Remove deployment TODO, update CI/CD description |
 
 ## Step 1: Create feature branch
 
@@ -41,36 +41,36 @@ Wall time: ~6 min (test, e2e, and build run in parallel)
 
 **Changes:**
 
-| Job | Current `needs` | New `needs` | Reason |
-|-----|----------------|-------------|--------|
-| `test` | `lint` | `lint` | Already correct |
-| `e2e` | `test` | `lint` | E2E tests are independent of unit tests |
-| `build` | `[lint, test]` | `lint` | Build only needs lint to pass, not tests |
+| Job     | Current `needs` | New `needs` | Reason                                   |
+| ------- | --------------- | ----------- | ---------------------------------------- |
+| `test`  | `lint`          | `lint`      | Already correct                          |
+| `e2e`   | `test`          | `lint`      | E2E tests are independent of unit tests  |
+| `build` | `[lint, test]`  | `lint`      | Build only needs lint to pass, not tests |
 
 ## Step 3: Uncomment and update deploy job in `ci.yml`
 
 Replace the commented-out deploy block (lines 159–182) with:
 
 ```yaml
-  deploy:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: [lint, test, e2e, build]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    environment:
-      name: production
-      url: https://lalding.in
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+deploy:
+  name: Deploy to Production
+  runs-on: ubuntu-latest
+  needs: [lint, test, e2e, build]
+  if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  environment:
+    name: production
+    url: https://lalding.in
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
 ```
 
 Key points:
