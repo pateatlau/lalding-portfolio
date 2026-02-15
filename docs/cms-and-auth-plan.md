@@ -86,7 +86,7 @@ CREATE TABLE nav_links (
 CREATE TABLE companies (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
-  logo_url TEXT NOT NULL,             -- Supabase Storage URL
+  logo_url TEXT NOT NULL,             -- Supabase Storage path
   sort_order INTEGER NOT NULL DEFAULT 0
 );
 
@@ -117,8 +117,8 @@ CREATE TABLE projects (
   title TEXT NOT NULL,
   description TEXT NOT NULL,
   tags TEXT[] NOT NULL,
-  image_url TEXT,                     -- Supabase Storage URL
-  demo_video_url TEXT,               -- Supabase Storage URL (optional short demo video)
+  image_url TEXT,                     -- Supabase Storage path (e.g. "project-images/my-project.png")
+  demo_video_url TEXT,               -- Supabase Storage path (optional, e.g. "project-videos/demo.mp4")
   source_code_url TEXT,
   live_site_url TEXT,
   category_id UUID REFERENCES project_categories(id),
@@ -519,17 +519,17 @@ npx shadcn@latest add dropdown-menu avatar separator sheet
 
 - Project images → `project-images` bucket (public)
 - Company logos → `company-logos` bucket (public)
-- On upload, generate a public URL and store in the respective table
+- On upload, store the **storage path** in the respective table; derive public URLs at read time via `getPublicUrl()`
 - Support image preview before saving
 
 ### 5.4 Demo Video Uploads (Admin)
 
-- Optional short demo videos for featured projects → `project-videos` bucket (public)
-- On upload, generate a public URL and store in `projects.demo_video_url`
-- Old video is deleted on replacement
+- Optional short demo videos for projects → `project-videos` bucket (public)
+- On upload, store the **storage path** (e.g. `project-videos/demo.mp4`) in `projects.demo_video_url` — the public URL is derived at read time via `supabase.storage.from('project-videos').getPublicUrl(path)`. Storing the path (not the full URL) makes deletion straightforward and is resilient to CDN/URL changes.
+- Old video is deleted from storage on replacement (using the stored path)
 - Support video preview before saving
 - Visitors can view the demo video inline on the project card and download it
-- **Future**: YouTube embedding is planned but not in scope for this implementation; the `demo_video_url` field will initially point to Supabase Storage URLs only
+- **Future**: YouTube embedding is planned but not in scope for this implementation; the `demo_video_url` field will initially store Supabase Storage paths only
 
 ---
 
