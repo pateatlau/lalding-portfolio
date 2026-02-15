@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import SectionHeading from './section-heading';
 import { motion } from 'framer-motion';
 import { useSectionInView } from '@/lib/hooks';
@@ -11,6 +11,7 @@ import { BsEnvelope, BsPhone, BsGeoAlt, BsLinkedin, BsGithub } from 'react-icons
 
 export default function Contact() {
   const { ref } = useSectionInView('Contact');
+  const formRef = useRef<HTMLFormElement>(null);
 
   return (
     <motion.section
@@ -91,6 +92,7 @@ export default function Contact() {
         {/* Contact Form */}
         <div className="md:col-span-3">
           <form
+            ref={formRef}
             className="flex flex-col"
             action={async (formData) => {
               const { error } = await sendEmail(formData);
@@ -100,6 +102,7 @@ export default function Contact() {
                 return;
               }
 
+              formRef.current?.reset();
               toast.success('Email sent successfully!');
             }}
           >
