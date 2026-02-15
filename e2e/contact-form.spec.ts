@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 test.describe('Contact Form', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    // Navigate to contact section
-    await page.getByRole('link', { name: 'Contact' }).click();
+    // Navigate to contact section via nav link
+    await page.locator('nav').getByRole('link', { name: 'Contact' }).click();
   });
 
   test('contact form is visible', async ({ page }) => {

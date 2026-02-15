@@ -87,8 +87,8 @@ test.describe('Accessibility', () => {
   test('form inputs have associated labels', async ({ page }) => {
     await page.goto('/');
 
-    // Navigate to contact
-    await page.getByRole('link', { name: 'Contact' }).click();
+    // Navigate to contact via nav link
+    await page.locator('nav').getByRole('link', { name: 'Contact' }).click();
 
     // Check email input has label or placeholder
     const emailInput = page.locator('input[name="senderEmail"]');

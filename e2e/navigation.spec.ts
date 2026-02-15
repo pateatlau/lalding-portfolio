@@ -58,8 +58,8 @@ test.describe('Navigation', () => {
   test('navigates to Contact section', async ({ page }) => {
     await page.goto('/');
 
-    // Click on Contact link
-    await page.getByRole('link', { name: 'Contact' }).click();
+    // Click on Contact link in nav
+    await page.locator('nav').getByRole('link', { name: 'Contact' }).click();
 
     // Check that the Contact section is in viewport
     await expect(page.locator('#contact')).toBeInViewport();
@@ -71,7 +71,9 @@ test.describe('Navigation', () => {
     const links = ['Home', 'About', 'Projects', 'Skills', 'Experience', 'Contact'];
 
     for (const link of links) {
-      await expect(page.getByRole('link', { name: link })).toBeVisible();
+      await expect(
+        page.locator('nav').getByRole('link', { name: link }),
+      ).toBeVisible();
     }
   });
 });
