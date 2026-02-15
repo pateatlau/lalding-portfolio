@@ -31,7 +31,7 @@ Tailwind CSS v4 is a major release with significant architectural changes:
 | PostCSS config | **HIGH** | Must switch to `@tailwindcss/postcss` |
 | Config migration | **MEDIUM** | Move `tailwind.config.js` to CSS `@theme` |
 | Renamed utilities | **MEDIUM** | 19 instances across 8 files need updating |
-| `@react-email/tailwind` | **LOW** | React Email 5.0+ supports Tailwind v4 |
+| `@react-email/tailwind` | **LOW** | React Email 2.x+ supports Tailwind v4 |
 | Browser support | **LOW** | Requires Safari 16.4+, Chrome 111+, Firefox 128+ |
 
 ---
@@ -52,22 +52,22 @@ Tailwind CSS v4 is a major release with significant architectural changes:
 
 ### Deprecated Utilities Found
 
-| Utility | Replacement | Count | Files |
-|---------|-------------|-------|-------|
-| `rounded-xs` | `rounded-xs` | 1 | companies-slider.tsx |
-| `outline-hidden` | `outline-hidden` | 5 | intro.tsx, contact.tsx, submit-btn.tsx |
+| Utility (v3) | Replacement (v4) | Count | Files |
+|--------------|------------------|-------|-------|
+| `rounded-sm` | `rounded-xs` | 1 | companies-slider.tsx |
+| `outline-none` | `outline-hidden` | 5 | intro.tsx, contact.tsx, submit-btn.tsx |
 | `!` prefix (important) | `!` suffix | 2 | layout.tsx, intro.tsx |
 | `*-opacity-*` utilities | Color opacity syntax | 11 | Multiple files |
 
 ### Detailed Utility Findings
 
-#### `rounded-xs` → `rounded-xs`
+#### `rounded-sm` → `rounded-xs`
 
-| File | Line | Current |
-|------|------|---------|
-| `components/companies-slider.tsx` | 82 | `rounded-xs h-24 w-32` |
+| File | Line | Before (v3) | After (v4) |
+|------|------|-------------|------------|
+| `components/companies-slider.tsx` | 82 | `rounded-sm` | `rounded-xs` |
 
-#### `outline-hidden` → `outline-hidden`
+#### `outline-none` → `outline-hidden`
 
 | File | Line | Context |
 |------|------|---------|
@@ -79,10 +79,10 @@ Tailwind CSS v4 is a major release with significant architectural changes:
 
 #### Important Modifier `!` Prefix → Suffix
 
-| File | Line | Current | New |
-|------|------|---------|-----|
-| `app/layout.tsx` | 70 | `scroll-smooth!` | `scroll-smooth!` |
-| `components/intro.tsx` | 61 | `leading-normal!` | `leading-normal!` |
+| File | Line | Before (v3) | After (v4) |
+|------|------|-------------|------------|
+| `app/layout.tsx` | 70 | `!scroll-smooth` | `scroll-smooth!` |
+| `components/intro.tsx` | 61 | `!leading-[1.5]` | `leading-[1.5]!` |
 
 #### Opacity Utilities → Color Opacity Syntax
 
@@ -110,7 +110,7 @@ Tailwind CSS v4 is a major release with significant architectural changes:
 | @tailwindcss/postcss | N/A | 4.x | New package (replaces tailwindcss PostCSS) |
 | autoprefixer | 10.4.14 | Remove | Handled by @tailwindcss/postcss |
 | postcss | 8.4.24 | Keep | Still required |
-| @react-email/tailwind | 0.0.15 | 1.x | Tailwind v4 support |
+| @react-email/tailwind | 0.0.15 | 2.x | Tailwind v4 support |
 | @react-email/components | 1.0.7 | Latest | May need update for v4 |
 
 ---
@@ -187,7 +187,7 @@ module.exports = {
 /* Content paths auto-detected in v4 for standard project structures */
 
 /* Dark mode: class-based (default in v4 is media-based) */
-@variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:is(.dark *));
 
 /* Custom theme extensions */
 @theme {
@@ -243,9 +243,9 @@ Tailwind v4 requires modern browsers:
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| `@react-email/tailwind` compatibility | Email templates may break | Update to v1.x with Tailwind v4 support |
+| `@react-email/tailwind` compatibility | Email templates may break | Update to v2.x with Tailwind v4 support |
 | Opacity utility migration | May miss some instances | Use automated upgrade tool |
-| Dark mode behavior | May change from class to media | Explicitly configure with `@variant` |
+| Dark mode behavior | May change from class to media | Explicitly configure with `@custom-variant` |
 
 ### High Risk
 
@@ -350,7 +350,7 @@ Only proceed with this phase if the automated upgrade tool fails.
   @import "tailwindcss";
 
   /* Dark mode: class-based */
-  @variant dark (&:where(.dark, .dark *));
+  @custom-variant dark (&:is(.dark *));
 
   /* Custom gradients */
   @theme {
@@ -367,23 +367,23 @@ Only proceed with this phase if the automated upgrade tool fails.
 - [ ] **3.5** Update deprecated utilities in components
 
   **File: `components/companies-slider.tsx`**
-  - Line 82: `rounded-xs` → `rounded-xs`
+  - Line 82: `rounded-sm` → `rounded-xs`
 
   **File: `components/intro.tsx`**
-  - Line 61: `leading-normal!` → `leading-normal!`
-  - Line 83: `outline-hidden` → `outline-hidden`
-  - Line 95: `outline-hidden` → `outline-hidden`
+  - Line 61: `!leading-[1.5]` → `leading-[1.5]!`
+  - Line 83: `outline-none` → `outline-hidden`
+  - Line 95: `outline-none` → `outline-hidden`
 
   **File: `components/contact.tsx`**
-  - Line 61: `outline-hidden` → `outline-hidden`
+  - Line 61: `outline-none` → `outline-hidden`
   - Line 61: `dark:bg-white dark:bg-opacity-80` → `dark:bg-white/80`
   - Line 61: `dark:focus:bg-opacity-100` → `dark:focus:bg-white`
-  - Line 69: `outline-hidden` → `outline-hidden`
+  - Line 69: `outline-none` → `outline-hidden`
   - Line 69: `dark:bg-white dark:bg-opacity-80` → `dark:bg-white/80`
   - Line 69: `dark:focus:bg-opacity-100` → `dark:focus:bg-white`
 
   **File: `components/submit-btn.tsx`**
-  - Line 11: `outline-hidden` → `outline-hidden`
+  - Line 11: `outline-none` → `outline-hidden`
   - Line 11: `dark:bg-white dark:bg-opacity-10` → `dark:bg-white/10`
   - Line 11: `disabled:bg-opacity-65` → `disabled:bg-gray-900/65`
 
@@ -397,11 +397,11 @@ Only proceed with this phase if the automated upgrade tool fails.
   - Line 12: `border-yellow-400 border-opacity-40` → `border-yellow-400/40`
 
   **File: `components/section-divider.tsx`**
-  - Line 9: `dark:bg-opacity-20` → Combine with base color
+  - Line 9: `dark:bg-opacity-20` → `dark:bg-gray-200/20`
 
   **File: `app/layout.tsx`**
-  - Line 70: `scroll-smooth!` → `scroll-smooth!`
-  - Line 110: `dark:text-opacity-90` → Combine with base color
+  - Line 70: `!scroll-smooth` → `scroll-smooth!`
+  - Line 110: `dark:text-opacity-90` → `dark:text-gray-50/90`
 
 - [ ] **3.6** Update custom utility
 
@@ -522,14 +522,14 @@ Only proceed with this phase if the automated upgrade tool fails.
   - Update @react-email/tailwind for v4 compatibility
 
   Utility migrations:
-  - rounded-xs → rounded-xs (1 instance)
-  - outline-hidden → outline-hidden (5 instances)
+  - rounded-sm → rounded-xs (1 instance)
+  - outline-none → outline-hidden (5 instances)
   - !prefix → suffix! for important (2 instances)
   - *-opacity-* → color/opacity syntax (11 instances)
 
   Breaking changes addressed:
   - CSS-first configuration adopted
-  - Dark mode explicitly configured with @variant
+  - Dark mode explicitly configured with @custom-variant
   - All deprecated utilities updated
 
   Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
@@ -627,9 +627,9 @@ npm install --legacy-peer-deps
 
 ### Issue: Dark mode not working after migration
 
-**Workaround:** Ensure `@variant dark` is correctly configured:
+**Workaround:** Ensure `@custom-variant dark` is correctly configured:
 ```css
-@variant dark (&:where(.dark, .dark *));
+@custom-variant dark (&:is(.dark *));
 ```
 
 ### Issue: Custom gradients not working

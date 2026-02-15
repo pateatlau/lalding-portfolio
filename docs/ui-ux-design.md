@@ -121,7 +121,7 @@ const GradientBlob = () => {
   return (
     <motion.div
       className="absolute w-[500px] h-[500px] rounded-full
-                 bg-linear-to-r from-purple-500/30 to-cyan-500/30
+                 bg-gradient-to-r from-purple-500/30 to-cyan-500/30
                  blur-3xl"
       animate={{ x: position.x * 0.1, y: position.y * 0.1 }}
       transition={{ type: "spring", damping: 30 }}
