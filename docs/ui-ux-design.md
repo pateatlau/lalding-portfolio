@@ -746,12 +746,12 @@ xl: 1280px  /* Desktops */
 - [x] Modernize contact form with split layout (info cards + form)
 - [x] Add social links, teal focus states, and consistent accent styling
 
-### Phase 5: Polish (Week 5)
+### Phase 5: Polish (Week 5) ✅
 
-- [ ] Command palette (⌘K)
-- [ ] Page transitions
-- [ ] Mobile optimizations
-- [ ] Performance audit
+- [x] Command palette (⌘K) with search, navigation, theme toggle, and social links
+- [x] Page/section transitions with Framer Motion scroll-triggered reveals
+- [x] Mobile optimizations: responsive blobs, header nav, contact layout, timeline padding/logos
+- [x] Performance audit: prefers-reduced-motion, optimized blur on mobile, font swap/subset
 
 ---
 

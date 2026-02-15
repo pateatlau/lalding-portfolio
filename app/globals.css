@@ -175,3 +175,22 @@
   visibility: visible !important;
   opacity: 1 !important;
 }
+
+/* Mobile: tighter timeline card padding */
+@media (max-width: 639px) {
+  .vertical-timeline-element-content {
+    padding: 1rem 1.25rem !important;
+  }
+}
+
+/* Reduced motion: disable all custom animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -24,7 +24,7 @@ export default function Contact() {
     >
       <SectionHeading>Let&apos;s Connect</SectionHeading>
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-5 md:gap-8">
         {/* Contact Info */}
         <div className="md:col-span-2">
           <h3 className="mb-6 text-lg font-semibold">Get in Touch</h3>
@@ -56,7 +56,7 @@ export default function Contact() {
               <BsGeoAlt className="text-accent-teal dark:text-accent-teal-light mt-0.5" />
               <div>
                 <div className="text-sm font-medium">Location</div>
-                <div className="text-muted-foreground text-sm">Mumbai, India</div>
+                <div className="text-muted-foreground text-sm">Bangalore, India</div>
               </div>
             </div>
           </div>
@@ -112,7 +112,7 @@ export default function Contact() {
               placeholder="Your email"
             />
             <textarea
-              className="focus:border-accent-teal/40 dark:focus:border-accent-teal/30 my-3 h-52 rounded-lg border border-black/5 bg-white/60 p-4 backdrop-blur-sm transition-all focus:outline-none dark:border-white/5 dark:bg-white/5 dark:text-white"
+              className="focus:border-accent-teal/40 dark:focus:border-accent-teal/30 my-3 h-40 rounded-lg border border-black/5 bg-white/60 p-4 backdrop-blur-sm transition-all focus:outline-none md:h-52 dark:border-white/5 dark:bg-white/5 dark:text-white"
               name="message"
               placeholder="Your message"
               required

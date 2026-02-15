@@ -44,22 +44,20 @@ export default function Experience() {
                 fontSize: '1.5rem',
               }}
             >
-              <div className="flex flex-row justify-between">
-                <div>
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
                   <h3 className="font-semibold capitalize">{item.title}</h3>
                   <p className="text-accent-teal dark:text-accent-teal-light mt-0! font-medium">
                     {item.location}
                   </p>
                 </div>
-                <div>
-                  <Image
-                    src={item.companylogo}
-                    alt={`${item.location} company logo`}
-                    height={50}
-                    width={50}
-                    className="rounded-lg"
-                  />
-                </div>
+                <Image
+                  src={item.companylogo}
+                  alt={`${item.location} company logo`}
+                  height={50}
+                  width={50}
+                  className="h-10 w-10 shrink-0 rounded-lg sm:h-[50px] sm:w-[50px]"
+                />
               </div>
               <p className="text-muted-foreground mt-1! font-normal!">{item.description}</p>
             </VerticalTimelineElement>
