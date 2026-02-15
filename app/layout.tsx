@@ -104,8 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to main content
         </a>
-        <div className="bg-blob-primary absolute -top-24 right-0 -z-10 h-[20rem] w-[20rem] rounded-full blur-[8rem] sm:right-44 sm:h-[31.25rem] sm:w-[31.25rem] sm:blur-[10rem] md:w-[68.75rem]"></div>
-        <div className="bg-blob-secondary absolute -top-4 -left-48 -z-10 h-[20rem] w-[20rem] rounded-full blur-[8rem] sm:-left-[35rem] sm:h-[31.25rem] sm:w-[50rem] sm:blur-[10rem] md:-left-[33rem] md:w-[68.75rem] lg:-left-[28rem] xl:-left-60 2xl:-left-20"></div>
+        <div className="mesh-gradient fixed inset-0 -z-10"></div>
 
         <ThemeContextProvider>
           <ActiveSectionContextProvider>
