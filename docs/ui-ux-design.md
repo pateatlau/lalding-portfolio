@@ -722,12 +722,14 @@ xl: 1280px  /* Desktops */
 - [x] Update theme switch to use design system colors
 - [x] Add `cn()` utility (clsx + tailwind-merge) to lib/utils.ts
 
-### Phase 2: Hero & About (Week 2)
+### Phase 2: Hero & About (Week 2) ✅
 
-- [ ] Redesign hero with gradient blob
-- [ ] Add typewriter effect
-- [ ] Create bento grid for about
-- [ ] Add stats counter animation
+- [x] Redesign hero — removed waving hand emoji, cleaner layout with separate heading/subtitle
+- [x] Add typewriter effect — cycles through rotating titles in teal accent
+- [x] Add scroll indicator with bounce animation
+- [x] Add one-liner subtitle below typewriter
+- [x] Create bento grid for about — 4-card layout (Tech Stack, Current Focus, Expertise, Beyond Code)
+- [x] Add stats counter animation — 4 animated counters (Years, Projects, Companies, Teams Led)
 
 ### Phase 3: Projects & Skills (Week 3)
 
