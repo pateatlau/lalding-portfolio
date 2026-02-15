@@ -161,6 +161,10 @@ export const experiencesData = [
   },
 ] as const;
 
+export const projectCategories = ['All', 'React', 'Mobile', 'Full-stack'] as const;
+
+export type ProjectCategory = (typeof projectCategories)[number];
+
 export const projectsData = [
   {
     title: 'Movies App',
@@ -170,6 +174,7 @@ export const projectsData = [
     imageUrl: moviesImg,
     sourceCode: 'https://github.com/pateatlau/movies-expo',
     liveSite: 'https://movies.lalding.in/',
+    category: 'Mobile' as ProjectCategory,
   },
   {
     title: 'Micro Frontend App',
@@ -179,6 +184,7 @@ export const projectsData = [
     imageUrl: rmtdevImg,
     sourceCode: 'https://github.com/pateatlau/vite-mfe-host',
     liveSite: 'https://mfe-oflom8uum-lalding.vercel.app/',
+    category: 'React' as ProjectCategory,
   },
   {
     title: 'Weather App',
@@ -188,6 +194,7 @@ export const projectsData = [
     imageUrl: weatherImg,
     sourceCode: 'https://github.com/pateatlau/weather-app',
     liveSite: 'https://weather.lalding.in/',
+    category: 'React' as ProjectCategory,
   },
   {
     title: 'eCommerce App',
@@ -197,65 +204,83 @@ export const projectsData = [
     imageUrl: rmtdevImg,
     sourceCode: 'https://github.com/pateatlau/mern-products-app',
     liveSite: 'https://lalding-products.onrender.com/',
+    category: 'Full-stack' as ProjectCategory,
   },
 ] as const;
 
-export const skillsData = [
-  'Technology Leadership',
-  'Frontend Development',
-  'Fullstack Development',
-  'Cross-Platform Development',
-  'Micro Frontend',
-  'Module Federation',
-  'Monorepos',
-  'NX',
-  'Webpack',
-  'Vite',
-  'Rollup',
-  'Docker',
-  'Git',
-  'Github',
-  'Amazon Web Services (AWS)',
-  'npm',
-  'HTML',
-  'CSS',
-  'JavaScript',
-  'TypeScript',
-  'React',
-  'Next.js',
-  'Node.js',
-  'Express',
-  'React Native',
-  'Expo',
-  'React Native Web',
-  'Redux Toolkit',
-  'Zustand',
-  'Tanstack Query',
-  'GraphQL',
-  'Kubernetes',
-  'Jest',
-  'vitest',
-  'React Testing Library',
-  'Material UI',
-  'Bootstrap',
-  'Tailwind CSS',
-  'Shadcn UI',
-  'Framer Motion',
-  'MongoDB',
-  'Mongoose',
-  'PostgreSQL',
-  'Prisma',
-  'JWT',
-  'OAuth',
-  'Auth0',
-  'Python',
-  'Microservices',
-  // 'Turborepo',
-  // 'npm',
-  // 'pnpm',
-  // 'yarn',
-  // 'Cypress',
-  // 'Design System',
-  // 'Storybook',
-  // 'System Design',
+export const skillsGrouped = [
+  {
+    category: 'Leadership & Architecture',
+    skills: [
+      'Technology Leadership',
+      'Fullstack Development',
+      'Cross-Platform Development',
+      'Micro Frontend',
+      'Module Federation',
+      'Monorepos',
+      'Microservices',
+    ],
+  },
+  {
+    category: 'Frontend',
+    skills: [
+      'React',
+      'Next.js',
+      'TypeScript',
+      'JavaScript',
+      'HTML',
+      'CSS',
+      'Redux Toolkit',
+      'Zustand',
+      'Tanstack Query',
+      'Framer Motion',
+    ],
+  },
+  {
+    category: 'Mobile',
+    skills: ['React Native', 'Expo', 'React Native Web'],
+  },
+  {
+    category: 'Backend & Database',
+    skills: [
+      'Node.js',
+      'Express',
+      'GraphQL',
+      'MongoDB',
+      'Mongoose',
+      'PostgreSQL',
+      'Prisma',
+      'Python',
+    ],
+  },
+  {
+    category: 'UI Libraries',
+    skills: ['Tailwind CSS', 'Shadcn UI', 'Material UI', 'Bootstrap'],
+  },
+  {
+    category: 'Tools & DevOps',
+    skills: [
+      'Git',
+      'Github',
+      'Docker',
+      'Kubernetes',
+      'Amazon Web Services (AWS)',
+      'NX',
+      'Webpack',
+      'Vite',
+      'Rollup',
+      'npm',
+    ],
+  },
+  {
+    category: 'Testing',
+    skills: ['Jest', 'vitest', 'React Testing Library'],
+  },
+  {
+    category: 'Auth & Security',
+    skills: ['JWT', 'OAuth', 'Auth0'],
+  },
 ] as const;
+
+// Flat list preserved for backwards compatibility
+export const skillsData = skillsGrouped.flatMap((group) => group.skills);

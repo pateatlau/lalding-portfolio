@@ -731,12 +731,13 @@ xl: 1280px  /* Desktops */
 - [x] Create bento grid for about — 4-card layout (Tech Stack, Current Focus, Expertise, Beyond Code)
 - [x] Add stats counter animation — 4 animated counters (Years, Projects, Companies, Teams Led)
 
-### Phase 3: Projects & Skills (Week 3)
+### Phase 3: Projects & Skills (Week 3) ✅
 
-- [ ] Implement project filtering
-- [ ] Create featured project card
-- [ ] Add skill visualization
-- [ ] Project hover effects
+- [x] Implement project filtering — filter tabs (All, React, Mobile, Full-stack) with animated transitions
+- [x] Add category field to project data for filtering
+- [x] Enhance project card hover effects — teal accent borders, teal tag badges
+- [x] Redesign skills section — grouped by 8 categories with teal category headings
+- [x] Restructure skillsData into skillsGrouped (Leadership, Frontend, Mobile, Backend, UI Libraries, Tools, Testing, Auth)
 
 ### Phase 4: Experience & Contact (Week 4)
 
