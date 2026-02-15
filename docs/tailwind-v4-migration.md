@@ -54,20 +54,20 @@ Tailwind CSS v4 is a major release with significant architectural changes:
 
 | Utility | Replacement | Count | Files |
 |---------|-------------|-------|-------|
-| `rounded-sm` | `rounded-xs` | 1 | companies-slider.tsx |
-| `outline-none` | `outline-hidden` | 5 | intro.tsx, contact.tsx, submit-btn.tsx |
+| `rounded-xs` | `rounded-xs` | 1 | companies-slider.tsx |
+| `outline-hidden` | `outline-hidden` | 5 | intro.tsx, contact.tsx, submit-btn.tsx |
 | `!` prefix (important) | `!` suffix | 2 | layout.tsx, intro.tsx |
 | `*-opacity-*` utilities | Color opacity syntax | 11 | Multiple files |
 
 ### Detailed Utility Findings
 
-#### `rounded-sm` → `rounded-xs`
+#### `rounded-xs` → `rounded-xs`
 
 | File | Line | Current |
 |------|------|---------|
-| `components/companies-slider.tsx` | 82 | `rounded-sm h-24 w-32` |
+| `components/companies-slider.tsx` | 82 | `rounded-xs h-24 w-32` |
 
-#### `outline-none` → `outline-hidden`
+#### `outline-hidden` → `outline-hidden`
 
 | File | Line | Context |
 |------|------|---------|
@@ -81,8 +81,8 @@ Tailwind CSS v4 is a major release with significant architectural changes:
 
 | File | Line | Current | New |
 |------|------|---------|-----|
-| `app/layout.tsx` | 70 | `!scroll-smooth` | `scroll-smooth!` |
-| `components/intro.tsx` | 61 | `!leading-[1.5]` | `leading-[1.5]!` |
+| `app/layout.tsx` | 70 | `scroll-smooth!` | `scroll-smooth!` |
+| `components/intro.tsx` | 61 | `leading-normal!` | `leading-normal!` |
 
 #### Opacity Utilities → Color Opacity Syntax
 
@@ -94,9 +94,9 @@ Tailwind CSS v4 is a major release with significant architectural changes:
 | `components/theme-switch.tsx` | 12 | `bg-yellow-400 bg-opacity-80` | `bg-yellow-400/80` |
 | `components/theme-switch.tsx` | 12 | `border-yellow-400 border-opacity-40` | `border-yellow-400/40` |
 | `components/contact.tsx` | 61 | `dark:bg-white dark:bg-opacity-80` | `dark:bg-white/80` |
-| `components/contact.tsx` | 61 | `dark:focus:bg-opacity-100` | `dark:focus:bg-white/100` |
+| `components/contact.tsx` | 61 | `dark:focus:bg-opacity-100` | `dark:focus:bg-white` |
 | `components/contact.tsx` | 69 | `dark:bg-white dark:bg-opacity-80` | `dark:bg-white/80` |
-| `components/contact.tsx` | 69 | `dark:focus:bg-opacity-100` | `dark:focus:bg-white/100` |
+| `components/contact.tsx` | 69 | `dark:focus:bg-opacity-100` | `dark:focus:bg-white` |
 | `components/submit-btn.tsx` | 11 | `dark:bg-white dark:bg-opacity-10` | `dark:bg-white/10` |
 | `components/submit-btn.tsx` | 11 | `disabled:bg-opacity-65` | `disabled:bg-gray-900/65` |
 | `components/section-divider.tsx` | 9 | `dark:bg-opacity-20` | `dark:bg-gray-200/20` |
@@ -367,23 +367,23 @@ Only proceed with this phase if the automated upgrade tool fails.
 - [ ] **3.5** Update deprecated utilities in components
 
   **File: `components/companies-slider.tsx`**
-  - Line 82: `rounded-sm` → `rounded-xs`
+  - Line 82: `rounded-xs` → `rounded-xs`
 
   **File: `components/intro.tsx`**
-  - Line 61: `!leading-[1.5]` → `leading-[1.5]!`
-  - Line 83: `outline-none` → `outline-hidden`
-  - Line 95: `outline-none` → `outline-hidden`
+  - Line 61: `leading-normal!` → `leading-normal!`
+  - Line 83: `outline-hidden` → `outline-hidden`
+  - Line 95: `outline-hidden` → `outline-hidden`
 
   **File: `components/contact.tsx`**
-  - Line 61: `outline-none` → `outline-hidden`
+  - Line 61: `outline-hidden` → `outline-hidden`
   - Line 61: `dark:bg-white dark:bg-opacity-80` → `dark:bg-white/80`
   - Line 61: `dark:focus:bg-opacity-100` → `dark:focus:bg-white`
-  - Line 69: `outline-none` → `outline-hidden`
+  - Line 69: `outline-hidden` → `outline-hidden`
   - Line 69: `dark:bg-white dark:bg-opacity-80` → `dark:bg-white/80`
   - Line 69: `dark:focus:bg-opacity-100` → `dark:focus:bg-white`
 
   **File: `components/submit-btn.tsx`**
-  - Line 11: `outline-none` → `outline-hidden`
+  - Line 11: `outline-hidden` → `outline-hidden`
   - Line 11: `dark:bg-white dark:bg-opacity-10` → `dark:bg-white/10`
   - Line 11: `disabled:bg-opacity-65` → `disabled:bg-gray-900/65`
 
@@ -400,7 +400,7 @@ Only proceed with this phase if the automated upgrade tool fails.
   - Line 9: `dark:bg-opacity-20` → Combine with base color
 
   **File: `app/layout.tsx`**
-  - Line 70: `!scroll-smooth` → `scroll-smooth!`
+  - Line 70: `scroll-smooth!` → `scroll-smooth!`
   - Line 110: `dark:text-opacity-90` → Combine with base color
 
 - [ ] **3.6** Update custom utility
@@ -522,8 +522,8 @@ Only proceed with this phase if the automated upgrade tool fails.
   - Update @react-email/tailwind for v4 compatibility
 
   Utility migrations:
-  - rounded-sm → rounded-xs (1 instance)
-  - outline-none → outline-hidden (5 instances)
+  - rounded-xs → rounded-xs (1 instance)
+  - outline-hidden → outline-hidden (5 instances)
   - !prefix → suffix! for important (2 instances)
   - *-opacity-* → color/opacity syntax (11 instances)
 

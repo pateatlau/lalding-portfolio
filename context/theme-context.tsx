@@ -15,27 +15,11 @@ type ThemeContextType = {
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
-function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') {
-    return 'dark';
-  }
-
-  const localTheme = window.localStorage.getItem('theme') as Theme | null;
-  if (localTheme) {
-    return localTheme;
-  }
-
-  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    return 'dark';
-  }
-
-  return 'light';
-}
-
 export default function ThemeContextProvider({
   children,
 }: ThemeContextProviderProps) {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  // Start with 'light' to match server render, then sync in useEffect
+  const [theme, setTheme] = useState<Theme>('light');
 
   const toggleTheme = () => {
     if (theme === 'light') {
@@ -49,7 +33,27 @@ export default function ThemeContextProvider({
     }
   };
 
-  // Sync the DOM class with the theme state on mount
+  // Initialize theme from localStorage/system preference on mount
+  useEffect(() => {
+    const localTheme = window.localStorage.getItem('theme') as Theme | null;
+    let initialTheme: Theme = 'light';
+
+    if (localTheme) {
+      initialTheme = localTheme;
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      initialTheme = 'dark';
+    }
+
+    setTheme(initialTheme);
+
+    if (initialTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  // Sync the DOM class with the theme state on subsequent changes
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
