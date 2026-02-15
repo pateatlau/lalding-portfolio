@@ -1,63 +1,64 @@
-# Lalding's Portfolio Website
+# Lalding's Portfolio
 
-This is a portfolio website built with Next.js. It features a responsive and modern design. The website is built using Tailwind CSS for styling and Next.js for server-side rendering.
+Personal portfolio site for **Laldingliana Tlau Vantawl** — Full-stack Tech Lead with 15+ years of experience.
 
-## Setup
+**Live**: [lalding.in](https://lalding.in/)
 
-1. Add NEXT_PUBLIC_RESEND_API_KEY environment variable in .env.local
-2. In the send-email.ts action file, change the "to" email to your own email
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router), React 19, TypeScript
+- **Styling**: Tailwind CSS 4, shadcn/ui (Radix UI + CVA), tailwind-merge, clsx
+- **Animation**: Framer Motion
+- **Forms/Email**: Resend API, React Email
+- **Testing**: Vitest, Playwright, Testing Library
+- **CI/CD**: GitHub Actions (lint, build, test, E2E, Lighthouse CI) → Vercel
+
+## Key Features
+
+- **Command palette** (⌘K / Ctrl+K) for keyboard-first navigation
+- **Typewriter hero** with animated role cycling
+- **Bento grid** about section with animated stat counters
+- **Project filtering** by category with smooth transitions
+- **Grouped skills** organized by category
+- **Glassmorphism timeline** for career experience
+- **Split contact layout** with info cards and contact form
+- **Mesh gradient background** (layered OKLCH radial gradients)
+- **Scroll progress indicator** in the header
+- **Dark mode** with system preference detection
+- **Responsive** with mobile-specific optimizations
+- **prefers-reduced-motion** support throughout
 
 ## Getting Started
 
-To start the project, run the following command:
-
 ```bash
 npm install
+npm run dev      # http://localhost:1111
 ```
 
-This will install all the necessary dependencies for the project.
+### Environment Variables
 
-Next, run the following command to start the development server:
+| Variable         | Description                      |
+| ---------------- | -------------------------------- |
+| `RESEND_API_KEY` | API key for Resend email service |
+
+### Commands
 
 ```bash
-npm run dev
+npm run build          # Production build
+npm run lint           # ESLint
+npm run format         # Prettier
+npm run test           # Vitest (unit/component)
+npm run test:e2e       # Playwright (E2E)
+npm run test:coverage  # Coverage report
 ```
 
-The development server will start at `http://localhost:3333`. You can access the application by navigating to this URL in your web browser.
+## Documentation
 
-Please visit prod live site at https://lalding.in/
-
-# Sentry Monitoring
-
-Sentry is a popular open-source error tracking and monitoring tool that helps developers track and fix issues in their applications. It provides a centralized platform for collecting, organizing, and displaying error reports, making it easier for developers to identify and resolve problems.
-
-To set up Sentry monitoring for your application, follow these steps:
-
-1. Sign up for a Sentry account at https://sentry.io/signup/.
-2. Create a new project and select the Nextjs template.
-3. Follow the instructions to set up the project, including configuring the environment variables.
-4. Copy & paste the following commands to your terminal:
-
-```bash
-npx @sentry/wizard@latest -i nextjs --saas --org private-a871950a2 --project lalding-portfolio
-```
-
-This will setup Sentry monitoring for your application, including configuring the environment variables and setting up the necessary integrations.
-
-## Monitoring Tools
-
-There are several monitoring tools available for monitoring the performance and health of your application. Some popular ones include:
-
-1. New Relic: A comprehensive monitoring tool that provides insights into the performance and health of your application. It offers features like transaction tracing, error tracking, and performance monitoring.
-2. Datadog: A cloud-based monitoring platform that provides real-time visibility into the performance and health of your application. It offers features like distributed tracing, log management, and alerting.
-3. Prometheus: A monitoring and alerting tool that collects and stores metrics from your application. It provides features like real-time monitoring, alerting, and visualization.
-4. Grafana: A visualization tool that allows you to create dashboards and monitor the performance and health of your application. It provides features like real-time monitoring, alerting, and visualization.
-
-These monitoring tools can help you identify and resolve issues in your application, ensuring that it runs smoothly and performs optimally.
-
-1. Sentry Documentation: https://docs.sentry.io/
-
-## TODO:
-
-- Need to implement Sentry again (21st May 2025)
-  (UPDATE: 27th May 2025 - not implemented yet.)
+| Document                                                               | Description                                     |
+| ---------------------------------------------------------------------- | ----------------------------------------------- |
+| [UI/UX Modernization Plan](docs/ui-ux-design.md)                       | Comprehensive 5-phase redesign plan (completed) |
+| [Improvements & Optimizations](docs/improvements-and-optimizations.md) | Known issues and optimization recommendations   |
+| [CI/CD Pipeline](docs/CI-CD-OPTIMIZATIONS.md)                          | CI/CD pipeline architecture and optimizations   |
+| [Testing Infrastructure](docs/testing-infrastructure.md)               | Testing setup (Vitest, Playwright, coverage)    |
+| [Tailwind v4 Migration](docs/tailwind-v4-migration.md)                 | Tailwind CSS v3 → v4 migration notes            |
+| [Next.js 16 Migration](docs/next-16-migration.md)                      | Next.js 15 → 16 migration notes                 |
