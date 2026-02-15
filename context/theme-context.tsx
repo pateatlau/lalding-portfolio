@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useEffect, useState, createContext, useContext } from 'react';
+import React, {
+  useEffect,
+  createContext,
+  useContext,
+  useSyncExternalStore,
+  useCallback,
+} from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -15,23 +21,47 @@ type ThemeContextType = {
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
+// Store for theme state with subscription support
+let currentTheme: Theme = 'light';
+const listeners = new Set<() => void>();
+
+function getThemeSnapshot(): Theme {
+  return currentTheme;
+}
+
+function getServerSnapshot(): Theme {
+  return 'light';
+}
+
+function subscribeToTheme(callback: () => void): () => void {
+  listeners.add(callback);
+  return () => listeners.delete(callback);
+}
+
+function setThemeValue(newTheme: Theme): void {
+  currentTheme = newTheme;
+  listeners.forEach((listener) => listener());
+}
+
 export default function ThemeContextProvider({
   children,
 }: ThemeContextProviderProps) {
-  // Start with 'light' to match server render, then sync in useEffect
-  const [theme, setTheme] = useState<Theme>('light');
+  const theme = useSyncExternalStore(
+    subscribeToTheme,
+    getThemeSnapshot,
+    getServerSnapshot
+  );
 
-  const toggleTheme = () => {
-    if (theme === 'light') {
-      setTheme('dark');
-      window.localStorage.setItem('theme', 'dark');
+  const toggleTheme = useCallback(() => {
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    setThemeValue(newTheme);
+    window.localStorage.setItem('theme', newTheme);
+    if (newTheme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
-      setTheme('light');
-      window.localStorage.setItem('theme', 'light');
       document.documentElement.classList.remove('dark');
     }
-  };
+  }, []);
 
   // Initialize theme from localStorage/system preference on mount
   useEffect(() => {
@@ -44,7 +74,8 @@ export default function ThemeContextProvider({
       initialTheme = 'dark';
     }
 
-    setTheme(initialTheme);
+    // Update external store (not React state)
+    setThemeValue(initialTheme);
 
     if (initialTheme === 'dark') {
       document.documentElement.classList.add('dark');
@@ -53,7 +84,7 @@ export default function ThemeContextProvider({
     }
   }, []);
 
-  // Sync the DOM class with the theme state on subsequent changes
+  // Sync the DOM class with the theme on subsequent changes
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
