@@ -15,10 +15,27 @@ type ThemeContextType = {
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
+function getInitialTheme(): Theme {
+  if (typeof window === 'undefined') {
+    return 'dark';
+  }
+
+  const localTheme = window.localStorage.getItem('theme') as Theme | null;
+  if (localTheme) {
+    return localTheme;
+  }
+
+  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return 'dark';
+  }
+
+  return 'dark';
+}
+
 export default function ThemeContextProvider({
   children,
 }: ThemeContextProviderProps) {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
   const toggleTheme = () => {
     if (theme === 'light') {
@@ -32,20 +49,14 @@ export default function ThemeContextProvider({
     }
   };
 
+  // Sync the DOM class with the theme state on mount
   useEffect(() => {
-    const localTheme = window.localStorage.getItem('theme') as Theme | null;
-
-    if (localTheme) {
-      setTheme(localTheme);
-
-      if (localTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      }
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
+    if (theme === 'dark') {
       document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
-  }, []);
+  }, [theme]);
 
   return (
     <ThemeContext.Provider
