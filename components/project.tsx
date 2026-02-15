@@ -34,14 +34,14 @@ export default function Project({
       }}
       className="group mb-3 last:mb-0 sm:mb-8"
     >
-      <section className="relative max-w-2xl overflow-hidden rounded-lg border border-black/5 bg-gray-100 transition hover:bg-gray-200 sm:h-80 sm:pr-8 sm:group-even:pl-8 dark:bg-white/10 dark:text-white dark:hover:bg-white/20">
+      <section className="hover:border-accent-teal/20 dark:hover:border-accent-teal/15 relative max-w-2xl overflow-hidden rounded-lg border border-black/5 bg-gray-100 transition hover:bg-gray-200 sm:h-80 sm:pr-8 sm:group-even:pl-8 dark:bg-white/10 dark:text-white dark:hover:bg-white/20">
         <div className="flex h-full flex-col px-5 pt-4 pb-7 sm:max-w-[50%] sm:pt-10 sm:pr-2 sm:pl-10 sm:group-even:ml-72">
           <h3 className="text-2xl font-semibold">{title}</h3>
           <p className="mt-2 leading-relaxed text-gray-700 dark:text-white/70">{description}</p>
           <ul className="mt-4 flex flex-wrap gap-2 sm:mt-auto">
             {tags.map((tag) => (
               <li
-                className="rounded-full bg-black/70 px-3 py-1 text-[0.7rem] tracking-wider text-white uppercase dark:text-white/70"
+                className="bg-accent-teal/80 dark:bg-accent-teal/60 rounded-full px-3 py-1 text-[0.7rem] tracking-wider text-white uppercase dark:text-white/90"
                 key={tag}
               >
                 {tag}
@@ -50,7 +50,7 @@ export default function Project({
           </ul>
           <div className="my-4 flex flex-row justify-between">
             <a
-              className="w-30 rounded-md border border-slate-300 p-2 text-center text-slate-500 transition hover:text-slate-700 dark:border-white/70 dark:text-white/70 dark:hover:text-white/80"
+              className="border-accent-teal/20 text-muted-foreground hover:text-foreground hover:border-accent-teal/40 w-30 rounded-md border p-2 text-center transition"
               href={sourceCode}
               target="_blank"
               rel="noopener noreferrer"
@@ -62,7 +62,7 @@ export default function Project({
               </span>
             </a>
             <a
-              className="w-30 rounded-md border border-slate-300 p-2 text-center text-slate-500 transition hover:text-slate-700 dark:border-white/70 dark:text-white/70 dark:hover:text-white/80"
+              className="border-accent-teal/20 text-muted-foreground hover:text-foreground hover:border-accent-teal/40 w-30 rounded-md border p-2 text-center transition"
               href={liveSite}
               target="_blank"
               rel="noopener noreferrer"

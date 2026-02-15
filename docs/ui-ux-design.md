@@ -6,6 +6,43 @@ This document outlines the comprehensive UI/UX modernization plan for Lalding's 
 
 ---
 
+## Design System
+
+The modernization establishes a proper design system as the foundation for all UI work. This replaces the current ad-hoc approach (inline Tailwind classes, no design tokens, no shared primitives) with a structured system.
+
+### Design Tokens
+
+All visual decisions are centralized as CSS custom properties and Tailwind theme extensions:
+
+- **Colors** - Semantic color tokens (background, foreground, primary, accent, muted, border) with light/dark variants
+- **Spacing** - Consistent 8px grid system enforced through Tailwind config
+- **Typography** - Type scale, font families, line heights, letter spacing
+- **Shadows** - Layered shadow tokens (sm, md, lg, glow)
+- **Radii** - Consistent border-radius tokens (sm: 6px, md: 8px, lg: 12px, xl: 16px)
+- **Transitions** - Standardized durations and easing curves
+
+### Component Primitives
+
+Reusable base components (via shadcn/ui) that encode the design system:
+
+- `Button` - Variants: primary, secondary, ghost, outline. Sizes: sm, md, lg
+- `Card` - Consistent padding, border, shadow, hover states
+- `Badge` - For skill tags, tech labels, status indicators
+- `Input` / `Textarea` - Shared form styling with floating labels
+- `Tooltip` - Consistent info overlays
+
+### Why This Matters
+
+The current codebase has no design tokens file, no component library, and relies on copy-pasted Tailwind classes. This leads to:
+
+- Inconsistent spacing, colors, and border radii across components
+- Difficult theme changes (grep-and-replace across all files)
+- No single source of truth for visual decisions
+
+The design system fixes this by making the tokens the source of truth, with components consuming them.
+
+---
+
 ## Design Philosophy
 
 ### Core Principles
@@ -15,16 +52,19 @@ This document outlines the comprehensive UI/UX modernization plan for Lalding's 
 3. **Delightful Interactions** - Micro-animations that feel natural, not gimmicky
 4. **Accessibility First** - WCAG 2.1 AA compliance as a baseline
 5. **Performance** - Animations and effects should never compromise load times
+6. **Intentional Aesthetic** - Avoid overused AI-generated visual tropes (purple gradients, wave emojis, generic blob backgrounds). Every design choice should feel deliberate and human-crafted
 
 ### Visual Identity
 
-| Element       | Current      | Proposed                        |
-| ------------- | ------------ | ------------------------------- |
-| Primary Color | Gray-based   | Deep navy with accent gradients |
-| Typography    | Inter        | Inter + JetBrains Mono (code)   |
-| Spacing       | Inconsistent | 8px grid system                 |
-| Border Radius | Mixed        | Consistent rounded-lg (12px)    |
-| Shadows       | Basic        | Layered, subtle depth           |
+| Element       | Current                      | Proposed                                         |
+| ------------- | ---------------------------- | ------------------------------------------------ |
+| Primary Color | Gray-based with purple blobs | Deep slate with warm teal/amber accent gradients |
+| Typography    | Inter                        | Inter + JetBrains Mono (code)                    |
+| Spacing       | Inconsistent                 | 8px grid system                                  |
+| Border Radius | Mixed                        | Consistent rounded-lg (12px)                     |
+| Shadows       | Basic                        | Layered, subtle depth                            |
+
+> **Note on color direction:** The current purple/violet gradient (`#dbd7fb` light, `#676394` dark) combined with pink blobs (`#fbe2e3`) is an extremely common AI-generated aesthetic. The new palette uses **warm teal (`#0d9488` / `#14b8a6`)** paired with **amber/gold (`#d97706` / `#f59e0b`)** accents against a deep slate base. This creates a distinctive, professional look that feels intentional and human-crafted rather than default/generated.
 
 ---
 
@@ -91,7 +131,7 @@ components/
 │     │  (3D?)   │                                           │
 │     └──────────┘                                           │
 │                                                             │
-│     Hi, I'm Lalding 👋                                     │
+│     Hi, I'm Lalding                                        │
 │     ════════════════════                                   │
 │     [Typewriter effect with rotating titles]               │
 │     "Full-stack Tech Lead"                                 │
@@ -109,8 +149,8 @@ components/
 
 **Interactions:**
 
-- Gradient blob follows cursor subtly (parallax)
-- Profile image has subtle floating animation
+- Gradient blob follows cursor subtly (parallax) - using teal/amber palette
+- Profile image has subtle floating animation (no waving hand emoji overlay - removed as it's an overused AI trope)
 - Typewriter effect cycles through titles
 - Buttons have magnetic cursor attraction effect
 - Scroll indicator bounces to draw attention
@@ -118,13 +158,13 @@ components/
 **Implementation:**
 
 ```tsx
-// Gradient blob with cursor follow
+// Gradient blob with cursor follow (teal/amber palette)
 const GradientBlob = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   return (
     <motion.div
-      className="absolute h-[500px] w-[500px] rounded-full bg-gradient-to-r from-purple-500/30 to-cyan-500/30 blur-3xl"
+      className="absolute h-[500px] w-[500px] rounded-full bg-gradient-to-r from-teal-500/30 to-amber-500/20 blur-3xl"
       animate={{ x: position.x * 0.1, y: position.y * 0.1 }}
       transition={{ type: 'spring', damping: 30 }}
     />
@@ -563,17 +603,26 @@ const pageVariants = {
 
 ```css
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --primary: 222.2 47.4% 11.2%;
-  --secondary: 210 40% 96%;
-  --accent: 210 40% 96.1%;
-  --muted: 210 40% 96%;
-  --border: 214.3 31.8% 91.4%;
+  /* shadcn/ui core tokens (OKLCH color space, subtle slate undertone) */
+  --background: oklch(0.985 0.002 247);
+  --foreground: oklch(0.145 0.015 255);
+  --primary: oklch(0.205 0.015 255);
+  --secondary: oklch(0.97 0.002 247);
+  --muted: oklch(0.97 0.002 247);
+  --muted-foreground: oklch(0.556 0.01 255);
+  --border: oklch(0.922 0.004 247);
 
-  /* Gradients */
-  --gradient-start: 192 100% 67%; /* Cyan */
-  --gradient-end: 280 100% 70%; /* Purple */
+  /* Custom accent tokens — teal/amber palette */
+  --accent-teal: #0d9488;
+  --accent-teal-light: #14b8a6;
+  --accent-amber: #d97706;
+  --accent-amber-light: #f59e0b;
+
+  /* Mesh gradient stops (layered radial gradients) */
+  --mesh-1: rgba(153, 246, 228, 0.25);
+  --mesh-2: rgba(254, 243, 199, 0.2);
+  --mesh-3: rgba(204, 251, 241, 0.18);
+  --mesh-4: rgba(245, 245, 244, 0.4);
 }
 ```
 
@@ -581,15 +630,29 @@ const pageVariants = {
 
 ```css
 .dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --primary: 210 40% 98%;
-  --secondary: 217.2 32.6% 17.5%;
-  --accent: 217.2 32.6% 17.5%;
-  --muted: 217.2 32.6% 17.5%;
-  --border: 217.2 32.6% 17.5%;
+  --background: oklch(0.16 0.015 255);
+  --foreground: oklch(0.96 0.005 255);
+  --primary: oklch(0.96 0.005 255);
+  --secondary: oklch(0.22 0.012 255);
+  --muted: oklch(0.22 0.012 255);
+  --muted-foreground: oklch(0.708 0.01 255);
+  --border: oklch(1 0 0 / 10%);
+
+  /* Custom accent tokens — brighter for dark mode */
+  --accent-teal: #14b8a6;
+  --accent-teal-light: #2dd4bf;
+  --accent-amber: #f59e0b;
+  --accent-amber-light: #fbbf24;
+
+  /* Mesh gradient stops (deeper tones) */
+  --mesh-1: rgba(19, 78, 74, 0.35);
+  --mesh-2: rgba(120, 53, 15, 0.2);
+  --mesh-3: rgba(17, 94, 89, 0.18);
+  --mesh-4: rgba(30, 30, 35, 0.4);
 }
 ```
+
+> **Rationale:** The teal/amber combination is uncommon in portfolios and AI-generated sites. Teal conveys technical competence and calm professionalism, while amber adds warmth and energy. OKLCH color space ensures perceptual uniformity across the design system. The mesh gradient background uses layered radial gradients at deliberate positions for a polished, editorial look.
 
 ---
 
@@ -659,40 +722,47 @@ xl: 1280px  /* Desktops */
 
 ## Implementation Priority
 
-### Phase 1: Foundation (Week 1)
+### Phase 1: Foundation (Week 1) ✅
 
-- [ ] Install shadcn/ui base components
-- [ ] Set up new color system with CSS variables
-- [ ] Implement new navigation
-- [ ] Add scroll progress indicator
+- [x] Install shadcn/ui base components (button, card, badge, tooltip)
+- [x] Set up new color system with CSS variables (OKLCH tokens, teal/amber accents, blob tokens)
+- [x] Update navigation with teal accent active state
+- [x] Add scroll progress indicator (Framer Motion useScroll/useSpring)
+- [x] Set up design tokens via `@theme inline` (accent-teal, accent-amber, blob-primary, blob-secondary)
+- [x] Replace purple/pink background gradients with teal/amber palette
+- [x] Update theme switch to use design system colors
+- [x] Add `cn()` utility (clsx + tailwind-merge) to lib/utils.ts
 
-### Phase 2: Hero & About (Week 2)
+### Phase 2: Hero & About (Week 2) ✅
 
-- [ ] Redesign hero with gradient blob
-- [ ] Add typewriter effect
-- [ ] Create bento grid for about
-- [ ] Add stats counter animation
+- [x] Redesign hero — removed waving hand emoji, cleaner layout with separate heading/subtitle
+- [x] Add typewriter effect — cycles through rotating titles in teal accent
+- [x] Add scroll indicator with bounce animation
+- [x] Add one-liner subtitle below typewriter
+- [x] Create bento grid for about — 4-card layout (Tech Stack, Current Focus, Expertise, Beyond Code)
+- [x] Add stats counter animation — 4 animated counters (Years, Projects, Companies, Teams Led)
 
-### Phase 3: Projects & Skills (Week 3)
+### Phase 3: Projects & Skills (Week 3) ✅
 
-- [ ] Implement project filtering
-- [ ] Create featured project card
-- [ ] Add skill visualization
-- [ ] Project hover effects
+- [x] Implement project filtering — filter tabs (All, React, Mobile, Full-stack) with animated transitions
+- [x] Add category field to project data for filtering
+- [x] Enhance project card hover effects — teal accent borders, teal tag badges
+- [x] Redesign skills section — grouped by 8 categories with teal category headings
+- [x] Restructure skillsData into skillsGrouped (Leadership, Frontend, Mobile, Backend, UI Libraries, Tools, Testing, Auth)
 
-### Phase 4: Experience & Contact (Week 4)
+### Phase 4: Experience & Contact (Week 4) ✅
 
-- [ ] Redesign timeline component
-- [ ] Add scroll-triggered animations
-- [ ] Modernize contact form
-- [ ] Add success/error states
+- [x] Redesign timeline with teal accents, glassmorphism cards, and company logos
+- [x] Add scroll-triggered animations and grayscale-to-color company slider
+- [x] Modernize contact form with split layout (info cards + form)
+- [x] Add social links, teal focus states, and consistent accent styling
 
-### Phase 5: Polish (Week 5)
+### Phase 5: Polish (Week 5) ✅
 
-- [ ] Command palette (⌘K)
-- [ ] Page transitions
-- [ ] Mobile optimizations
-- [ ] Performance audit
+- [x] Command palette (⌘K) with search, navigation, theme toggle, and social links
+- [x] Page/section transitions with Framer Motion scroll-triggered reveals
+- [x] Mobile optimizations: responsive blobs, header nav, contact layout, timeline padding/logos
+- [x] Performance audit: prefers-reduced-motion, optimized blur on mobile, font swap/subset
 
 ---
 
