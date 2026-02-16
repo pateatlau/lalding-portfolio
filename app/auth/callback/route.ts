@@ -10,6 +10,11 @@ export async function GET(request: Request) {
   const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/';
 
   if (code) {
+    // Skip when env vars are not configured (e.g. CI builds)
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      return NextResponse.redirect(`${origin}/`);
+    }
+
     const cookieStore = await cookies();
 
     // Create a Supabase client that collects cookies to set, so we can
@@ -18,8 +23,8 @@ export async function GET(request: Request) {
     const pendingCookies: { name: string; value: string; options: Record<string, unknown> }[] = [];
 
     const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
       {
         cookies: {
           getAll() {
