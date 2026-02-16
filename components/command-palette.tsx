@@ -17,6 +17,9 @@ import {
   BsLightning,
   BsBriefcase,
 } from 'react-icons/bs';
+import { useResumeDownload } from '@/lib/hooks';
+import LoginModal from '@/components/auth/login-modal';
+import OptionalFieldsModal from '@/components/auth/optional-fields-modal';
 import type { ProfileData } from '@/lib/types';
 
 interface CommandItem {
@@ -35,6 +38,14 @@ export default function CommandPalette({ profile }: { profile: ProfileData }) {
   const listRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const { theme, toggleTheme } = useTheme();
+  const {
+    handleResumeClick,
+    isDownloading,
+    showLoginModal,
+    setShowLoginModal,
+    showOptionalFieldsModal,
+    handleOptionalFieldsComplete,
+  } = useResumeDownload();
 
   const close = useCallback(() => {
     setIsOpen(false);
@@ -107,15 +118,12 @@ export default function CommandPalette({ profile }: { profile: ProfileData }) {
     },
     {
       id: 'resume',
-      label: 'Download Resume',
+      label: isDownloading ? 'Downloading...' : 'Download Resume',
       icon: <BsDownload />,
       group: 'Quick Actions',
       action: () => {
-        const a = document.createElement('a');
-        a.href = profile.resumeUrl;
-        a.download = '';
-        a.click();
         close();
+        handleResumeClick();
       },
       keywords: ['cv', 'pdf'],
     },
@@ -227,6 +235,9 @@ export default function CommandPalette({ profile }: { profile: ProfileData }) {
   let flatIndex = -1;
 
   return (
+    <>
+    <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+    <OptionalFieldsModal isOpen={showOptionalFieldsModal} onComplete={handleOptionalFieldsComplete} />
     <AnimatePresence>
       {isOpen && (
         <>
@@ -303,5 +314,6 @@ export default function CommandPalette({ profile }: { profile: ProfileData }) {
         </>
       )}
     </AnimatePresence>
+    </>
   );
 }

@@ -7,6 +7,7 @@ import ActiveSectionContextProvider from '@/context/active-section-context';
 import Footer from '@/components/footer';
 import ThemeSwitch from '@/components/theme-switch';
 import ThemeContextProvider from '@/context/theme-context';
+import AuthProvider from '@/context/auth-context';
 import { Toaster } from 'react-hot-toast';
 import type { Metadata } from 'next';
 import { getProfileData } from '@/lib/supabase/queries';
@@ -110,6 +111,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <div className="mesh-gradient fixed inset-0 -z-10"></div>
 
         <ThemeContextProvider>
+          <AuthProvider>
           <ActiveSectionContextProvider>
             <ScrollProgress />
             <Header />
@@ -120,6 +122,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <ThemeSwitch />
             <CommandPalette profile={profile} />
           </ActiveSectionContextProvider>
+          </AuthProvider>
         </ThemeContextProvider>
       </body>
     </html>

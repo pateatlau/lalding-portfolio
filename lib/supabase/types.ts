@@ -76,6 +76,26 @@ export type Database = {
           },
         ];
       };
+      visitor_profiles: {
+        Row: VisitorProfile;
+        Insert: VisitorProfileInsert;
+        Update: Partial<VisitorProfileInsert>;
+        Relationships: [];
+      };
+      resume_downloads: {
+        Row: ResumeDownload;
+        Insert: ResumeDownloadInsert;
+        Update: Partial<ResumeDownloadInsert>;
+        Relationships: [
+          {
+            foreignKeyName: 'resume_downloads_visitor_id_fkey';
+            columns: ['visitor_id'];
+            referencedRelation: 'visitor_profiles';
+            referencedColumns: ['id'];
+            isOneToOne: false;
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -177,6 +197,23 @@ export type Skill = {
   sort_order: number;
 };
 
+export type VisitorProfile = {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+  avatar_url: string | null;
+  provider: string | null;
+  company: string | null;
+  role: string | null;
+  created_at: string;
+};
+
+export type ResumeDownload = {
+  id: string;
+  visitor_id: string | null;
+  downloaded_at: string;
+};
+
 // ---------- Insert types (fields with SQL DEFAULT are optional) ----------
 
 export type ProfileInsert = {
@@ -266,6 +303,23 @@ export type SkillInsert = {
   name: string;
   group_id?: string | null;
   sort_order?: number;
+};
+
+export type VisitorProfileInsert = {
+  id: string;
+  full_name?: string | null;
+  email?: string | null;
+  avatar_url?: string | null;
+  provider?: string | null;
+  company?: string | null;
+  role?: string | null;
+  created_at?: string;
+};
+
+export type ResumeDownloadInsert = {
+  id?: string;
+  visitor_id?: string | null;
+  downloaded_at?: string;
 };
 
 // ---------- Convenience types for frontend ----------

@@ -347,6 +347,30 @@ When a visitor is logged in (has an active Supabase session):
 - Fields remain editable (pre-filled, not locked)
 - No change to the server action `sendEmail.ts` — it still receives form data as before
 
+### Phase 2 Implementation Notes
+
+- Created `supabase/auth-schema.sql` with `visitor_profiles` table (references `auth.users`), `resume_downloads` table, and `sync_visitor_email()` trigger function.
+- Created `supabase/auth-rls.sql` with RLS policies: visitors can read/update/insert own profile row, admin can read all; visitors can insert own downloads, admin can read all.
+- Added `VisitorProfile`, `ResumeDownload`, and their Insert types to `lib/supabase/types.ts`, following the existing pattern with Row, Insert, Update, Relationships properties.
+- Created `middleware.ts` at project root using `@supabase/ssr` `createServerClient` with request/response cookie handling. Refreshes auth session on every request, protects `/admin/*` routes (requires `app_metadata.role === 'admin'`), redirects unauthorized users to `/`.
+- Created `app/auth/callback/route.ts` — GET route handler that exchanges OAuth `code` for a session via `supabase.auth.exchangeCodeForSession()` and redirects to the `next` query param or `/`.
+- Created `context/auth-context.tsx` following existing context provider pattern. Provides `user`, `visitorProfile`, `isLoading`, `isNewUser`, `signInWithProvider()`, `signOut()`, `refreshVisitorProfile()`, `clearNewUserFlag()`. Listens to `onAuthStateChange` and upserts visitor profile via server action on `SIGNED_IN`.
+- Created `actions/resume.ts` with three server actions:
+  - `upsertVisitorProfile()` — gets user from session, upserts `visitor_profiles` row, returns `{ data, isNewUser }`.
+  - `updateVisitorOptionalFields(company, role)` — updates company and role fields.
+  - `downloadResume()` — verifies auth, generates signed URL (5-min expiry) from private `resume` bucket, logs download in `resume_downloads`.
+- Created `components/auth/login-modal.tsx` — Framer Motion modal with Google, GitHub, LinkedIn social login buttons. Stores `pendingAction` in localStorage before OAuth redirect.
+- Created `components/auth/optional-fields-modal.tsx` — Framer Motion modal with Company and Role inputs, Skip/Continue buttons.
+- Added `useResumeDownload` hook to `lib/hooks.ts` — encapsulates the full auth-gated download flow. Checks auth state, shows login modal for unauthenticated users, shows optional fields modal for new users, triggers signed URL download for authenticated users. Subscribes to `onAuthStateChange` to resume download after OAuth redirect.
+- Updated `components/intro.tsx` — replaced `<a>` download link with `<button>` that calls `handleResumeClick()`, shows loading spinner during download, renders `LoginModal` and `OptionalFieldsModal`.
+- Updated `components/command-palette.tsx` — replaced direct download action with `handleResumeClick()`, renders `LoginModal` and `OptionalFieldsModal`.
+- Updated `components/contact.tsx` — added `senderName` text input above email field, pre-fills both name and email from `visitorProfile` using `defaultValue` with `key`-based re-mounting when profile loads. Fields remain editable.
+- Updated `app/layout.tsx` — wrapped with `AuthProvider` inside `ThemeContextProvider`.
+- Note: Next.js 16 shows a deprecation warning that "middleware" should use "proxy" convention. The middleware still works correctly; this is an informational warning for a future migration.
+- AdminLoginPage (`app/admin/login/page.tsx`) is deferred to Phase 4 since it's part of the admin dashboard.
+
+### Phase 2 Status: COMPLETE
+
 ---
 
 ## Phase 3: Data Layer — Fetching Content from Supabase

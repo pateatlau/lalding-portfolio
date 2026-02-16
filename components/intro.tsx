@@ -7,8 +7,10 @@ import Link from 'next/link';
 import { BsArrowRight, BsLinkedin } from 'react-icons/bs';
 import { HiDownload } from 'react-icons/hi';
 import { FaGithubSquare } from 'react-icons/fa';
-import { useSectionInView } from '@/lib/hooks';
+import { useSectionInView, useResumeDownload } from '@/lib/hooks';
 import { useActiveSectionContext } from '@/context/active-section-context';
+import LoginModal from '@/components/auth/login-modal';
+import OptionalFieldsModal from '@/components/auth/optional-fields-modal';
 import type { ProfileData } from '@/lib/types';
 
 function TypewriterEffect({ titles }: { titles: string[] }) {
@@ -60,8 +62,17 @@ function TypewriterEffect({ titles }: { titles: string[] }) {
 export default function Intro({ profile }: { profile: ProfileData }) {
   const { ref } = useSectionInView('Home', 0.5);
   const { setActiveSection, setTimeOfLastClick } = useActiveSectionContext();
+  const {
+    handleResumeClick,
+    isDownloading,
+    showLoginModal,
+    setShowLoginModal,
+    showOptionalFieldsModal,
+    handleOptionalFieldsComplete,
+  } = useResumeDownload();
 
   return (
+    <>
     <section
       ref={ref}
       id="home"
@@ -134,15 +145,24 @@ export default function Intro({ profile }: { profile: ProfileData }) {
           Contact me <BsArrowRight className="opacity-70 transition group-hover:translate-x-1" />
         </Link>
 
-        <a
-          className="borderBlack group flex cursor-pointer items-center gap-2 rounded-full bg-white px-7 py-3 outline-hidden transition hover:scale-110 focus:scale-110 active:scale-105 dark:bg-white/10"
-          href={profile.resumeUrl}
-          download
+        <button
+          className="borderBlack group flex cursor-pointer items-center gap-2 rounded-full bg-white px-7 py-3 outline-hidden transition hover:scale-110 focus:scale-110 active:scale-105 disabled:opacity-50 dark:bg-white/10"
+          onClick={handleResumeClick}
+          disabled={isDownloading}
           title="Download my resume"
         >
-          Download Resume
-          <HiDownload className="opacity-60 transition group-hover:translate-y-1" />
-        </a>
+          {isDownloading ? (
+            <>
+              Downloading...
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-gray-900 dark:border-gray-500 dark:border-t-white" />
+            </>
+          ) : (
+            <>
+              Download Resume
+              <HiDownload className="opacity-60 transition group-hover:translate-y-1" />
+            </>
+          )}
+        </button>
 
         {profile.linkedinUrl && (
           <a
@@ -184,5 +204,9 @@ export default function Intro({ profile }: { profile: ProfileData }) {
         />
       </motion.div>
     </section>
+
+    <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+    <OptionalFieldsModal isOpen={showOptionalFieldsModal} onComplete={handleOptionalFieldsComplete} />
+    </>
   );
 }

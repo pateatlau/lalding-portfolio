@@ -8,11 +8,16 @@ import { sendEmail } from '@/actions/sendEmail';
 import SubmitBtn from './submit-btn';
 import toast from 'react-hot-toast';
 import { BsEnvelope, BsPhone, BsGeoAlt, BsLinkedin, BsGithub } from 'react-icons/bs';
+import { useAuth } from '@/context/auth-context';
 import type { ProfileData } from '@/lib/types';
 
 export default function Contact({ profile }: { profile: ProfileData }) {
   const { ref } = useSectionInView('Contact');
   const formRef = useRef<HTMLFormElement>(null);
+  const { visitorProfile } = useAuth();
+
+  // Key changes when visitor profile loads, re-mounting inputs with pre-filled defaults
+  const formKey = visitorProfile?.id ?? 'anon';
 
   return (
     <motion.section
@@ -116,12 +121,23 @@ export default function Contact({ profile }: { profile: ProfileData }) {
             }}
           >
             <input
+              key={`name-${formKey}`}
               className="focus:border-accent-teal/40 dark:focus:border-accent-teal/30 h-14 rounded-lg border border-black/5 bg-white/60 px-4 backdrop-blur-sm transition-all focus:outline-none dark:border-white/5 dark:bg-white/5 dark:text-white"
+              name="senderName"
+              type="text"
+              maxLength={200}
+              placeholder="Your name (optional)"
+              defaultValue={visitorProfile?.full_name ?? ''}
+            />
+            <input
+              key={`email-${formKey}`}
+              className="focus:border-accent-teal/40 dark:focus:border-accent-teal/30 mt-3 h-14 rounded-lg border border-black/5 bg-white/60 px-4 backdrop-blur-sm transition-all focus:outline-none dark:border-white/5 dark:bg-white/5 dark:text-white"
               name="senderEmail"
               type="email"
               required
               maxLength={500}
               placeholder="Your email"
+              defaultValue={visitorProfile?.email ?? ''}
             />
             <textarea
               className="focus:border-accent-teal/40 dark:focus:border-accent-teal/30 my-3 h-40 rounded-lg border border-black/5 bg-white/60 p-4 backdrop-blur-sm transition-all focus:outline-none md:h-52 dark:border-white/5 dark:bg-white/5 dark:text-white"
