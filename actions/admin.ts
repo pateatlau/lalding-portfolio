@@ -8,6 +8,12 @@ import type {
   ProfileStatInsert,
   Experience,
   ExperienceInsert,
+  Project,
+  ProjectInsert,
+  SkillGroup,
+  SkillGroupInsert,
+  Skill,
+  SkillInsert,
 } from '@/lib/supabase/types';
 
 type AdminResult = { user: User; error?: undefined } | { user?: undefined; error: string };
@@ -288,5 +294,280 @@ export async function reorderExperiences(
 
   revalidatePath('/');
 
+  return { data: { success: true } };
+}
+
+export async function createProject(
+  data: ProjectInsert
+): Promise<{ data?: Project; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) {
+    return { error: adminResult.error };
+  }
+
+  const supabase = await createClient();
+
+  const { data: created, error: insertError } = await supabase
+    .from('projects')
+    .insert(data)
+    .select()
+    .single();
+
+  if (insertError) {
+    console.error('createProject error:', insertError.message);
+    return { error: 'Failed to create project' };
+  }
+
+  revalidatePath('/');
+
+  return { data: created };
+}
+
+export async function updateProject(
+  id: string,
+  data: Partial<ProjectInsert>
+): Promise<{ data?: Project; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) {
+    return { error: adminResult.error };
+  }
+
+  const supabase = await createClient();
+
+  const { data: updated, error: updateError } = await supabase
+    .from('projects')
+    .update(data)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (updateError) {
+    console.error('updateProject error:', updateError.message);
+    return { error: 'Failed to update project' };
+  }
+
+  revalidatePath('/');
+
+  return { data: updated };
+}
+
+export async function deleteProject(
+  id: string
+): Promise<{ data?: { success: true }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) {
+    return { error: adminResult.error };
+  }
+
+  const supabase = await createClient();
+
+  const { error: deleteError } = await supabase.from('projects').delete().eq('id', id);
+
+  if (deleteError) {
+    console.error('deleteProject error:', deleteError.message);
+    return { error: 'Failed to delete project' };
+  }
+
+  revalidatePath('/');
+
+  return { data: { success: true } };
+}
+
+export async function reorderProjects(
+  orderedIds: string[]
+): Promise<{ data?: { success: true }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) {
+    return { error: adminResult.error };
+  }
+
+  const supabase = await createClient();
+
+  const updates = orderedIds.map((id, index) =>
+    supabase.from('projects').update({ sort_order: index }).eq('id', id)
+  );
+
+  const results = await Promise.all(updates);
+  const failed = results.find((r) => r.error);
+
+  if (failed?.error) {
+    console.error('reorderProjects error:', failed.error.message);
+    return { error: 'Failed to reorder projects' };
+  }
+
+  revalidatePath('/');
+
+  return { data: { success: true } };
+}
+
+// --- Skill Group Actions ---
+
+export async function createSkillGroup(
+  data: SkillGroupInsert
+): Promise<{ data?: SkillGroup; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+  const { data: created, error } = await supabase
+    .from('skill_groups')
+    .insert(data)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('createSkillGroup error:', error.message);
+    return { error: 'Failed to create skill group' };
+  }
+
+  revalidatePath('/');
+  return { data: created };
+}
+
+export async function updateSkillGroup(
+  id: string,
+  data: Partial<SkillGroupInsert>
+): Promise<{ data?: SkillGroup; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+  const { data: updated, error } = await supabase
+    .from('skill_groups')
+    .update(data)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('updateSkillGroup error:', error.message);
+    return { error: 'Failed to update skill group' };
+  }
+
+  revalidatePath('/');
+  return { data: updated };
+}
+
+export async function deleteSkillGroup(
+  id: string
+): Promise<{ data?: { success: true }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from('skill_groups').delete().eq('id', id);
+
+  if (error) {
+    console.error('deleteSkillGroup error:', error.message);
+    return { error: 'Failed to delete skill group' };
+  }
+
+  revalidatePath('/');
+  return { data: { success: true } };
+}
+
+export async function reorderSkillGroups(
+  orderedIds: string[]
+): Promise<{ data?: { success: true }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+  const updates = orderedIds.map((id, index) =>
+    supabase.from('skill_groups').update({ sort_order: index }).eq('id', id)
+  );
+
+  const results = await Promise.all(updates);
+  const failed = results.find((r) => r.error);
+
+  if (failed?.error) {
+    console.error('reorderSkillGroups error:', failed.error.message);
+    return { error: 'Failed to reorder skill groups' };
+  }
+
+  revalidatePath('/');
+  return { data: { success: true } };
+}
+
+// --- Skill Actions ---
+
+export async function createSkill(data: SkillInsert): Promise<{ data?: Skill; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+  const { data: created, error } = await supabase.from('skills').insert(data).select().single();
+
+  if (error) {
+    console.error('createSkill error:', error.message);
+    return { error: 'Failed to create skill' };
+  }
+
+  revalidatePath('/');
+  return { data: created };
+}
+
+export async function updateSkill(
+  id: string,
+  data: Partial<SkillInsert>
+): Promise<{ data?: Skill; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+  const { data: updated, error } = await supabase
+    .from('skills')
+    .update(data)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('updateSkill error:', error.message);
+    return { error: 'Failed to update skill' };
+  }
+
+  revalidatePath('/');
+  return { data: updated };
+}
+
+export async function deleteSkill(
+  id: string
+): Promise<{ data?: { success: true }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from('skills').delete().eq('id', id);
+
+  if (error) {
+    console.error('deleteSkill error:', error.message);
+    return { error: 'Failed to delete skill' };
+  }
+
+  revalidatePath('/');
+  return { data: { success: true } };
+}
+
+export async function reorderSkills(
+  orderedIds: string[]
+): Promise<{ data?: { success: true }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+  const updates = orderedIds.map((id, index) =>
+    supabase.from('skills').update({ sort_order: index }).eq('id', id)
+  );
+
+  const results = await Promise.all(updates);
+  const failed = results.find((r) => r.error);
+
+  if (failed?.error) {
+    console.error('reorderSkills error:', failed.error.message);
+    return { error: 'Failed to reorder skills' };
+  }
+
+  revalidatePath('/');
   return { data: { success: true } };
 }

@@ -616,7 +616,23 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - `actions/admin.ts` — add project CRUD + file upload/delete actions
 
-### 4D Status: PENDING
+### 4D Implementation Notes
+
+- Created `app/admin/(dashboard)/projects/page.tsx` — server component that fetches projects + categories via `Promise.all([getProjects(), getProjectCategories()])` and passes `Project[]` + `ProjectCategory[]` to `ProjectsEditor` client component.
+- Created `components/admin/projects-editor.tsx` — client component with:
+  - **Table view**: Columns for Order (up/down arrows), Title, Category (resolved from `categoryMap`), Tags (first 3 shown as Badges, "+N" overflow), Actions (edit/delete icon buttons). Empty state when no projects exist.
+  - **Add/Edit Dialog** (shared): Form fields for title, description (textarea), tags (comma-separated Input parsed to `string[]` on save), category (Select dropdown from categories, with "No Category" option using sentinel value `__none__`), image_url (URL Input), demo_video_url (URL Input), source_code_url / live_site_url (2-col grid URL Inputs).
+  - **Delete Confirmation Dialog**: Shows project title, Confirm/Cancel with destructive variant.
+  - **Reorder**: Up/down arrows with optimistic local state and revert on error.
+- Added four server actions to `actions/admin.ts`:
+  - `createProject(data: ProjectInsert)` — inserts row, returns created `Project` via `.select().single()`.
+  - `updateProject(id, data: Partial<ProjectInsert>)` — updates row by ID, returns updated `Project`.
+  - `deleteProject(id)` — deletes row by ID.
+  - `reorderProjects(orderedIds: string[])` — updates `sort_order` for each ID using `Promise.all()`.
+- All actions follow the established pattern: `requireAdmin()` → DB operation → `revalidatePath('/')` → return `{ data?, error? }`.
+- **File upload component (`components/admin/file-upload.tsx`) deferred to Phase 5** — 4D uses URL text inputs for image/video fields since images are already in Supabase Storage referenced by URL. The reusable drag-and-drop upload component will be built in Phase 5 when full storage integration is implemented.
+
+### 4D Status: COMPLETE
 
 ---
 
@@ -633,7 +649,21 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - `actions/admin.ts` — add skill group and skill CRUD actions
 
-### 4E Status: PENDING
+### 4E Implementation Notes
+
+- Created `app/admin/(dashboard)/skills/page.tsx` — server component that fetches skill groups with nested skills via `getSkillGroups()` and passes `SkillGroupWithSkills[]` to `SkillsEditor` client component.
+- Created `components/admin/skills-editor.tsx` — client component with grouped card view:
+  - **Group cards**: Each group rendered as a Card with category name, reorder up/down arrows, edit (rename) and delete icon buttons. Groups can be added/renamed via a Dialog, deleted via a confirmation dialog that warns about cascading skill deletion.
+  - **Skill rows within groups**: Each skill shows name with inline edit (click Pencil → Input with Check/X buttons, Enter/Escape keyboard support), delete button (no confirmation), reorder up/down arrows within the group.
+  - **Inline add skill**: Input + Plus button at the bottom of each group card, with Enter key support. Per-group input state tracked via `newSkillName` Record.
+- Added 8 server actions to `actions/admin.ts`:
+  - Group actions: `createSkillGroup()`, `updateSkillGroup()`, `deleteSkillGroup()`, `reorderSkillGroups()`
+  - Skill actions: `createSkill()`, `updateSkill()`, `deleteSkill()`, `reorderSkills()`
+- All actions follow the established pattern: `requireAdmin()` → DB op → `revalidatePath('/')` → return `{ data?, error? }`.
+- Skills use FK `ON DELETE CASCADE` — deleting a group automatically deletes all its skills.
+- Optimistic local state updates for all operations; reorder reverts on error.
+
+### 4E Status: COMPLETE
 
 ---
 
