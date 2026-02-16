@@ -98,45 +98,65 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
       return;
     }
 
-    const { error } = await updateProfile({
-      full_name: formData.full_name,
-      short_name: formData.short_name,
-      job_title: formData.job_title,
-      tagline: formData.tagline || null,
-      typewriter_titles: formData.typewriter_titles,
-      email: formData.email,
-      phone: formData.phone || null,
-      location: formData.location || null,
-      linkedin_url: formData.linkedin_url || null,
-      github_url: formData.github_url || null,
-      footer_text: formData.footer_text || null,
-    });
+    const cleanedTitles = formData.typewriter_titles.map((t) => t.trim()).filter(Boolean);
 
-    setGeneralStatus(
-      error
-        ? { type: 'error', message: error }
-        : { type: 'success', message: 'General info saved successfully!' }
-    );
-    setIsSavingGeneral(false);
+    try {
+      const { error } = await updateProfile({
+        full_name: formData.full_name,
+        short_name: formData.short_name,
+        job_title: formData.job_title,
+        tagline: formData.tagline || null,
+        typewriter_titles: cleanedTitles.length > 0 ? cleanedTitles : [],
+        email: formData.email,
+        phone: formData.phone || null,
+        location: formData.location || null,
+        linkedin_url: formData.linkedin_url || null,
+        github_url: formData.github_url || null,
+        footer_text: formData.footer_text || null,
+      });
+
+      setGeneralStatus(
+        error
+          ? { type: 'error', message: error }
+          : { type: 'success', message: 'General info saved successfully!' }
+      );
+    } catch (err) {
+      setGeneralStatus({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'An unexpected error occurred',
+      });
+    } finally {
+      setIsSavingGeneral(false);
+    }
   }
 
   async function handleSaveAbout() {
     setIsSavingAbout(true);
     setAboutStatus(null);
 
-    const { error } = await updateProfile({
-      about_tech_stack: formData.about_tech_stack || null,
-      about_current_focus: formData.about_current_focus || null,
-      about_beyond_code: formData.about_beyond_code || null,
-      about_expertise: formData.about_expertise.length > 0 ? formData.about_expertise : null,
-    });
+    const cleanedExpertise = formData.about_expertise.map((e) => e.trim()).filter(Boolean);
 
-    setAboutStatus(
-      error
-        ? { type: 'error', message: error }
-        : { type: 'success', message: 'About info saved successfully!' }
-    );
-    setIsSavingAbout(false);
+    try {
+      const { error } = await updateProfile({
+        about_tech_stack: formData.about_tech_stack || null,
+        about_current_focus: formData.about_current_focus || null,
+        about_beyond_code: formData.about_beyond_code || null,
+        about_expertise: cleanedExpertise.length > 0 ? cleanedExpertise : null,
+      });
+
+      setAboutStatus(
+        error
+          ? { type: 'error', message: error }
+          : { type: 'success', message: 'About info saved successfully!' }
+      );
+    } catch (err) {
+      setAboutStatus({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'An unexpected error occurred',
+      });
+    } finally {
+      setIsSavingAbout(false);
+    }
   }
 
   async function handleSaveStats() {
@@ -157,14 +177,22 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
       sort_order: index,
     }));
 
-    const { error } = await updateProfileStats(statsToSave);
+    try {
+      const { error } = await updateProfileStats(statsToSave);
 
-    setStatsStatus(
-      error
-        ? { type: 'error', message: error }
-        : { type: 'success', message: 'Stats saved successfully!' }
-    );
-    setIsSavingStats(false);
+      setStatsStatus(
+        error
+          ? { type: 'error', message: error }
+          : { type: 'success', message: 'Stats saved successfully!' }
+      );
+    } catch (err) {
+      setStatsStatus({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'An unexpected error occurred',
+      });
+    } finally {
+      setIsSavingStats(false);
+    }
   }
 
   function moveStatUp(index: number) {
@@ -283,6 +311,7 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                       <Button
                         size="icon"
                         variant="ghost"
+                        aria-label={`Delete title ${index + 1}`}
                         onClick={() => removeArrayItem('typewriter_titles', index)}
                         disabled={formData.typewriter_titles.length === 1}
                       >
@@ -460,6 +489,7 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                       <Button
                         size="icon"
                         variant="ghost"
+                        aria-label={`Delete expertise ${index + 1}`}
                         onClick={() => removeArrayItem('about_expertise', index)}
                       >
                         <Trash2 className="size-4" />
@@ -541,6 +571,7 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                           size="icon"
                           variant="ghost"
                           className="size-6"
+                          aria-label="Move stat up"
                           onClick={() => moveStatUp(index)}
                           disabled={index === 0}
                         >
@@ -550,6 +581,7 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                           size="icon"
                           variant="ghost"
                           className="size-6"
+                          aria-label="Move stat down"
                           onClick={() => moveStatDown(index)}
                           disabled={index === statsData.length - 1}
                         >
@@ -615,6 +647,7 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                       <Button
                         size="icon"
                         variant="ghost"
+                        aria-label="Delete stat"
                         onClick={() => setStatsData((prev) => prev.filter((_, i) => i !== index))}
                       >
                         <Trash2 className="size-4" />

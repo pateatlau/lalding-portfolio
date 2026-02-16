@@ -250,6 +250,7 @@ export default function ProjectsEditor({
                       size="icon"
                       variant="ghost"
                       className="size-7"
+                      aria-label="Move project up"
                       onClick={() => handleMove(index, 'up')}
                       disabled={index === 0 || isReordering}
                     >
@@ -259,6 +260,7 @@ export default function ProjectsEditor({
                       size="icon"
                       variant="ghost"
                       className="size-7"
+                      aria-label="Move project down"
                       onClick={() => handleMove(index, 'down')}
                       disabled={index === projects.length - 1 || isReordering}
                     >
@@ -272,8 +274,8 @@ export default function ProjectsEditor({
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   <div className="flex flex-wrap gap-1">
-                    {project.tags.slice(0, 3).map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
+                    {project.tags.slice(0, 3).map((tag, i) => (
+                      <Badge key={`${tag}-${i}`} variant="secondary" className="text-xs">
                         {tag}
                       </Badge>
                     ))}
@@ -290,6 +292,7 @@ export default function ProjectsEditor({
                       size="icon"
                       variant="ghost"
                       className="size-7"
+                      aria-label="Edit project"
                       onClick={() => openEditDialog(project)}
                     >
                       <Pencil className="size-3" />
@@ -298,6 +301,7 @@ export default function ProjectsEditor({
                       size="icon"
                       variant="ghost"
                       className="size-7"
+                      aria-label="Delete project"
                       onClick={() => openDeleteDialog(project)}
                     >
                       <Trash2 className="size-3" />

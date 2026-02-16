@@ -247,6 +247,7 @@ export default function ExperienceEditor({
                       size="icon"
                       variant="ghost"
                       className="size-7"
+                      aria-label="Move experience up"
                       onClick={() => handleMove(index, 'up')}
                       disabled={index === 0 || isReordering}
                     >
@@ -256,6 +257,7 @@ export default function ExperienceEditor({
                       size="icon"
                       variant="ghost"
                       className="size-7"
+                      aria-label="Move experience down"
                       onClick={() => handleMove(index, 'down')}
                       disabled={index === experiences.length - 1 || isReordering}
                     >
@@ -274,6 +276,7 @@ export default function ExperienceEditor({
                       size="icon"
                       variant="ghost"
                       className="size-7"
+                      aria-label="Edit experience"
                       onClick={() => openEditDialog(exp)}
                     >
                       <Pencil className="size-3" />
@@ -282,6 +285,7 @@ export default function ExperienceEditor({
                       size="icon"
                       variant="ghost"
                       className="size-7"
+                      aria-label="Delete experience"
                       onClick={() => openDeleteDialog(exp)}
                     >
                       <Trash2 className="size-3" />

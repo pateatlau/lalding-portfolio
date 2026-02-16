@@ -46,10 +46,19 @@ if (!supabaseUrl || !serviceRoleKey) {
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
 // ---------------------------------------------------------------------------
-// Admin user config
+// Admin user config — read from env vars (ADMIN_EMAIL, ADMIN_PASSWORD)
 // ---------------------------------------------------------------------------
-const ADMIN_EMAIL = 'pateatlau@gmail.com';
-const ADMIN_PASSWORD = 'Tantei@2025';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+  console.error(
+    'Missing ADMIN_EMAIL or ADMIN_PASSWORD.\n' +
+      'Set them in .env.local or pass them inline:\n' +
+      '  ADMIN_EMAIL=you@example.com ADMIN_PASSWORD=secret npm run setup-admin'
+  );
+  process.exit(1);
+}
 
 async function main() {
   console.log(`\nSetting up admin user: ${ADMIN_EMAIL}\n`);
