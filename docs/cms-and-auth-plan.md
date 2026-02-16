@@ -275,6 +275,20 @@ Create `lib/supabase/seed.ts` to migrate current `lib/data.ts` + hardcoded conte
 
 Example: `"May 2023 - 2025"` → `{ start_date: "2023-05-01", end_date: "2025-01-01", display_date: "May 2023 - 2025" }`
 
+### Phase 1 Implementation Notes
+
+- Auth/visitor tables (`visitor_profiles`, `resume_downloads`, email sync trigger) are deferred to Phase 2 since they depend on Supabase Auth being configured. Phase 1 creates content tables only.
+- SQL files are stored in `supabase/` directory at the project root:
+  - `supabase/schema.sql` — content tables
+  - `supabase/rls.sql` — RLS policies for content tables
+  - `supabase/storage.sql` — storage bucket creation + access policies
+- These SQL files must be run manually in the Supabase SQL Editor after creating the project.
+- TypeScript types in `lib/supabase/types.ts` are hand-written to match the schema. They can be regenerated later via `supabase gen types typescript` once the Supabase CLI is set up.
+- The seed script uses the admin client (service role key) to bypass RLS.
+- `next.config.js` is updated with Supabase hostname in `images.remotePatterns` so `<Image>` works with Supabase Storage URLs.
+
+### Phase 1 Status: COMPLETE
+
 ---
 
 ## Phase 2: Authentication

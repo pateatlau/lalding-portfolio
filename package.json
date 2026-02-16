@@ -16,11 +16,14 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed"
+    "test:e2e:headed": "playwright test --headed",
+    "seed": "npx tsx lib/supabase/seed.ts"
   },
   "dependencies": {
     "@react-email/components": "^1.0.7",
     "@react-email/tailwind": "^2.0.4",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.95.3",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "20.3.2",
     "@types/react-slick": "^0.23.13",
