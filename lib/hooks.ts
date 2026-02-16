@@ -1,7 +1,6 @@
 import { useActiveSectionContext } from '@/context/active-section-context';
 import { useAuth } from '@/context/auth-context';
 import { downloadResume } from '@/actions/resume';
-import { createClient } from '@/lib/supabase/client';
 import { useCallback, useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import toast from 'react-hot-toast';
@@ -78,37 +77,38 @@ export function useResumeDownload() {
   }, [clearNewUserFlag, triggerDownload]);
 
   // After OAuth redirect, resume the download flow.
-  // onAuthStateChange is an external subscription, so setState in its callback is allowed.
+  // Listens for 'auth:signed-in' custom event dispatched by AuthProvider —
+  // this is an external event subscription, so setState in the handler is allowed.
   useEffect(() => {
-    const supabase = createClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
-      if (event !== 'SIGNED_IN') return;
-
+    const handler = async (e: Event) => {
       const pendingAction = localStorage.getItem('pendingAction');
       if (pendingAction !== 'download_resume') return;
       localStorage.removeItem('pendingAction');
 
-      // Wait for auth context to finish upserting the visitor profile
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const { isNewUser: isNew } = (e as CustomEvent).detail;
+      if (isNew) {
+        setShowOptionalFieldsModal(true);
+      } else {
+        setIsDownloading(true);
+        const result = await downloadResume();
+        setIsDownloading(false);
 
-      setIsDownloading(true);
-      const result = await downloadResume();
-      setIsDownloading(false);
+        if (result.error) {
+          toast.error(result.error);
+          return;
+        }
 
-      if (result.error) {
-        toast.error(result.error);
-        return;
+        if (result.url) {
+          const a = document.createElement('a');
+          a.href = result.url;
+          a.download = '';
+          a.click();
+        }
       }
+    };
 
-      if (result.url) {
-        const a = document.createElement('a');
-        a.href = result.url;
-        a.download = '';
-        a.click();
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    window.addEventListener('auth:signed-in', handler);
+    return () => window.removeEventListener('auth:signed-in', handler);
   }, []);
 
   return {

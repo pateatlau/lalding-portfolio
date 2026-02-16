@@ -7,8 +7,10 @@ import Link from 'next/link';
 import { BsArrowRight, BsLinkedin } from 'react-icons/bs';
 import { HiDownload } from 'react-icons/hi';
 import { FaGithubSquare } from 'react-icons/fa';
+import { BsBoxArrowRight } from 'react-icons/bs';
 import { useSectionInView, useResumeDownload } from '@/lib/hooks';
 import { useActiveSectionContext } from '@/context/active-section-context';
+import { useAuth } from '@/context/auth-context';
 import LoginModal from '@/components/auth/login-modal';
 import OptionalFieldsModal from '@/components/auth/optional-fields-modal';
 import type { ProfileData } from '@/lib/types';
@@ -70,6 +72,7 @@ export default function Intro({ profile }: { profile: ProfileData }) {
     showOptionalFieldsModal,
     handleOptionalFieldsComplete,
   } = useResumeDownload();
+  const { user, visitorProfile, signOut } = useAuth();
 
   return (
     <>
@@ -188,6 +191,25 @@ export default function Intro({ profile }: { profile: ProfileData }) {
           >
             <FaGithubSquare />
           </a>
+        )}
+
+        {user && (
+          <button
+            className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-gray-700 transition hover:scale-105 hover:text-gray-950 dark:bg-white/10 dark:text-white/60 dark:hover:text-white"
+            onClick={() => signOut()}
+            title={`Signed in as ${visitorProfile?.full_name || visitorProfile?.email || 'user'} — click to sign out`}
+          >
+            {visitorProfile?.avatar_url ? (
+              <Image
+                src={visitorProfile.avatar_url}
+                alt=""
+                width={24}
+                height={24}
+                className="h-6 w-6 rounded-full"
+              />
+            ) : null}
+            <BsBoxArrowRight className="opacity-60" />
+          </button>
         )}
       </motion.div>
 

@@ -17,7 +17,9 @@ import {
   BsLightning,
   BsBriefcase,
 } from 'react-icons/bs';
+import { BsBoxArrowRight } from 'react-icons/bs';
 import { useResumeDownload } from '@/lib/hooks';
+import { useAuth } from '@/context/auth-context';
 import LoginModal from '@/components/auth/login-modal';
 import OptionalFieldsModal from '@/components/auth/optional-fields-modal';
 import type { ProfileData } from '@/lib/types';
@@ -46,6 +48,7 @@ export default function CommandPalette({ profile }: { profile: ProfileData }) {
     showOptionalFieldsModal,
     handleOptionalFieldsComplete,
   } = useResumeDownload();
+  const { user, signOut } = useAuth();
 
   const close = useCallback(() => {
     setIsOpen(false);
@@ -163,6 +166,21 @@ export default function CommandPalette({ profile }: { profile: ProfileData }) {
               window.open(profile.githubUrl, '_blank', 'noopener,noreferrer');
               close();
             },
+          },
+        ]
+      : []),
+    ...(user
+      ? [
+          {
+            id: 'signout',
+            label: 'Sign Out',
+            icon: <BsBoxArrowRight />,
+            group: 'Account',
+            action: () => {
+              signOut();
+              close();
+            },
+            keywords: ['logout', 'sign out'],
           },
         ]
       : []),

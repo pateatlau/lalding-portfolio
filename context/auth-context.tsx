@@ -65,6 +65,10 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
             setVisitorProfile(result.data);
             setIsNewUser(result.isNewUser ?? false);
           }
+          // Notify pending action listeners that auth is ready
+          window.dispatchEvent(new CustomEvent('auth:signed-in', {
+            detail: { isNewUser: result.isNewUser ?? false },
+          }));
         } else if (event === 'SIGNED_OUT') {
           setVisitorProfile(null);
           setIsNewUser(false);
