@@ -718,7 +718,17 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - All admin pages and components as needed
 
-### 4H Status: PENDING
+### 4H Implementation Notes
+
+- Installed shadcn/ui `skeleton` component for loading state animations.
+- Created `loading.tsx` skeleton files for all 6 admin pages (dashboard, profile, experience, projects, skills, resume), each mirroring the layout of its corresponding page component.
+- Created `app/admin/(dashboard)/error.tsx` — shared error boundary with AlertTriangle icon, error message, and "Try Again" button. Catches errors within the admin shell so sidebar/header remain visible.
+- Added `--success` CSS custom property to `globals.css` (oklch values for light and dark mode). Replaced all `text-green-600` with `text-success` across 5 admin components.
+- Added required field indicators (`*` asterisks) and client-side validation to profile-form, experience-editor, and projects-editor.
+- Added client-side file validation to resume-manager (PDF type + 10 MB size check before server call).
+- Added 2 new test cases for resume file validation. Updated existing test assertions to use regex patterns for labels with asterisks.
+
+### 4H Status: COMPLETE
 
 ---
 

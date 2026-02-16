@@ -62,8 +62,8 @@ describe('ProjectsEditor', () => {
 
     expect(screen.getByRole('heading', { name: 'Add Project' })).toBeInTheDocument();
 
-    await user.type(screen.getByLabelText('Title'), 'New Project');
-    await user.type(screen.getByLabelText('Description'), 'A new project');
+    await user.type(screen.getByLabelText(/^title/i), 'New Project');
+    await user.type(screen.getByLabelText(/^description/i), 'A new project');
     await user.type(screen.getByLabelText('Tags'), 'Vue, Vite');
 
     await user.click(screen.getByRole('button', { name: /create/i }));
@@ -89,7 +89,7 @@ describe('ProjectsEditor', () => {
 
     expect(screen.getByText('Edit Project')).toBeInTheDocument();
 
-    const titleInput = screen.getByLabelText('Title');
+    const titleInput = screen.getByLabelText(/^title/i);
     await user.clear(titleInput);
     await user.type(titleInput, 'Updated Alpha');
 
@@ -131,7 +131,8 @@ describe('ProjectsEditor', () => {
     render(<ProjectsEditor projects={mockProjects} categories={mockCategories} />);
 
     await user.click(screen.getByRole('button', { name: /add project/i }));
-    await user.type(screen.getByLabelText('Title'), 'Test');
+    await user.type(screen.getByLabelText(/^title/i), 'Test');
+    await user.type(screen.getByLabelText(/^description/i), 'Test desc');
     await user.click(screen.getByRole('button', { name: /create/i }));
 
     await waitFor(() => {

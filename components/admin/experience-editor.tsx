@@ -96,6 +96,18 @@ export default function ExperienceEditor({
     setIsSaving(true);
     setStatus(null);
 
+    if (
+      !formData.title.trim() ||
+      !formData.company.trim() ||
+      !formData.description.trim() ||
+      !formData.display_date.trim() ||
+      !formData.start_date.trim()
+    ) {
+      setStatus({ type: 'error', message: 'Please fill in all required fields' });
+      setIsSaving(false);
+      return;
+    }
+
     const payload = {
       title: formData.title,
       company: formData.company,
@@ -190,7 +202,7 @@ export default function ExperienceEditor({
       {status && (
         <p
           className={
-            status.type === 'success' ? 'text-sm text-green-600' : 'text-destructive text-sm'
+            status.type === 'success' ? 'text-success text-sm' : 'text-destructive text-sm'
           }
         >
           {status.message}
@@ -282,7 +294,9 @@ export default function ExperienceEditor({
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="exp-title">Title</Label>
+              <Label htmlFor="exp-title">
+                Title <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="exp-title"
                 value={formData.title}
@@ -292,7 +306,9 @@ export default function ExperienceEditor({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="exp-company">Company</Label>
+              <Label htmlFor="exp-company">
+                Company <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="exp-company"
                 value={formData.company}
@@ -302,7 +318,9 @@ export default function ExperienceEditor({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="exp-description">Description</Label>
+              <Label htmlFor="exp-description">
+                Description <span className="text-destructive">*</span>
+              </Label>
               <Textarea
                 id="exp-description"
                 value={formData.description}
@@ -313,7 +331,9 @@ export default function ExperienceEditor({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="exp-display-date">Display Date</Label>
+              <Label htmlFor="exp-display-date">
+                Display Date <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="exp-display-date"
                 value={formData.display_date}
@@ -324,7 +344,9 @@ export default function ExperienceEditor({
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="exp-start-date">Start Date</Label>
+                <Label htmlFor="exp-start-date">
+                  Start Date <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="exp-start-date"
                   type="date"

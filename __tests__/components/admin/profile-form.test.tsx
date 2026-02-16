@@ -27,16 +27,16 @@ describe('ProfileForm', () => {
 
   it('renders general tab fields with initial values', () => {
     render(<ProfileForm profile={mockProfile} stats={mockStats} />);
-    expect(screen.getByLabelText('Full Name')).toHaveValue('John Doe');
-    expect(screen.getByLabelText('Job Title')).toHaveValue('Software Engineer');
-    expect(screen.getByLabelText('Email')).toHaveValue('john@example.com');
+    expect(screen.getByLabelText(/^full name/i)).toHaveValue('John Doe');
+    expect(screen.getByLabelText(/^job title/i)).toHaveValue('Software Engineer');
+    expect(screen.getByLabelText(/^email/i)).toHaveValue('john@example.com');
   });
 
   it('allows editing and saving general info', async () => {
     const user = userEvent.setup();
     render(<ProfileForm profile={mockProfile} stats={mockStats} />);
 
-    const fullNameInput = screen.getByLabelText('Full Name');
+    const fullNameInput = screen.getByLabelText(/^full name/i);
     await user.clear(fullNameInput);
     await user.type(fullNameInput, 'Jane Doe');
 

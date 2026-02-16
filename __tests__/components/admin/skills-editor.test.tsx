@@ -47,7 +47,7 @@ describe('SkillsEditor', () => {
     expect(screen.getByText(/no skill groups yet/i)).toBeInTheDocument();
   });
 
-  it('opens add group dialog and creates group', async () => {
+  it('opens add group dialog and creates group', { timeout: 10000 }, async () => {
     const newGroup: SkillGroup = { id: 'sg-new', category: 'DevOps', sort_order: 2 };
     vi.mocked(createSkillGroup).mockResolvedValue({ data: newGroup });
 

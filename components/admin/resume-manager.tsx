@@ -48,6 +48,18 @@ export default function ResumeManager({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.type !== 'application/pdf') {
+      setStatus({ type: 'error', message: 'Only PDF files are allowed' });
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setStatus({ type: 'error', message: 'File must be smaller than 10 MB' });
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
     setIsUploading(true);
     setStatus(null);
 
@@ -83,7 +95,7 @@ export default function ResumeManager({
       {status && (
         <p
           className={
-            status.type === 'success' ? 'text-sm text-green-600' : 'text-destructive text-sm'
+            status.type === 'success' ? 'text-success text-sm' : 'text-destructive text-sm'
           }
         >
           {status.message}

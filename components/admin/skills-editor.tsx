@@ -264,7 +264,7 @@ export default function SkillsEditor({
       {status && (
         <p
           className={
-            status.type === 'success' ? 'text-sm text-green-600' : 'text-destructive text-sm'
+            status.type === 'success' ? 'text-success text-sm' : 'text-destructive text-sm'
           }
         >
           {status.message}

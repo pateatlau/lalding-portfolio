@@ -105,6 +105,12 @@ export default function ProjectsEditor({
     setIsSaving(true);
     setStatus(null);
 
+    if (!formData.title.trim() || !formData.description.trim()) {
+      setStatus({ type: 'error', message: 'Please fill in all required fields' });
+      setIsSaving(false);
+      return;
+    }
+
     const payload = {
       title: formData.title,
       description: formData.description,
@@ -200,7 +206,7 @@ export default function ProjectsEditor({
       {status && (
         <p
           className={
-            status.type === 'success' ? 'text-sm text-green-600' : 'text-destructive text-sm'
+            status.type === 'success' ? 'text-success text-sm' : 'text-destructive text-sm'
           }
         >
           {status.message}
@@ -303,7 +309,9 @@ export default function ProjectsEditor({
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="proj-title">Title</Label>
+              <Label htmlFor="proj-title">
+                Title <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="proj-title"
                 value={formData.title}
@@ -313,7 +321,9 @@ export default function ProjectsEditor({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="proj-description">Description</Label>
+              <Label htmlFor="proj-description">
+                Description <span className="text-destructive">*</span>
+              </Label>
               <Textarea
                 id="proj-description"
                 value={formData.description}

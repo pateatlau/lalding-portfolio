@@ -87,6 +87,17 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
     setIsSavingGeneral(true);
     setGeneralStatus(null);
 
+    if (
+      !formData.full_name.trim() ||
+      !formData.short_name.trim() ||
+      !formData.job_title.trim() ||
+      !formData.email.trim()
+    ) {
+      setGeneralStatus({ type: 'error', message: 'Please fill in all required fields' });
+      setIsSavingGeneral(false);
+      return;
+    }
+
     const { error } = await updateProfile({
       full_name: formData.full_name,
       short_name: formData.short_name,
@@ -203,7 +214,9 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                 <h3 className="text-sm font-semibold">Personal Info</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="full_name">Full Name</Label>
+                    <Label htmlFor="full_name">
+                      Full Name <span className="text-destructive">*</span>
+                    </Label>
                     <Input
                       id="full_name"
                       value={formData.full_name}
@@ -211,7 +224,9 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="short_name">Short Name</Label>
+                    <Label htmlFor="short_name">
+                      Short Name <span className="text-destructive">*</span>
+                    </Label>
                     <Input
                       id="short_name"
                       value={formData.short_name}
@@ -220,7 +235,9 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="job_title">Job Title</Label>
+                  <Label htmlFor="job_title">
+                    Job Title <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     id="job_title"
                     value={formData.job_title}
@@ -283,7 +300,9 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                 <h3 className="text-sm font-semibold">Contact Info</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">
+                      Email <span className="text-destructive">*</span>
+                    </Label>
                     <Input
                       id="email"
                       type="email"
@@ -358,7 +377,7 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                 <p
                   className={
                     generalStatus.type === 'success'
-                      ? 'text-sm text-green-600'
+                      ? 'text-success text-sm'
                       : 'text-destructive text-sm'
                   }
                 >
@@ -455,7 +474,7 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                 <p
                   className={
                     aboutStatus.type === 'success'
-                      ? 'text-sm text-green-600'
+                      ? 'text-success text-sm'
                       : 'text-destructive text-sm'
                   }
                 >
@@ -610,7 +629,7 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                 <p
                   className={
                     statsStatus.type === 'success'
-                      ? 'text-sm text-green-600'
+                      ? 'text-success text-sm'
                       : 'text-destructive text-sm'
                   }
                 >

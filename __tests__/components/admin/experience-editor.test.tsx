@@ -61,11 +61,11 @@ describe('ExperienceEditor', () => {
     expect(screen.getByRole('heading', { name: 'Add Experience' })).toBeInTheDocument();
 
     // Fill in the form
-    await user.type(screen.getByLabelText('Title'), 'Tech Lead');
-    await user.type(screen.getByLabelText('Company'), 'New Corp');
-    await user.type(screen.getByLabelText('Description'), 'Leading engineering');
-    await user.type(screen.getByLabelText('Display Date'), 'Jan 2023 - Present');
-    await user.type(screen.getByLabelText('Start Date'), '2023-01-01');
+    await user.type(screen.getByLabelText(/^title/i), 'Tech Lead');
+    await user.type(screen.getByLabelText(/^company \*/i), 'New Corp');
+    await user.type(screen.getByLabelText(/^description/i), 'Leading engineering');
+    await user.type(screen.getByLabelText(/^display date/i), 'Jan 2023 - Present');
+    await user.type(screen.getByLabelText(/^start date/i), '2023-01-01');
 
     await user.click(screen.getByRole('button', { name: /create/i }));
 
@@ -89,11 +89,11 @@ describe('ExperienceEditor', () => {
     expect(screen.getByText('Edit Experience')).toBeInTheDocument();
     await waitFor(
       () => {
-        expect(screen.getByLabelText('Title')).toHaveValue('Senior Dev');
+        expect(screen.getByLabelText(/^title/i)).toHaveValue('Senior Dev');
       },
       { timeout: 3000 }
     );
-    expect(screen.getByLabelText('Company')).toHaveValue('Acme Corp');
+    expect(screen.getByLabelText(/^company \*/i)).toHaveValue('Acme Corp');
   }, 10000);
 
   it('saves edited experience', async () => {
@@ -113,11 +113,11 @@ describe('ExperienceEditor', () => {
     // Wait for dialog to open and values to populate
     await waitFor(
       () => {
-        expect(screen.getByLabelText('Title')).toHaveValue('Senior Dev');
+        expect(screen.getByLabelText(/^title/i)).toHaveValue('Senior Dev');
       },
       { timeout: 3000 }
     );
-    const titleInput = screen.getByLabelText('Title');
+    const titleInput = screen.getByLabelText(/^title/i);
 
     await user.clear(titleInput);
     await user.type(titleInput, 'Lead Dev');
@@ -164,7 +164,11 @@ describe('ExperienceEditor', () => {
     render(<ExperienceEditor experiences={mockExperiences} />);
 
     await user.click(screen.getByRole('button', { name: /add experience/i }));
-    await user.type(screen.getByLabelText('Title'), 'Test');
+    await user.type(screen.getByLabelText(/^title/i), 'Test');
+    await user.type(screen.getByLabelText(/^company \*/i), 'TestCo');
+    await user.type(screen.getByLabelText(/^description/i), 'Desc');
+    await user.type(screen.getByLabelText(/^display date/i), '2023');
+    await user.type(screen.getByLabelText(/^start date/i), '2023-01-01');
     await user.click(screen.getByRole('button', { name: /create/i }));
 
     await waitFor(() => {

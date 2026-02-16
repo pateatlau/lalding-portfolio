@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ResumeManager from '@/components/admin/resume-manager';
 import { mockDownloads } from '../../helpers/admin-fixtures';
@@ -55,6 +55,38 @@ describe('ResumeManager', () => {
       <ResumeManager resumeUrl="resume.pdf" updatedAt="2025-01-01T00:00:00Z" downloads={[]} />
     );
     expect(screen.getByText('No downloads recorded yet.')).toBeInTheDocument();
+  });
+
+  it('rejects non-PDF files before upload', () => {
+    const { container } = render(
+      <ResumeManager resumeUrl={null} updatedAt="2025-01-01T00:00:00Z" downloads={[]} />
+    );
+
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(['content'], 'doc.txt', { type: 'text/plain' });
+
+    // Use fireEvent to bypass accept attribute filtering
+    fireEvent.change(fileInput, { target: { files: [file] } });
+
+    expect(screen.getByText('Only PDF files are allowed')).toBeInTheDocument();
+    expect(uploadResume).not.toHaveBeenCalled();
+  });
+
+  it('rejects files larger than 10 MB before upload', () => {
+    const { container } = render(
+      <ResumeManager resumeUrl={null} updatedAt="2025-01-01T00:00:00Z" downloads={[]} />
+    );
+
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const largeFile = new File([new ArrayBuffer(11 * 1024 * 1024)], 'big.pdf', {
+      type: 'application/pdf',
+    });
+
+    // Use fireEvent to bypass accept attribute filtering
+    fireEvent.change(fileInput, { target: { files: [largeFile] } });
+
+    expect(screen.getByText('File must be smaller than 10 MB')).toBeInTheDocument();
+    expect(uploadResume).not.toHaveBeenCalled();
   });
 
   it('calls uploadResume on file selection and shows success', async () => {
