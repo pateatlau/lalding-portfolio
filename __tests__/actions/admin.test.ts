@@ -41,6 +41,8 @@ import {
   reorderSkills,
   getResumeDownloads,
   uploadResume,
+  getVisitors,
+  getVisitorsCsvData,
 } from '@/actions/admin';
 
 let mockClient: MockSupabaseClient;
@@ -672,5 +674,184 @@ describe('uploadResume', () => {
     const fd = createFormDataWithFile(new File(['pdf'], 'resume.pdf', { type: 'application/pdf' }));
     const result = await uploadResume(fd);
     expect(result.error).toBe('File uploaded but failed to update profile');
+  });
+});
+
+// ─── getVisitors ─────────────────────────────────────────────
+
+describe('getVisitors', () => {
+  it('returns error when not admin', async () => {
+    mockClient._setAuth(null);
+    const result = await getVisitors();
+    expect(result.error).toBe('Not authenticated');
+  });
+
+  it('returns mapped visitor entries with download counts', async () => {
+    setAdmin();
+
+    const rawVisitors = [
+      {
+        id: 'v-1',
+        full_name: 'Jane',
+        email: 'jane@test.com',
+        avatar_url: 'https://example.com/jane.jpg',
+        provider: 'google',
+        company: 'Corp',
+        role: 'Engineer',
+        created_at: '2025-01-01T00:00:00Z',
+      },
+      {
+        id: 'v-2',
+        full_name: 'Bob',
+        email: 'bob@test.com',
+        avatar_url: null,
+        provider: 'github',
+        company: null,
+        role: null,
+        created_at: '2025-01-02T00:00:00Z',
+      },
+    ];
+    const downloads = [{ visitor_id: 'v-1' }, { visitor_id: 'v-1' }, { visitor_id: 'v-2' }];
+
+    mockClient.from
+      .mockReturnValueOnce(createChainMock({ data: rawVisitors, error: null }))
+      .mockReturnValueOnce(createChainMock({ data: downloads, error: null }));
+
+    const result = await getVisitors();
+    expect(result.data).toEqual([
+      {
+        id: 'v-1',
+        fullName: 'Jane',
+        email: 'jane@test.com',
+        avatarUrl: 'https://example.com/jane.jpg',
+        provider: 'google',
+        company: 'Corp',
+        role: 'Engineer',
+        createdAt: '2025-01-01T00:00:00Z',
+        downloadCount: 2,
+      },
+      {
+        id: 'v-2',
+        fullName: 'Bob',
+        email: 'bob@test.com',
+        avatarUrl: null,
+        provider: 'github',
+        company: null,
+        role: null,
+        createdAt: '2025-01-02T00:00:00Z',
+        downloadCount: 1,
+      },
+    ]);
+  });
+
+  it('returns empty array when no visitors exist', async () => {
+    setAdmin();
+    mockClient.from.mockReturnValueOnce(createChainMock({ data: [], error: null }));
+
+    const result = await getVisitors();
+    expect(result.data).toEqual([]);
+  });
+
+  it('returns error on database failure', async () => {
+    setAdmin();
+    mockClient.from.mockReturnValueOnce(
+      createChainMock({ data: null, error: { message: 'DB error' } })
+    );
+
+    const result = await getVisitors();
+    expect(result.error).toBe('Failed to load visitors');
+  });
+
+  it('returns zero download count when no downloads exist for visitors', async () => {
+    setAdmin();
+
+    const rawVisitors = [
+      {
+        id: 'v-1',
+        full_name: 'Jane',
+        email: 'jane@test.com',
+        avatar_url: null,
+        provider: 'google',
+        company: null,
+        role: null,
+        created_at: '2025-01-01T00:00:00Z',
+      },
+    ];
+
+    mockClient.from
+      .mockReturnValueOnce(createChainMock({ data: rawVisitors, error: null }))
+      .mockReturnValueOnce(createChainMock({ data: [], error: null }));
+
+    const result = await getVisitors();
+    expect(result.data![0].downloadCount).toBe(0);
+  });
+});
+
+// ─── getVisitorsCsvData ──────────────────────────────────────
+
+describe('getVisitorsCsvData', () => {
+  it('returns error when not admin', async () => {
+    mockClient._setAuth(null);
+    const result = await getVisitorsCsvData();
+    expect(result.error).toBe('Not authenticated');
+  });
+
+  it('returns CSV string with headers and visitor rows', async () => {
+    setAdmin();
+
+    const rawVisitors = [
+      {
+        id: 'v-1',
+        full_name: 'Jane',
+        email: 'jane@test.com',
+        avatar_url: null,
+        provider: 'google',
+        company: 'Corp',
+        role: 'Engineer',
+        created_at: '2025-06-15T10:00:00Z',
+      },
+    ];
+
+    // getVisitors call: visitors query + downloads query
+    mockClient.from
+      .mockReturnValueOnce(createChainMock({ data: rawVisitors, error: null }))
+      .mockReturnValueOnce(createChainMock({ data: [{ visitor_id: 'v-1' }], error: null }));
+
+    const result = await getVisitorsCsvData();
+    expect(result.data).toContain('Name,Email,Provider,Company,Role,Downloads,Joined');
+    expect(result.data).toContain('Jane,jane@test.com,google,Corp,Engineer,1,2025-06-15');
+  });
+
+  it('returns empty CSV with only headers when no visitors', async () => {
+    setAdmin();
+    mockClient.from.mockReturnValueOnce(createChainMock({ data: [], error: null }));
+
+    const result = await getVisitorsCsvData();
+    expect(result.data).toBe('Name,Email,Provider,Company,Role,Downloads,Joined');
+  });
+
+  it('escapes CSV fields containing commas', async () => {
+    setAdmin();
+
+    const rawVisitors = [
+      {
+        id: 'v-1',
+        full_name: 'Last, First',
+        email: 'test@test.com',
+        avatar_url: null,
+        provider: 'google',
+        company: null,
+        role: null,
+        created_at: '2025-01-01T00:00:00Z',
+      },
+    ];
+
+    mockClient.from
+      .mockReturnValueOnce(createChainMock({ data: rawVisitors, error: null }))
+      .mockReturnValueOnce(createChainMock({ data: [], error: null }));
+
+    const result = await getVisitorsCsvData();
+    // Name with comma should be quoted
+    expect(result.data).toContain('"Last, First"');
   });
 });

@@ -706,7 +706,27 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - `actions/admin.ts` — add `getVisitors()`, `getVisitorsCsvData()`
 
-### 4G Status: PENDING
+### 4G Implementation Notes
+
+- Created `app/admin/(dashboard)/visitors/page.tsx` — server component that fetches visitors via `getVisitors()` and passes `VisitorEntry[]` to `VisitorsTable` client component. Handles error with fallback UI.
+- Created `components/admin/visitors-table.tsx` — client component with:
+  - **Table view**: Columns for Name (with avatar), Email, Provider (Badge), Company, Role, Downloads (count), Joined (time-ago). Responsive: Email hidden on mobile, Provider hidden below md, Company/Role hidden below lg.
+  - **Search**: Full-text search across name, email, company, and role fields. Resets pagination on change.
+  - **Provider filter**: Select dropdown with dynamically populated providers (Google, GitHub, LinkedIn, etc.) plus "All providers" option.
+  - **Sortable columns**: Name, Email, Provider, Downloads, Joined — click toggles asc/desc with visual indicator via ArrowUpDown icon.
+  - **Pagination**: 20 items per page with Previous/Next buttons and "Showing X–Y of Z" indicator.
+  - **CSV export**: "Export CSV" button calls `getVisitorsCsvData()` server action, generates a Blob, and triggers browser download with date-stamped filename.
+  - **Empty states**: Distinct messages for "No visitors yet" vs "No visitors match your filters."
+- Added 2 server actions to `actions/admin.ts`:
+  - `getVisitors()` — fetches all `visitor_profiles` ordered by `created_at` desc, joins download counts from `resume_downloads` via a second query + Map aggregation. Returns camelCase `VisitorEntry[]`.
+  - `getVisitorsCsvData()` — calls `getVisitors()` internally, formats as CSV string with proper field escaping (commas, quotes, newlines).
+- Added `VisitorEntry` exported type for use in component props and test fixtures.
+- Created `app/admin/(dashboard)/visitors/loading.tsx` — skeleton loading state matching the visitors page layout.
+- Added `mockVisitors` fixture to `__tests__/helpers/admin-fixtures.ts` (3 visitors: Google, GitHub, null-name).
+- Added 10 server action tests (getVisitors: 5, getVisitorsCsvData: 4 including CSV escaping) and 14 component tests (rendering, search, sort, export, empty states).
+- All actions follow the established pattern: `requireAdmin()` → DB query → return `{ data?, error? }`.
+
+### 4G Status: COMPLETE
 
 ---
 
