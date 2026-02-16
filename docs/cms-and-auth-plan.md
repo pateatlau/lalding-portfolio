@@ -468,96 +468,169 @@ To avoid a big-bang migration, implement a **fallback pattern** during developme
 
 ## Phase 4: Admin Dashboard
 
-### 4.1 Route Structure
+Phase 4 is split into sub-tasks 4A–4H, implemented sequentially with manual verification between each.
+
+### Route Structure (actual)
 
 ```tree
 app/admin/
 ├── login/
-│   └── page.tsx              # Admin login (email/password + social)
-├── layout.tsx                # Admin layout (sidebar, auth guard)
-├── page.tsx                  # Dashboard overview (visitor stats, download counts)
-├── profile/
-│   └── page.tsx              # Edit profile info, about section, contact info
-├── experience/
-│   └── page.tsx              # CRUD experience entries (reorderable)
-├── projects/
-│   └── page.tsx              # CRUD projects, upload images, manage categories
-├── skills/
-│   └── page.tsx              # CRUD skill groups and skills (reorderable)
-├── resume/
-│   └── page.tsx              # Upload/replace resume PDF, view download log
-└── visitors/
-    └── page.tsx              # View visitor profiles and download history
+│   └── page.tsx              # Admin login (public, outside route group)
+└── (dashboard)/              # Route group — auth guard + AdminShell
+    ├── layout.tsx            # Server component: auth check, fixed overlay
+    ├── page.tsx              # Dashboard overview (URL: /admin)
+    ├── profile/
+    │   └── page.tsx          # Edit profile info, about section, contact info
+    ├── experience/
+    │   └── page.tsx          # CRUD experience entries (reorderable)
+    ├── projects/
+    │   └── page.tsx          # CRUD projects, upload images, manage categories
+    ├── skills/
+    │   └── page.tsx          # CRUD skill groups and skills (reorderable)
+    ├── resume/
+    │   └── page.tsx          # Upload/replace resume PDF, view download log
+    └── visitors/
+        └── page.tsx          # View visitor profiles and download history
 ```
 
-### 4.2 Admin Layout
+### Server Actions for Admin
 
-- Sidebar navigation (collapsible on mobile)
-- Top bar with admin user info and sign-out
-- Breadcrumb navigation
-- Uses existing shadcn/ui components (Button, Card, Badge) + add Table, Dialog, Input, Textarea, Label, Select, Tabs
+All admin server actions live in `actions/admin.ts`. Every action:
 
-### 4.3 Admin Features by Page
+- Calls `requireAdmin()` to verify auth + `app_metadata.role === 'admin'`
+- Performs the database operation via `createClient()` (RLS-respecting)
+- Calls `revalidateTag()` for granular cache invalidation + `revalidatePath('/')` as fallback
+- Returns `{ data?, error? }` response
 
-**Dashboard** (`/admin`)
+### shadcn/ui Components
 
-- Total visitors who logged in
-- Total resume downloads (with chart over time)
-- Quick links to edit sections
+Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialog`, `input`, `textarea`, `label`, `select`, `tabs`, `dropdown-menu`, `avatar`, `separator`, `sheet` (added in 4A).
 
-**Profile** (`/admin/profile`)
+---
 
-- Edit all fields from the `profile` table
-- Edit stats (add/remove/reorder)
-- Live preview of changes (optional, later phase)
+### 4A: Foundation — Login + Layout + Dashboard
 
-**Experience** (`/admin/experience`)
+**Scope:** shadcn/ui installation, admin login page, admin layout with auth guard, admin shell (sidebar + topbar), dashboard overview page, `requireAdmin()` + `getAdminStats()` server actions.
 
-- Table of experiences with inline editing
-- Drag-to-reorder (or sort_order input)
-- Add/delete entries
-- Upload company logos
+**Files created:**
+- `actions/admin.ts` — `requireAdmin()` helper + `getAdminStats()` action
+- `app/admin/login/page.tsx` — email/password + social login, fixed overlay
+- `app/admin/(dashboard)/layout.tsx` — auth guard + AdminShell wrapper
+- `app/admin/(dashboard)/page.tsx` — dashboard overview
+- `components/admin/admin-shell.tsx` — sidebar nav + topbar + mobile sheet
+- `components/admin/dashboard-content.tsx` — stats cards + downloads table + quick actions
 
-**Projects** (`/admin/projects`)
+**Files modified:**
+- `proxy.ts` — exclude `/admin/login` from admin protection, redirect to `/admin/login` instead of `/`
 
-- Card-based list of projects
-- Add/edit/delete projects
-- Upload project images
-- Upload optional demo videos (short clips hosted in Supabase Storage; YouTube embedding planned for the future but not in scope yet)
-- Manage categories
+**Key decisions:**
+- `(dashboard)` route group separates auth-guarded pages from the public login page
+- `fixed inset-0 z-[1000]` overlay covers portfolio chrome without restructuring app directory
+- Dashboard stats use parallel Supabase queries via `Promise.all()`
 
-**Skills** (`/admin/skills`)
+### 4A Status: COMPLETE
 
-- Grouped view matching the frontend
-- Add/remove/reorder groups and skills within groups
+---
 
-**Resume** (`/admin/resume`)
+### 4B: Profile Editor
 
-- Current resume file info (name, size, upload date)
-- Upload new resume (replaces current file in Supabase Storage)
-- Table of recent downloads (visitor name, email, company, date)
+**Scope:** Profile editor page, tabbed form for General/About/Stats fields, `updateProfile()` + `updateProfileStats()` server actions, cache invalidation via `revalidateTag('profile')`.
 
-**Visitors** (`/admin/visitors`)
+**Files to create:**
+- `app/admin/(dashboard)/profile/page.tsx` — server component, fetches profile + stats
+- `components/admin/profile-form.tsx` — client component, tabbed interface (General, About, Stats)
 
-- Table of all visitors who logged in
-- Filter by provider (Google, LinkedIn, GitHub)
-- Export to CSV
+**Files to modify:**
+- `actions/admin.ts` — add `updateProfile()`, `updateProfileStats()` actions
 
-### 4.4 Server Actions for Admin
+### 4B Status: PENDING
 
-Create `actions/admin.ts` with server actions for each CRUD operation. All actions:
+---
 
-- Verify admin role via Supabase session
-- Perform the database operation
-- Call `revalidatePath('/')` to bust the ISR cache for the homepage; use `revalidateTag()` with granular cache tags for targeted invalidation when editing specific sections
-- Return success/error response
+### 4C: Experience CRUD
 
-### 4.5 Additional shadcn/ui Components Needed
+**Scope:** Experience editor page, table view with add/edit/delete dialogs, sort_order controls, CRUD server actions, cache invalidation via `revalidateTag('experiences')`.
 
-```bash
-npx shadcn@latest add table dialog input textarea label select tabs
-npx shadcn@latest add dropdown-menu avatar separator sheet
-```
+**Files to create:**
+- `app/admin/(dashboard)/experience/page.tsx` — server component, fetches experiences
+- `components/admin/experience-editor.tsx` — client component, table + dialogs
+
+**Files to modify:**
+- `actions/admin.ts` — add `createExperience()`, `updateExperience()`, `deleteExperience()`, `reorderExperiences()`
+
+### 4C Status: PENDING
+
+---
+
+### 4D: Projects CRUD + File Uploads
+
+**Scope:** Projects editor page, card grid with add/edit/delete dialogs, image/video upload, reusable file upload component, CRUD server actions, cache invalidation via `revalidateTag('projects')`.
+
+**Files to create:**
+- `app/admin/(dashboard)/projects/page.tsx` — server component, fetches projects + categories
+- `components/admin/projects-editor.tsx` — client component, card grid + dialogs
+- `components/admin/file-upload.tsx` — reusable drag-and-drop upload with preview + progress
+
+**Files to modify:**
+- `actions/admin.ts` — add project CRUD + file upload/delete actions
+
+### 4D Status: PENDING
+
+---
+
+### 4E: Skills CRUD
+
+**Scope:** Skills editor page, grouped card view, add/remove/reorder groups and skills, CRUD server actions, cache invalidation via `revalidateTag('skills')`.
+
+**Files to create:**
+- `app/admin/(dashboard)/skills/page.tsx` — server component, fetches skill groups with skills
+- `components/admin/skills-editor.tsx` — client component, grouped view + dialogs
+
+**Files to modify:**
+- `actions/admin.ts` — add skill group and skill CRUD actions
+
+### 4E Status: PENDING
+
+---
+
+### 4F: Resume Management
+
+**Scope:** Resume management page, current resume info, upload new resume, download log table, `uploadResume()` + `getResumeDownloads()` server actions, cache invalidation via `revalidateTag('profile')`.
+
+**Files to create:**
+- `app/admin/(dashboard)/resume/page.tsx` — server component, fetches profile + downloads
+- `components/admin/resume-manager.tsx` — client component, upload + download log table
+
+**Files to modify:**
+- `actions/admin.ts` — add `uploadResume()`, `getResumeDownloads()`
+
+### 4F Status: PENDING
+
+---
+
+### 4G: Visitors Page
+
+**Scope:** Visitors page, table with filter/search/sort, CSV export, pagination, `getVisitors()` + `getVisitorsCsvData()` server actions.
+
+**Files to create:**
+- `app/admin/(dashboard)/visitors/page.tsx` — server component, fetches visitors
+- `components/admin/visitors-table.tsx` — client component, table + filters + export
+
+**Files to modify:**
+- `actions/admin.ts` — add `getVisitors()`, `getVisitorsCsvData()`
+
+### 4G Status: PENDING
+
+---
+
+### 4H: Polish & Final Touches
+
+**Scope:** Loading states / skeleton screens, empty states, error boundaries, responsive verification, form validation.
+
+**Files to modify:**
+- All admin pages and components as needed
+
+### 4H Status: PENDING
 
 ---
 

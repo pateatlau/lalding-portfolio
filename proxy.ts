@@ -32,16 +32,30 @@ export async function proxy(request: NextRequest) {
 
   // Protect /admin routes — require admin role
   if (request.nextUrl.pathname.startsWith('/admin')) {
+    const isLoginPage = request.nextUrl.pathname === '/admin/login';
+
+    if (isLoginPage) {
+      // Already-admin users don't need the login page — send them to dashboard
+      if (user && user.app_metadata?.role === 'admin') {
+        const url = request.nextUrl.clone();
+        url.pathname = '/admin';
+        return NextResponse.redirect(url);
+      }
+      // Allow everyone else to access the login page
+      return supabaseResponse;
+    }
+
+    // All other /admin/* routes require admin role
     if (!user) {
       const url = request.nextUrl.clone();
-      url.pathname = '/';
+      url.pathname = '/admin/login';
       return NextResponse.redirect(url);
     }
 
     const role = user.app_metadata?.role;
     if (role !== 'admin') {
       const url = request.nextUrl.clone();
-      url.pathname = '/';
+      url.pathname = '/admin/login';
       return NextResponse.redirect(url);
     }
   }
