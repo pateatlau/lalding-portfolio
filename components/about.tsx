@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import SectionHeading from './section-heading';
 import { motion, useInView } from 'framer-motion';
 import { useSectionInView } from '@/lib/hooks';
+import type { ProfileData, ProfileStatData } from '@/lib/types';
 
 function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0);
@@ -40,13 +41,6 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
   );
 }
 
-const stats = [
-  { value: 15, suffix: '+', label: 'Years Experience' },
-  { value: 50, suffix: '+', label: 'Projects Delivered' },
-  { value: 8, suffix: '+', label: 'Companies' },
-  { value: 10, suffix: '+', label: 'Teams Led' },
-];
-
 const cardVariants = {
   hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
@@ -56,7 +50,13 @@ const cardVariants = {
   }),
 };
 
-export default function About() {
+export default function About({
+  profile,
+  stats,
+}: {
+  profile: ProfileData;
+  stats: ProfileStatData[];
+}) {
   const { ref } = useSectionInView('About');
 
   return (
@@ -102,15 +102,7 @@ export default function About() {
           viewport={{ once: true }}
         >
           <h3 className="mb-3 text-lg font-semibold">Tech Stack</h3>
-          <p className="text-muted-foreground leading-7">
-            My core stack is the{' '}
-            <span className="text-foreground font-medium">React Ecosystem</span> and{' '}
-            <span className="text-foreground font-medium">Node.js</span>. Experienced in full-stack
-            development with <span className="text-foreground font-medium">Next.js</span> and{' '}
-            <span className="text-foreground font-medium">MERN stack</span>, with additional
-            expertise in monorepos, micro frontends, and cross-platform development across web, iOS,
-            and Android.
-          </p>
+          <p className="text-muted-foreground leading-7">{profile.aboutTechStack}</p>
         </motion.div>
 
         {/* Current Focus */}
@@ -123,12 +115,7 @@ export default function About() {
           viewport={{ once: true }}
         >
           <h3 className="mb-3 text-lg font-semibold">Current Focus</h3>
-          <p className="text-muted-foreground leading-7">
-            Looking for a{' '}
-            <span className="text-foreground font-medium">Technical Lead or Architect</span> role.
-            Currently deepening expertise in{' '}
-            <span className="text-foreground font-medium">AI tech stack</span>.
-          </p>
+          <p className="text-muted-foreground leading-7">{profile.aboutCurrentFocus}</p>
         </motion.div>
 
         {/* Expertise */}
@@ -142,10 +129,9 @@ export default function About() {
         >
           <h3 className="mb-3 text-lg font-semibold">Expertise</h3>
           <ul className="text-muted-foreground space-y-1">
-            <li>Monorepos &amp; NX</li>
-            <li>Micro Frontends</li>
-            <li>Module Federation</li>
-            <li>Cross-platform (RN + Web)</li>
+            {profile.aboutExpertise.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
         </motion.div>
 
@@ -159,10 +145,7 @@ export default function About() {
           viewport={{ once: true }}
         >
           <h3 className="mb-3 text-lg font-semibold">Beyond Code</h3>
-          <p className="text-muted-foreground leading-7">
-            When I&apos;m not working, I enjoy playing chess, reading books, and contributing to
-            society. I love learning new things and continuously improving my tech stack.
-          </p>
+          <p className="text-muted-foreground leading-7">{profile.aboutBeyondCode}</p>
         </motion.div>
       </div>
     </motion.section>

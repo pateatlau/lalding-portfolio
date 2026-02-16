@@ -9,15 +9,9 @@ import { HiDownload } from 'react-icons/hi';
 import { FaGithubSquare } from 'react-icons/fa';
 import { useSectionInView } from '@/lib/hooks';
 import { useActiveSectionContext } from '@/context/active-section-context';
+import type { ProfileData } from '@/lib/types';
 
-const titles = [
-  'Full-stack Tech Lead',
-  'React Specialist',
-  '15+ Years Experience',
-  'Cross-platform Developer',
-];
-
-function TypewriterEffect() {
+function TypewriterEffect({ titles }: { titles: string[] }) {
   const [titleIndex, setTitleIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -43,14 +37,14 @@ function TypewriterEffect() {
           }
         }
       },
-      isDeleting ? 40 : 80
+      isDeleting ? 40 : 80,
     );
 
     return () => {
       clearTimeout(timeout);
       clearTimeout(innerTimeout);
     };
-  }, [charIndex, isDeleting, titleIndex]);
+  }, [charIndex, isDeleting, titleIndex, titles]);
 
   const currentTitle = titles[titleIndex];
   const displayText = currentTitle.slice(0, charIndex);
@@ -63,7 +57,7 @@ function TypewriterEffect() {
   );
 }
 
-export default function Intro() {
+export default function Intro({ profile }: { profile: ProfileData }) {
   const { ref } = useSectionInView('Home', 0.5);
   const { setActiveSection, setTimeOfLastClick } = useActiveSectionContext();
 
@@ -84,7 +78,7 @@ export default function Intro() {
         >
           <Image
             src="/lalding.jpg"
-            alt="Laldingliana Tlau Vantawl - Full-stack Tech Lead portrait"
+            alt={`${profile.fullName} - ${profile.jobTitle} portrait`}
             width="192"
             height="192"
             quality={85}
@@ -99,7 +93,7 @@ export default function Intro() {
         initial={{ opacity: 0, y: 100 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        Hello, I am <span className="font-bold">Lalding</span>
+        Hello, I am <span className="font-bold">{profile.shortName}</span>
       </motion.h1>
 
       <motion.div
@@ -108,7 +102,7 @@ export default function Intro() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
       >
-        <TypewriterEffect />
+        <TypewriterEffect titles={profile.typewriterTitles} />
       </motion.div>
 
       <motion.p
@@ -117,8 +111,7 @@ export default function Intro() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        Building scalable web applications with expertise in React, Next.js, TypeScript, and modern
-        web technologies.
+        {profile.tagline}
       </motion.p>
 
       <motion.div
@@ -143,7 +136,7 @@ export default function Intro() {
 
         <a
           className="borderBlack group flex cursor-pointer items-center gap-2 rounded-full bg-white px-7 py-3 outline-hidden transition hover:scale-110 focus:scale-110 active:scale-105 dark:bg-white/10"
-          href="/lalding.pdf"
+          href={profile.resumeUrl}
           download
           title="Download my resume"
         >
@@ -151,27 +144,31 @@ export default function Intro() {
           <HiDownload className="opacity-60 transition group-hover:translate-y-1" />
         </a>
 
-        <a
-          className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-gray-700 transition hover:scale-[1.15] hover:text-gray-950 focus:scale-[1.15] active:scale-105 dark:bg-white/10 dark:text-white/60"
-          href="https://www.linkedin.com/in/laldingliana-tv/"
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Visit my LinkedIn profile"
-          aria-label="LinkedIn profile"
-        >
-          <BsLinkedin />
-        </a>
+        {profile.linkedinUrl && (
+          <a
+            className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-gray-700 transition hover:scale-[1.15] hover:text-gray-950 focus:scale-[1.15] active:scale-105 dark:bg-white/10 dark:text-white/60"
+            href={profile.linkedinUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Visit my LinkedIn profile"
+            aria-label="LinkedIn profile"
+          >
+            <BsLinkedin />
+          </a>
+        )}
 
-        <a
-          className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-[1.35rem] text-gray-700 transition hover:scale-[1.15] hover:text-gray-950 focus:scale-[1.15] active:scale-105 dark:bg-white/10 dark:text-white/60"
-          href="https://github.com/pateatlau"
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Visit my Github profile"
-          aria-label="GitHub profile"
-        >
-          <FaGithubSquare />
-        </a>
+        {profile.githubUrl && (
+          <a
+            className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-[1.35rem] text-gray-700 transition hover:scale-[1.15] hover:text-gray-950 focus:scale-[1.15] active:scale-105 dark:bg-white/10 dark:text-white/60"
+            href={profile.githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Visit my Github profile"
+            aria-label="GitHub profile"
+          >
+            <FaGithubSquare />
+          </a>
+        )}
       </motion.div>
 
       <motion.div

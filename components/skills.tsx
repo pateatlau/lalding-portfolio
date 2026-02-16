@@ -2,9 +2,9 @@
 
 import React from 'react';
 import SectionHeading from './section-heading';
-import { skillsGrouped } from '@/lib/data';
 import { useSectionInView } from '@/lib/hooks';
 import { motion } from 'framer-motion';
+import type { SkillGroupData } from '@/lib/types';
 
 const fadeInAnimationVariants = {
   initial: {
@@ -20,7 +20,7 @@ const fadeInAnimationVariants = {
   }),
 };
 
-export default function Skills() {
+export default function Skills({ skillGroups }: { skillGroups: SkillGroupData[] }) {
   const { ref } = useSectionInView('Skills');
 
   let globalIndex = 0;
@@ -34,7 +34,7 @@ export default function Skills() {
       <SectionHeading>Skills &amp; Expertise</SectionHeading>
 
       <div className="space-y-8">
-        {skillsGrouped.map((group) => (
+        {skillGroups.map((group) => (
           <div key={group.category}>
             <h3 className="text-accent-teal dark:text-accent-teal-light mb-3 text-sm font-semibold tracking-wide uppercase">
               {group.category}

@@ -1,13 +1,11 @@
 'use client';
 
 import { useRef } from 'react';
-import { projectsData } from '@/lib/data';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { FaGithubSquare } from 'react-icons/fa';
 import { FaCaretRight } from 'react-icons/fa';
-
-type ProjectProps = (typeof projectsData)[number];
+import type { ProjectData } from '@/lib/types';
 
 export default function Project({
   title,
@@ -16,7 +14,7 @@ export default function Project({
   imageUrl,
   sourceCode,
   liveSite,
-}: ProjectProps) {
+}: ProjectData) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -79,6 +77,8 @@ export default function Project({
         <Image
           src={imageUrl}
           alt={`Screenshot of ${title} project`}
+          width={452}
+          height={300}
           quality={85}
           className="absolute top-8 -right-40 hidden w-[28.25rem] rounded-t-lg shadow-2xl transition group-even:right-[initial] group-even:-left-40 group-hover:-translate-x-3 group-hover:translate-y-3 group-hover:scale-[1.04] group-hover:-rotate-2 group-hover:group-even:translate-x-3 group-hover:group-even:translate-y-3 group-hover:group-even:rotate-2 sm:block"
         />

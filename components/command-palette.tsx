@@ -17,6 +17,7 @@ import {
   BsLightning,
   BsBriefcase,
 } from 'react-icons/bs';
+import type { ProfileData } from '@/lib/types';
 
 interface CommandItem {
   id: string;
@@ -27,7 +28,7 @@ interface CommandItem {
   keywords?: string[];
 }
 
-export default function CommandPalette() {
+export default function CommandPalette({ profile }: { profile: ProfileData }) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -111,7 +112,7 @@ export default function CommandPalette() {
       group: 'Quick Actions',
       action: () => {
         const a = document.createElement('a');
-        a.href = '/lalding.pdf';
+        a.href = profile.resumeUrl;
         a.download = '';
         a.click();
         close();
@@ -129,30 +130,34 @@ export default function CommandPalette() {
       },
       keywords: ['dark', 'light', 'toggle'],
     },
-    {
-      id: 'linkedin',
-      label: 'Open LinkedIn',
-      icon: <BsLinkedin />,
-      group: 'Social',
-      action: () => {
-        window.open(
-          'https://www.linkedin.com/in/laldingliana-tv/',
-          '_blank',
-          'noopener,noreferrer'
-        );
-        close();
-      },
-    },
-    {
-      id: 'github',
-      label: 'Open GitHub',
-      icon: <BsGithub />,
-      group: 'Social',
-      action: () => {
-        window.open('https://github.com/pateatlau', '_blank', 'noopener,noreferrer');
-        close();
-      },
-    },
+    ...(profile.linkedinUrl
+      ? [
+          {
+            id: 'linkedin',
+            label: 'Open LinkedIn',
+            icon: <BsLinkedin />,
+            group: 'Social',
+            action: () => {
+              window.open(profile.linkedinUrl, '_blank', 'noopener,noreferrer');
+              close();
+            },
+          },
+        ]
+      : []),
+    ...(profile.githubUrl
+      ? [
+          {
+            id: 'github',
+            label: 'Open GitHub',
+            icon: <BsGithub />,
+            group: 'Social',
+            action: () => {
+              window.open(profile.githubUrl, '_blank', 'noopener,noreferrer');
+              close();
+            },
+          },
+        ]
+      : []),
   ];
 
   const filtered = items.filter((item) => {

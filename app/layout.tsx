@@ -9,6 +9,7 @@ import ThemeSwitch from '@/components/theme-switch';
 import ThemeContextProvider from '@/context/theme-context';
 import { Toaster } from 'react-hot-toast';
 import type { Metadata } from 'next';
+import { getProfileData } from '@/lib/supabase/queries';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -61,7 +62,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const profile = await getProfileData();
+
   return (
     <html lang="en" className="scroll-smooth!">
       <head>
@@ -111,11 +114,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ScrollProgress />
             <Header />
             <main id="main">{children}</main>
-            <Footer />
+            <Footer profile={profile} />
 
             <Toaster position="top-right" />
             <ThemeSwitch />
-            <CommandPalette />
+            <CommandPalette profile={profile} />
           </ActiveSectionContextProvider>
         </ThemeContextProvider>
       </body>

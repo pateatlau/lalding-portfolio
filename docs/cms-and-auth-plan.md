@@ -416,6 +416,29 @@ To avoid a big-bang migration, implement a **fallback pattern** during developme
 3. Log a warning when fallback is triggered so it's never silently active
 4. Remove fallback before production deployment — production always requires Supabase
 
+### Phase 3 Implementation Notes
+
+- Created `lib/supabase/queries.ts` with 9 data fetching functions (`getProfile`, `getProfileStats`, `getNavLinks`, `getCompanies`, `getExperiences`, `getProjectCategories`, `getProjects`, `getSkillGroups`) plus a shared `getProfileData()` helper that maps DB columns to frontend camelCase types with static fallback.
+- Converted `app/page.tsx` from a client component to an async **server component**. It fetches all content data from Supabase via `Promise.all()` and passes serializable props to child components. Uses `export const revalidate = 3600` for ISR.
+- Created `components/section-animation.tsx` — a client component wrapper for Framer Motion scroll-triggered animations, extracted from page.tsx since server components cannot use Framer Motion directly.
+- Created shared serializable data types in `lib/types.ts` (`ProfileData`, `ProfileStatData`, `CompanyData`, `ExperienceData`, `ProjectData`, `SkillGroupData`) to bridge the server→client boundary with camelCase naming.
+- Refactored all content-consuming components to receive data as props instead of importing from `lib/data.ts`:
+  - `intro.tsx` — accepts `{ profile: ProfileData }`
+  - `about.tsx` — accepts `{ profile: ProfileData; stats: ProfileStatData[] }`
+  - `projects.tsx` — accepts `{ projects: ProjectData[]; categories: string[] }`
+  - `project.tsx` — accepts `ProjectData` props directly
+  - `skills.tsx` — accepts `{ skillGroups: SkillGroupData[] }`
+  - `experience.tsx` — accepts `{ experiences: ExperienceData[]; companies: CompanyData[] }`, maps icon string identifiers (`"work"`, `"react"`) to React elements via `iconMap`
+  - `companies-slider.tsx` — accepts `{ companies: CompanyData[] }`
+  - `contact.tsx` — accepts `{ profile: ProfileData }`, uses profile data for email/phone/location/social links
+  - `footer.tsx` — accepts `{ profile: ProfileData }`, uses profile data for name, footer text, and source code link
+  - `command-palette.tsx` — accepts `{ profile: ProfileData }`, uses profile data for resume URL, LinkedIn/GitHub links
+- Updated `app/layout.tsx` to be an async server component that fetches profile data via `getProfileData()` and passes it to `Footer` and `CommandPalette`.
+- `header.tsx` still imports `links` from `lib/data.ts` — navigation links are structural and tightly coupled to the `SectionName` type used across the app. These will be migrated when nav_links are needed from the DB.
+- The `lib/data.ts` file is preserved as a static fallback; all query functions return `null` when Supabase env vars are missing, triggering the static data path.
+
+### Phase 3 Status: COMPLETE
+
 ---
 
 ## Phase 4: Admin Dashboard

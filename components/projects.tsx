@@ -2,19 +2,24 @@
 
 import React, { useState } from 'react';
 import SectionHeading from './section-heading';
-import { projectsData, projectCategories } from '@/lib/data';
-import type { ProjectCategory } from '@/lib/data';
 import Project from './project';
 import { useSectionInView } from '@/lib/hooks';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
+import type { ProjectData } from '@/lib/types';
 
-export default function Projects() {
+export default function Projects({
+  projects,
+  categories,
+}: {
+  projects: ProjectData[];
+  categories: string[];
+}) {
   const { ref } = useSectionInView('Projects', 0.5);
-  const [activeFilter, setActiveFilter] = useState<ProjectCategory>('All');
+  const [activeFilter, setActiveFilter] = useState('All');
 
   const filteredProjects =
-    activeFilter === 'All' ? projectsData : projectsData.filter((p) => p.category === activeFilter);
+    activeFilter === 'All' ? projects : projects.filter((p) => p.category === activeFilter);
 
   return (
     <section ref={ref} id="projects" className="mb-28 scroll-mt-28">
@@ -22,7 +27,7 @@ export default function Projects() {
 
       {/* Filter Tabs */}
       <div className="mb-8 flex flex-wrap justify-center gap-2">
-        {projectCategories.map((category) => (
+        {categories.map((category) => (
           <button
             key={category}
             onClick={() => setActiveFilter(category)}
