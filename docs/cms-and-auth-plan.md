@@ -548,7 +548,22 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - `actions/admin.ts` — add `updateProfile()`, `updateProfileStats()` actions
 
-### 4B Status: PENDING
+### 4B Implementation Notes
+
+- Created `app/admin/(dashboard)/profile/page.tsx` — server component that fetches profile + stats via `Promise.all([getProfile(), getProfileStats()])` and passes to `ProfileForm` client component. Handles null profile with fallback UI.
+- Created `components/admin/profile-form.tsx` — client component with 3-tab interface using shadcn/ui Tabs:
+  - **General tab**: Personal info (full_name, short_name, job_title, tagline), typewriter titles (dynamic array with add/remove), contact info (email, phone, location), social links (linkedin_url, github_url), footer text. Each section separated by `Separator`.
+  - **About tab**: Three textarea fields (about_tech_stack, about_current_focus, about_beyond_code) plus expertise highlights (dynamic array with add/remove).
+  - **Stats tab**: Inline editable rows with value (number), suffix (text), label (text). Up/down arrow buttons for reordering, add/delete buttons. Bulk replace on save (delete all → insert new).
+- Each tab has its own Save button, loading state (Loader2 spinner), and inline success/error status messages.
+- Added `updateProfile(data: Partial<ProfileInsert>)` server action — updates singleton profile row via `.update(data).eq('singleton', true)`, calls `revalidatePath('/')` for cache invalidation.
+- Added `updateProfileStats(stats: ProfileStatInsert[])` server action — bulk replace strategy: `.delete().gte('sort_order', 0)` to remove all existing rows, then `.insert(stats)` for new ones. Calls `revalidatePath('/')`.
+- Cache invalidation uses `revalidatePath('/')` instead of `revalidateTag('profile')` because Supabase client queries don't use `fetch()`, so Next.js cache tags aren't applicable. `revalidatePath('/')` ensures the homepage re-renders with fresh data.
+- Empty optional text fields are converted to `null` before saving (Postgres convention). Empty arrays are converted to `null` for `about_expertise`.
+- Stats validation: all stats must have a non-empty label before save is allowed.
+- Helper functions (`updateField`, `updateArrayItem`, `addArrayItem`, `removeArrayItem`) reduce repetition in form handlers.
+
+### 4B Status: COMPLETE
 
 ---
 
@@ -565,7 +580,25 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - `actions/admin.ts` — add `createExperience()`, `updateExperience()`, `deleteExperience()`, `reorderExperiences()`
 
-### 4C Status: PENDING
+### 4C Implementation Notes
+
+- Created `app/admin/(dashboard)/experience/page.tsx` — server component that fetches experiences via `getExperiences()` and passes `Experience[]` to `ExperienceEditor` client component. Handles null with fallback UI.
+- Created `components/admin/experience-editor.tsx` — client component with:
+  - **Table view**: Columns for Order (up/down arrows), Title, Company, Date (hidden on mobile), Actions (edit/delete icon buttons). Empty state when no experiences exist.
+  - **Add/Edit Dialog** (shared): Form fields for title, company, description (textarea), display_date (free text), start_date/end_date (date inputs), icon (Select dropdown: "work"/"react"), company_logo_url (optional URL). "Leave empty for current role" hint on end_date.
+  - **Delete Confirmation Dialog**: Shows experience title + company, Confirm/Cancel buttons with destructive variant.
+  - **Reorder**: Up/down ChevronUp/ChevronDown buttons call `reorderExperiences()` with optimistic local state. Reverts on error.
+- Optimistic local state updates: after successful create/edit/delete, local state is updated immediately without full page reload.
+- Added four server actions to `actions/admin.ts`:
+  - `createExperience(data: ExperienceInsert)` — inserts row, returns created `Experience` via `.select().single()`.
+  - `updateExperience(id, data: Partial<ExperienceInsert>)` — updates row by ID, returns updated `Experience`.
+  - `deleteExperience(id)` — deletes row by ID.
+  - `reorderExperiences(orderedIds: string[])` — updates `sort_order` for each ID using `Promise.all()` of individual update calls.
+- All actions follow the established pattern: `requireAdmin()` → DB operation → `revalidatePath('/')` → return `{ data?, error? }`.
+- New experience gets `sort_order` set to `experiences.length` (appended at end).
+- Empty optional fields (`end_date`, `company_logo_url`) converted to `null` before saving.
+
+### 4C Status: COMPLETE
 
 ---
 
@@ -583,7 +616,23 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - `actions/admin.ts` — add project CRUD + file upload/delete actions
 
-### 4D Status: PENDING
+### 4D Implementation Notes
+
+- Created `app/admin/(dashboard)/projects/page.tsx` — server component that fetches projects + categories via `Promise.all([getProjects(), getProjectCategories()])` and passes `Project[]` + `ProjectCategory[]` to `ProjectsEditor` client component.
+- Created `components/admin/projects-editor.tsx` — client component with:
+  - **Table view**: Columns for Order (up/down arrows), Title, Category (resolved from `categoryMap`), Tags (first 3 shown as Badges, "+N" overflow), Actions (edit/delete icon buttons). Empty state when no projects exist.
+  - **Add/Edit Dialog** (shared): Form fields for title, description (textarea), tags (comma-separated Input parsed to `string[]` on save), category (Select dropdown from categories, with "No Category" option using sentinel value `__none__`), image_url (URL Input), demo_video_url (URL Input), source_code_url / live_site_url (2-col grid URL Inputs).
+  - **Delete Confirmation Dialog**: Shows project title, Confirm/Cancel with destructive variant.
+  - **Reorder**: Up/down arrows with optimistic local state and revert on error.
+- Added four server actions to `actions/admin.ts`:
+  - `createProject(data: ProjectInsert)` — inserts row, returns created `Project` via `.select().single()`.
+  - `updateProject(id, data: Partial<ProjectInsert>)` — updates row by ID, returns updated `Project`.
+  - `deleteProject(id)` — deletes row by ID.
+  - `reorderProjects(orderedIds: string[])` — updates `sort_order` for each ID using `Promise.all()`.
+- All actions follow the established pattern: `requireAdmin()` → DB operation → `revalidatePath('/')` → return `{ data?, error? }`.
+- **File upload component (`components/admin/file-upload.tsx`) deferred to Phase 5** — 4D uses URL text inputs for image/video fields since images are already in Supabase Storage referenced by URL. The reusable drag-and-drop upload component will be built in Phase 5 when full storage integration is implemented.
+
+### 4D Status: COMPLETE
 
 ---
 
@@ -600,7 +649,21 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - `actions/admin.ts` — add skill group and skill CRUD actions
 
-### 4E Status: PENDING
+### 4E Implementation Notes
+
+- Created `app/admin/(dashboard)/skills/page.tsx` — server component that fetches skill groups with nested skills via `getSkillGroups()` and passes `SkillGroupWithSkills[]` to `SkillsEditor` client component.
+- Created `components/admin/skills-editor.tsx` — client component with grouped card view:
+  - **Group cards**: Each group rendered as a Card with category name, reorder up/down arrows, edit (rename) and delete icon buttons. Groups can be added/renamed via a Dialog, deleted via a confirmation dialog that warns about cascading skill deletion.
+  - **Skill rows within groups**: Each skill shows name with inline edit (click Pencil → Input with Check/X buttons, Enter/Escape keyboard support), delete button (no confirmation), reorder up/down arrows within the group.
+  - **Inline add skill**: Input + Plus button at the bottom of each group card, with Enter key support. Per-group input state tracked via `newSkillName` Record.
+- Added 8 server actions to `actions/admin.ts`:
+  - Group actions: `createSkillGroup()`, `updateSkillGroup()`, `deleteSkillGroup()`, `reorderSkillGroups()`
+  - Skill actions: `createSkill()`, `updateSkill()`, `deleteSkill()`, `reorderSkills()`
+- All actions follow the established pattern: `requireAdmin()` → DB op → `revalidatePath('/')` → return `{ data?, error? }`.
+- Skills use FK `ON DELETE CASCADE` — deleting a group automatically deletes all its skills.
+- Optimistic local state updates for all operations; reorder reverts on error.
+
+### 4E Status: COMPLETE
 
 ---
 
@@ -617,7 +680,16 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - `actions/admin.ts` — add `uploadResume()`, `getResumeDownloads()`
 
-### 4F Status: PENDING
+### 4F Status: COMPLETE
+
+**Implementation notes (4F):**
+
+- Added `getResumeDownloads()` server action — queries `resume_downloads` with visitor join (same pattern as `getAdminStats()`)
+- Added `uploadResume(formData)` server action — accepts FormData, validates PDF type + 10 MB limit, uploads to `resume` bucket with `upsert: true`, updates `profile.resume_url`
+- Consistent filename `resume.pdf` — simplifies replacement via upsert
+- `ResumeManager` client component — current resume card with file info + upload button, download log table with time-ago formatting
+- Server page fetches profile + downloads in parallel via `Promise.all`
+- Cache invalidation uses `revalidatePath('/')` (not `revalidateTag` since Supabase queries don't use `fetch()`)
 
 ---
 
@@ -646,7 +718,17 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - All admin pages and components as needed
 
-### 4H Status: PENDING
+### 4H Implementation Notes
+
+- Installed shadcn/ui `skeleton` component for loading state animations.
+- Created `loading.tsx` skeleton files for all 6 admin pages (dashboard, profile, experience, projects, skills, resume), each mirroring the layout of its corresponding page component.
+- Created `app/admin/(dashboard)/error.tsx` — shared error boundary with AlertTriangle icon, error message, and "Try Again" button. Catches errors within the admin shell so sidebar/header remain visible.
+- Added `--success` CSS custom property to `globals.css` (oklch values for light and dark mode). Replaced all `text-green-600` with `text-success` across 5 admin components.
+- Added required field indicators (`*` asterisks) and client-side validation to profile-form, experience-editor, and projects-editor.
+- Added client-side file validation to resume-manager (PDF type + 10 MB size check before server call).
+- Added 2 new test cases for resume file validation. Updated existing test assertions to use regex patterns for labels with asterisks.
+
+### 4H Status: COMPLETE
 
 ---
 
