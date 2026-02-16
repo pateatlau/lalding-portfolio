@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { upsertVisitorProfile } from '@/actions/resume';
 import type { User } from '@supabase/supabase-js';
 import type { VisitorProfile } from '@/lib/supabase/types';
@@ -86,6 +86,11 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
   const signInWithProvider = useCallback(
     async (provider: 'google' | 'github' | 'linkedin_oidc') => {
+      if (!isSupabaseConfigured) {
+        throw new Error(
+          'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.'
+        );
+      }
       await supabase.auth.signInWithOAuth({
         provider,
         options: {
