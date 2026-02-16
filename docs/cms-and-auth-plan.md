@@ -666,9 +666,9 @@ lib/data.ts                      # Kept as fallback initially, removed once Supa
 
 ---
 
-## Open Questions
+## Resolved Questions
 
-1. **Admin seeding**: Should the first admin user be created via Supabase dashboard manually, or should there be a setup/invite flow?
-2. **Image optimization**: Should uploaded images be processed (resized/compressed) before storage, or rely on Next.js `<Image>` optimization?
-3. **Content versioning**: Is there a need to track edit history / rollback changes in the admin dashboard?
-4. **Rate limiting**: Should resume downloads or login attempts be rate-limited?
+1. **Admin seeding**: Setup/invite flow — build an admin setup flow rather than manual Supabase dashboard creation.
+2. **Image optimization**: Uploaded images should be processed (resized/compressed) before storage.
+3. **Content versioning**: Yes — track edit history and support rollback in the admin dashboard.
+4. **Rate limiting**: Yes — rate-limit both resume downloads and login attempts.
