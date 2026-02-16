@@ -680,7 +680,16 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - `actions/admin.ts` — add `uploadResume()`, `getResumeDownloads()`
 
-### 4F Status: PENDING
+### 4F Status: COMPLETE
+
+**Implementation notes (4F):**
+
+- Added `getResumeDownloads()` server action — queries `resume_downloads` with visitor join (same pattern as `getAdminStats()`)
+- Added `uploadResume(formData)` server action — accepts FormData, validates PDF type + 10 MB limit, uploads to `resume` bucket with `upsert: true`, updates `profile.resume_url`
+- Consistent filename `resume.pdf` — simplifies replacement via upsert
+- `ResumeManager` client component — current resume card with file info + upload button, download log table with time-ago formatting
+- Server page fetches profile + downloads in parallel via `Promise.all`
+- Cache invalidation uses `revalidatePath('/')` (not `revalidateTag` since Supabase queries don't use `fetch()`)
 
 ---
 

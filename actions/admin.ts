@@ -571,3 +571,108 @@ export async function reorderSkills(
   revalidatePath('/');
   return { data: { success: true } };
 }
+
+// --- Resume Management Actions ---
+
+export type ResumeDownloadEntry = {
+  id: string;
+  downloadedAt: string;
+  visitorName: string | null;
+  visitorEmail: string | null;
+  visitorCompany: string | null;
+};
+
+export async function getResumeDownloads(): Promise<{
+  data?: ResumeDownloadEntry[];
+  error?: string;
+}> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+
+  const { data: downloads, error } = await supabase
+    .from('resume_downloads')
+    .select('id, downloaded_at, visitor_id')
+    .order('downloaded_at', { ascending: false })
+    .limit(50);
+
+  if (error) {
+    console.error('getResumeDownloads error:', error.message);
+    return { error: 'Failed to load download log' };
+  }
+
+  if (!downloads || downloads.length === 0) {
+    return { data: [] };
+  }
+
+  const visitorIds = Array.from(
+    new Set(downloads.map((d) => d.visitor_id).filter(Boolean) as string[])
+  );
+
+  const { data: visitors } =
+    visitorIds.length > 0
+      ? await supabase
+          .from('visitor_profiles')
+          .select('id, full_name, email, company')
+          .in('id', visitorIds)
+      : { data: [] };
+
+  const visitorMap = new Map(visitors?.map((v) => [v.id, v]) ?? []);
+
+  return {
+    data: downloads.map((d) => {
+      const visitor = d.visitor_id ? visitorMap.get(d.visitor_id) : null;
+      return {
+        id: d.id,
+        downloadedAt: d.downloaded_at,
+        visitorName: visitor?.full_name ?? null,
+        visitorEmail: visitor?.email ?? null,
+        visitorCompany: visitor?.company ?? null,
+      };
+    }),
+  };
+}
+
+export async function uploadResume(
+  formData: FormData
+): Promise<{ data?: { path: string }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const file = formData.get('file') as File | null;
+  if (!file) return { error: 'No file provided' };
+
+  if (file.type !== 'application/pdf') {
+    return { error: 'Only PDF files are allowed' };
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    return { error: 'File must be smaller than 10 MB' };
+  }
+
+  const supabase = await createClient();
+  const storagePath = 'resume.pdf';
+
+  const { error: uploadError } = await supabase.storage
+    .from('resume')
+    .upload(storagePath, file, { upsert: true, contentType: 'application/pdf' });
+
+  if (uploadError) {
+    console.error('uploadResume storage error:', uploadError.message);
+    return { error: 'Failed to upload file' };
+  }
+
+  const { error: updateError } = await supabase
+    .from('profile')
+    .update({ resume_url: storagePath })
+    .eq('singleton', true);
+
+  if (updateError) {
+    console.error('uploadResume profile update error:', updateError.message);
+    return { error: 'File uploaded but failed to update profile' };
+  }
+
+  revalidatePath('/');
+  return { data: { path: storagePath } };
+}
