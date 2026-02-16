@@ -6,7 +6,7 @@ import type {
   ProjectCategory,
   SkillGroupWithSkills,
 } from '@/lib/supabase/types';
-import type { ResumeDownloadEntry } from '@/actions/admin';
+import type { ResumeDownloadEntry, VisitorEntry } from '@/actions/admin';
 
 export const mockProfile: Profile = {
   id: 'profile-1',
@@ -126,5 +126,41 @@ export const mockDownloads: ResumeDownloadEntry[] = [
     visitorName: null,
     visitorEmail: null,
     visitorCompany: null,
+  },
+];
+
+export const mockVisitors: VisitorEntry[] = [
+  {
+    id: 'v-1',
+    fullName: 'Jane Smith',
+    email: 'jane@example.com',
+    avatarUrl: 'https://example.com/jane.jpg',
+    provider: 'google',
+    company: 'TechCo',
+    role: 'Engineer',
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
+    downloadCount: 3,
+  },
+  {
+    id: 'v-2',
+    fullName: 'Bob Johnson',
+    email: 'bob@example.com',
+    avatarUrl: null,
+    provider: 'github',
+    company: null,
+    role: null,
+    createdAt: new Date(Date.now() - 172800000).toISOString(),
+    downloadCount: 0,
+  },
+  {
+    id: 'v-3',
+    fullName: null,
+    email: 'anonymous@example.com',
+    avatarUrl: null,
+    provider: 'google',
+    company: 'StartupXYZ',
+    role: 'CTO',
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+    downloadCount: 1,
   },
 ];

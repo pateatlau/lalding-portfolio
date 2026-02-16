@@ -685,3 +685,105 @@ export async function uploadResume(
   revalidatePath('/');
   return { data: { path: storagePath } };
 }
+
+// --- Visitor Management Actions ---
+
+export type VisitorEntry = {
+  id: string;
+  fullName: string | null;
+  email: string | null;
+  avatarUrl: string | null;
+  provider: string | null;
+  company: string | null;
+  role: string | null;
+  createdAt: string;
+  downloadCount: number;
+};
+
+export async function getVisitors(): Promise<{
+  data?: VisitorEntry[];
+  error?: string;
+}> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+
+  const { data: visitors, error } = await supabase
+    .from('visitor_profiles')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('getVisitors error:', error.message);
+    return { error: 'Failed to load visitors' };
+  }
+
+  if (!visitors || visitors.length === 0) {
+    return { data: [] };
+  }
+
+  // Fetch download counts per visitor
+  const visitorIds = visitors.map((v) => v.id);
+  const { data: downloads } = await supabase
+    .from('resume_downloads')
+    .select('visitor_id')
+    .in('visitor_id', visitorIds);
+
+  const downloadCounts = new Map<string, number>();
+  if (downloads) {
+    for (const dl of downloads) {
+      if (dl.visitor_id) {
+        downloadCounts.set(dl.visitor_id, (downloadCounts.get(dl.visitor_id) ?? 0) + 1);
+      }
+    }
+  }
+
+  return {
+    data: visitors.map((v) => ({
+      id: v.id,
+      fullName: v.full_name,
+      email: v.email,
+      avatarUrl: v.avatar_url,
+      provider: v.provider,
+      company: v.company,
+      role: v.role,
+      createdAt: v.created_at,
+      downloadCount: downloadCounts.get(v.id) ?? 0,
+    })),
+  };
+}
+
+export async function getVisitorsCsvData(): Promise<{
+  data?: string;
+  error?: string;
+}> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const visitorsResult = await getVisitors();
+  if (visitorsResult.error) return { error: visitorsResult.error };
+
+  const visitors = visitorsResult.data ?? [];
+
+  const headers = ['Name', 'Email', 'Provider', 'Company', 'Role', 'Downloads', 'Joined'];
+  const rows = visitors.map((v) => [
+    escapeCsvField(v.fullName ?? ''),
+    escapeCsvField(v.email ?? ''),
+    escapeCsvField(v.provider ?? ''),
+    escapeCsvField(v.company ?? ''),
+    escapeCsvField(v.role ?? ''),
+    String(v.downloadCount),
+    v.createdAt ? new Date(v.createdAt).toISOString().split('T')[0] : '',
+  ]);
+
+  const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+  return { data: csv };
+}
+
+function escapeCsvField(value: string): string {
+  if (value.includes(',') || value.includes('"') || value.includes('\n') || value.includes('\r')) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
