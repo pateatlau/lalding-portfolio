@@ -10,7 +10,8 @@ CREATE POLICY "Users read own profile" ON visitor_profiles
   FOR SELECT USING (auth.uid() = id);
 
 CREATE POLICY "Users update own profile" ON visitor_profiles
-  FOR UPDATE USING (auth.uid() = id);
+  FOR UPDATE USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
 
 CREATE POLICY "Users insert own profile" ON visitor_profiles
   FOR INSERT WITH CHECK (auth.uid() = id);

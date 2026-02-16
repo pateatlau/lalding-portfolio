@@ -85,7 +85,7 @@ export const experiencesData = [
       'My main role is to lead the front-end team and work with other teams like design, backend, product, and devops teams to deliver the project. My other roles include delivering innovative solutions, leading the development of new features, and collaborating with cross-functional teams to achieve project goals.',
     icon: React.createElement(CgWorkAlt),
     date: 'May 2023 - 2025',
-    companylogo: '/hdfc.webp',
+    companyLogo: '/hdfc.webp',
   },
   {
     title: 'Senior Principal Engineer',
@@ -94,7 +94,7 @@ export const experiencesData = [
       'I got deployed onsite from Wissen Technology to Morgan Stanley as a Senior Principal Engineer. I delivered the design and development of various products at Morgan Stanley.',
     icon: React.createElement(FaReact),
     date: 'Jul 2020 - Apr 2023',
-    companylogo: '/wissen.webp',
+    companyLogo: '/wissen.webp',
   },
   {
     title: 'Senior Software Engineer',
@@ -103,7 +103,7 @@ export const experiencesData = [
       "Key contributor to the company's setup in India. Setting up projects, leading the Frontend team, and leading the development of new features.",
     icon: React.createElement(CgWorkAlt),
     date: 'Oct 2019 - Feb 2020',
-    companylogo: '/ingenio.webp',
+    companyLogo: '/ingenio.webp',
   },
   {
     title: 'Technical Advisor',
@@ -112,7 +112,7 @@ export const experiencesData = [
       "Active role of technical advisor in the company's digital journey. I was responsible for delivering migration of legacy project in Angular to React.",
     icon: React.createElement(FaReact),
     date: 'Apr 2019 - Sep 2019',
-    companylogo: '/kongsberg.webp',
+    companyLogo: '/kongsberg.webp',
   },
   {
     title: 'Staff Software Engineer',
@@ -121,7 +121,7 @@ export const experiencesData = [
       "Led the Frontend team in developing the company's corporate website and flagship product. Also delivered various POC's for various products using React, Angular and Docker.",
     icon: React.createElement(CgWorkAlt),
     date: 'Jul 2017 - Apr 2019',
-    companylogo: '/davinta.webp',
+    companyLogo: '/davinta.webp',
   },
   {
     title: 'Senior Software Engineer',
@@ -130,7 +130,7 @@ export const experiencesData = [
       "Co-led the Frontend team in developing the company's flagship product. Led the effort to modernise the project with automated build tools, linting, and testing.",
     icon: React.createElement(FaReact),
     date: 'Dec 2015 - Jun 2017',
-    companylogo: '/collective.webp',
+    companyLogo: '/collective.webp',
   },
   {
     title: 'Member of Technical Staff',
@@ -139,7 +139,7 @@ export const experiencesData = [
       'Led Frontend team in Corporate Website Migration to Drupal and Complete Re-design of the website. Also worked closely with the VSA engineering team and UX team to deliver the reskinning of the Flagship product.',
     icon: React.createElement(CgWorkAlt),
     date: 'Jul 2014 - Dec 2015',
-    companylogo: '/kaseya.webp',
+    companyLogo: '/kaseya.webp',
   },
   {
     title: 'Senior Tech Lead',
@@ -148,7 +148,7 @@ export const experiencesData = [
       'I got deployed onsite from HCL Technologies to Yahoo! as Senior Tech Lead. Led the Frontend team from HCL Technologies. Key contributor in reskinning of various Yahoo! websites. Developed widgets for Yahoo! Homes.',
     icon: React.createElement(FaReact),
     date: 'Sep 2011 - Jul 2014',
-    companylogo: '/hcl.webp',
+    companyLogo: '/hcl.webp',
   },
   {
     title: 'PHP Developer',
@@ -157,7 +157,7 @@ export const experiencesData = [
       'Developed and maintained various websites using PHP, Drupal, MySQL and Frontend technologies.',
     icon: React.createElement(CgWorkAlt),
     date: 'Jun 2009 - Aug 2011',
-    companylogo: '/exp1.svg',
+    companyLogo: '/exp1.svg',
   },
 ] as const;
 

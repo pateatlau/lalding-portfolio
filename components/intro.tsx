@@ -198,6 +198,7 @@ export default function Intro({ profile }: { profile: ProfileData }) {
               className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-gray-700 transition hover:scale-105 hover:text-gray-950 dark:bg-white/10 dark:text-white/60 dark:hover:text-white"
               onClick={() => signOut()}
               title={`Signed in as ${visitorProfile?.full_name || visitorProfile?.email || 'user'} — click to sign out`}
+              aria-label="Sign out"
             >
               {visitorProfile?.avatar_url ? (
                 <Image

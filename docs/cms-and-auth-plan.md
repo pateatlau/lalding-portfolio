@@ -304,9 +304,9 @@ Configure providers in Supabase dashboard:
 | GitHub           | Visitor + Admin login | OAuth App in GitHub settings                 |
 | Email + Password | Admin login only      | Disabled for visitors                        |
 
-### 2.2 Auth Middleware
+### 2.2 Auth Proxy (Route Protection)
 
-Create `middleware.ts` at the project root to handle session refresh and route protection:
+Create `proxy.ts` at the project root to handle session refresh and route protection (Next.js 16 uses the `proxy` convention instead of `middleware`):
 
 ```text
 /admin/*     → Require authenticated user with admin role
@@ -352,7 +352,7 @@ When a visitor is logged in (has an active Supabase session):
 - Created `supabase/auth-schema.sql` with `visitor_profiles` table (references `auth.users`), `resume_downloads` table, and `sync_visitor_email()` trigger function.
 - Created `supabase/auth-rls.sql` with RLS policies: visitors can read/update/insert own profile row, admin can read all; visitors can insert own downloads, admin can read all.
 - Added `VisitorProfile`, `ResumeDownload`, and their Insert types to `lib/supabase/types.ts`, following the existing pattern with Row, Insert, Update, Relationships properties.
-- Created `middleware.ts` at project root using `@supabase/ssr` `createServerClient` with request/response cookie handling. Refreshes auth session on every request, protects `/admin/*` routes (requires `app_metadata.role === 'admin'`), redirects unauthorized users to `/`.
+- Created `proxy.ts` at project root using `@supabase/ssr` `createServerClient` with request/response cookie handling (Next.js 16 convention). Refreshes auth session on every request, protects `/admin/*` routes (requires `app_metadata.role === 'admin'`), redirects unauthorized users to `/`.
 - Created `app/auth/callback/route.ts` — GET route handler that exchanges OAuth `code` for a session via `supabase.auth.exchangeCodeForSession()` and redirects to the `next` query param or `/`.
 - Created `context/auth-context.tsx` following existing context provider pattern. Provides `user`, `visitorProfile`, `isLoading`, `isNewUser`, `signInWithProvider()`, `signOut()`, `refreshVisitorProfile()`, `clearNewUserFlag()`. Listens to `onAuthStateChange` and upserts visitor profile via server action on `SIGNED_IN`.
 - Created `actions/resume.ts` with three server actions:
@@ -756,7 +756,7 @@ lib/supabase/admin.ts            # Admin client (service role key, RLS bypass)
 lib/supabase/queries.ts          # Typed data fetching functions
 lib/supabase/types.ts            # Generated TypeScript types
 lib/supabase/seed.ts             # Seed script for initial data migration
-middleware.ts                    # Auth + route protection middleware
+proxy.ts                        # Auth + route protection proxy (Next.js 16)
 context/auth-context.tsx         # Supabase auth React context
 components/auth/login-modal.tsx  # Visitor social login modal
 components/auth/optional-fields-modal.tsx

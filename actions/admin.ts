@@ -62,6 +62,30 @@ export async function getAdminStats(): Promise<{
         .limit(10),
     ]);
 
+  // Check for query errors
+  if (visitorsResult.error) {
+    console.error('getAdminStats: visitor_profiles query failed:', visitorsResult.error.message);
+    return { error: 'Failed to load visitor stats' };
+  }
+  if (totalDownloadsResult.error) {
+    console.error(
+      'getAdminStats: total downloads query failed:',
+      totalDownloadsResult.error.message
+    );
+    return { error: 'Failed to load download stats' };
+  }
+  if (recentDownloadsResult.error) {
+    console.error(
+      'getAdminStats: recent downloads query failed:',
+      recentDownloadsResult.error.message
+    );
+    return { error: 'Failed to load recent download stats' };
+  }
+  if (downloadsListResult.error) {
+    console.error('getAdminStats: downloads list query failed:', downloadsListResult.error.message);
+    return { error: 'Failed to load downloads list' };
+  }
+
   // Fetch visitor info for recent downloads
   let recentDownloadsList: AdminStats['recentDownloadsList'] = [];
   const downloads = downloadsListResult.data;

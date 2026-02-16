@@ -16,7 +16,7 @@ export default function Footer({ profile }: { profile: ProfileData }) {
             rel="noopener noreferrer"
             className="underline"
           >
-            [View source code at Github]
+            [View source code at GitHub]
           </a>
         )}
       </p>

@@ -128,13 +128,25 @@ export default function AdminLoginPage() {
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <Button variant="outline" onClick={() => handleOAuthLogin('google')}>
+            <Button
+              variant="outline"
+              onClick={() => handleOAuthLogin('google')}
+              aria-label="Sign in with Google"
+            >
               <FaGoogle />
             </Button>
-            <Button variant="outline" onClick={() => handleOAuthLogin('github')}>
+            <Button
+              variant="outline"
+              onClick={() => handleOAuthLogin('github')}
+              aria-label="Sign in with GitHub"
+            >
               <FaGithub />
             </Button>
-            <Button variant="outline" onClick={() => handleOAuthLogin('linkedin_oidc')}>
+            <Button
+              variant="outline"
+              onClick={() => handleOAuthLogin('linkedin_oidc')}
+              aria-label="Sign in with LinkedIn"
+            >
               <FaLinkedin />
             </Button>
           </div>

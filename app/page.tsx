@@ -62,7 +62,7 @@ export default async function Home() {
         description: e.description,
         icon: e.icon,
         date: e.display_date,
-        companylogo: e.company_logo_url ?? '',
+        companyLogo: e.company_logo_url ?? '',
       }))
     : experiencesData.map((e) => {
         const iconType =
@@ -73,7 +73,7 @@ export default async function Home() {
           description: e.description,
           icon: iconType === 'FaReact' ? 'react' : 'work',
           date: e.date,
-          companylogo: e.companylogo,
+          companyLogo: e.companyLogo,
         };
       });
 

@@ -41,7 +41,7 @@ export type ExperienceData = {
   description: string;
   icon: string;
   date: string;
-  companylogo: string;
+  companyLogo: string;
 };
 
 export type ProjectData = {

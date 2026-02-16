@@ -18,46 +18,33 @@ export async function upsertVisitorProfile(): Promise<{
     return { error: 'Not authenticated' };
   }
 
-  // Check if profile already exists
+  // Check if profile exists to determine isNewUser
   const { data: existing } = await supabase
     .from('visitor_profiles')
-    .select('*')
+    .select('id')
     .eq('id', user.id)
     .single();
 
-  if (existing) {
-    // Update with latest OAuth info (name, avatar may change)
-    const { data, error } = await supabase
-      .from('visitor_profiles')
-      .update({
-        full_name: user.user_metadata.full_name ?? user.user_metadata.name ?? existing.full_name,
-        avatar_url: user.user_metadata.avatar_url ?? existing.avatar_url,
-        email: user.email ?? existing.email,
-        provider: user.app_metadata.provider ?? existing.provider,
-      })
-      .eq('id', user.id)
-      .select()
-      .single();
+  const isNewUser = !existing;
 
-    if (error) return { error: error.message };
-    return { data: data!, isNewUser: false };
-  }
-
-  // Insert new profile
+  // Atomic upsert — insert or update in one operation
   const { data, error } = await supabase
     .from('visitor_profiles')
-    .insert({
-      id: user.id,
-      full_name: user.user_metadata.full_name ?? user.user_metadata.name ?? null,
-      email: user.email ?? null,
-      avatar_url: user.user_metadata.avatar_url ?? null,
-      provider: user.app_metadata.provider ?? null,
-    })
+    .upsert(
+      {
+        id: user.id,
+        full_name: user.user_metadata.full_name ?? user.user_metadata.name ?? null,
+        email: user.email ?? null,
+        avatar_url: user.user_metadata.avatar_url ?? null,
+        provider: user.app_metadata.provider ?? null,
+      },
+      { onConflict: 'id' }
+    )
     .select()
     .single();
 
   if (error) return { error: error.message };
-  return { data: data!, isNewUser: true };
+  return { data: data!, isNewUser };
 }
 
 export async function updateVisitorOptionalFields(

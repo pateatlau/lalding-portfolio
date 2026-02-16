@@ -65,7 +65,7 @@ export default function Experience({
                   </p>
                 </div>
                 <Image
-                  src={item.companylogo}
+                  src={item.companyLogo}
                   alt={`${item.company} company logo`}
                   height={50}
                   width={50}
