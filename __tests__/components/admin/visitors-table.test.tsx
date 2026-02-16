@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import VisitorsTable from '@/components/admin/visitors-table';
@@ -10,8 +10,16 @@ vi.mock('@/actions/admin', () => ({
 
 import { getVisitorsCsvData } from '@/actions/admin';
 
+const originalCreateObjectURL = global.URL.createObjectURL;
+const originalRevokeObjectURL = global.URL.revokeObjectURL;
+
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+afterEach(() => {
+  global.URL.createObjectURL = originalCreateObjectURL;
+  global.URL.revokeObjectURL = originalRevokeObjectURL;
 });
 
 describe('VisitorsTable', () => {
@@ -31,10 +39,13 @@ describe('VisitorsTable', () => {
 
   it('shows em dash for null visitor name', () => {
     render(<VisitorsTable visitors={mockVisitors} />);
-    // The third visitor has null fullName — look for em dashes in name cells
     const rows = screen.getAllByRole('row');
-    // Header + 3 data rows
+    // Header + 3 data rows (default sort is joined desc, so v-3 with null name is first)
     expect(rows.length).toBe(4);
+    // v-3 has null fullName — its name cell should render an em dash
+    const firstDataRow = rows[1];
+    const nameCell = within(firstDataRow).getAllByRole('cell')[0];
+    expect(nameCell).toHaveTextContent('—');
   });
 
   it('renders provider badges', () => {

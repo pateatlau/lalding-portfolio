@@ -60,6 +60,7 @@ export default function VisitorsTable({ visitors }: { visitors: VisitorEntry[] }
   const [sortDir, setSortDir] = useState<SortDirection>('desc');
   const [page, setPage] = useState(0);
   const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   // Unique providers for filter dropdown
   const providers = useMemo(() => {
@@ -134,9 +135,13 @@ export default function VisitorsTable({ visitors }: { visitors: VisitorEntry[] }
 
   const handleExport = async () => {
     setIsExporting(true);
+    setExportError(null);
     try {
       const result = await getVisitorsCsvData();
-      if (result.error || !result.data) return;
+      if (result.error || !result.data) {
+        setExportError(result.error ?? 'Failed to export visitors');
+        return;
+      }
 
       const blob = new Blob([result.data], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -145,6 +150,8 @@ export default function VisitorsTable({ visitors }: { visitors: VisitorEntry[] }
       link.download = `visitors-${new Date().toISOString().split('T')[0]}.csv`;
       link.click();
       URL.revokeObjectURL(url);
+    } catch {
+      setExportError('An unexpected error occurred during export');
     } finally {
       setIsExporting(false);
     }
@@ -178,6 +185,8 @@ export default function VisitorsTable({ visitors }: { visitors: VisitorEntry[] }
           {isExporting ? 'Exporting...' : 'Export CSV'}
         </Button>
       </div>
+
+      {exportError && <p className="text-destructive text-sm">{exportError}</p>}
 
       {/* Filters */}
       <div className="flex flex-col gap-3 sm:flex-row">
