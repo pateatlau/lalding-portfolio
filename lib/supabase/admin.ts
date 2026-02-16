@@ -4,6 +4,12 @@ import type { Database } from './types';
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-role-key';
 
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.warn(
+    '⚠️  Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY — using placeholder. Admin operations will fail.'
+  );
+}
+
 // Admin client using service role key — bypasses RLS.
 // Use only for server-side operations that genuinely need to bypass RLS,
 // such as seeding data and setting admin roles.

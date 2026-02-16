@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -62,6 +62,10 @@ export default function AdminLoginPage() {
   };
 
   const handleOAuthLogin = async (provider: 'google' | 'github' | 'linkedin_oidc') => {
+    if (!isSupabaseConfigured) {
+      setError('Authentication is not configured. Please contact the administrator.');
+      return;
+    }
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
