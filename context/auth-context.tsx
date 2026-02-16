@@ -89,7 +89,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${window.location.pathname}`,
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(window.location.pathname)}`,
         },
       });
     },
