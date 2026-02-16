@@ -548,7 +548,22 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - `actions/admin.ts` — add `updateProfile()`, `updateProfileStats()` actions
 
-### 4B Status: PENDING
+### 4B Implementation Notes
+
+- Created `app/admin/(dashboard)/profile/page.tsx` — server component that fetches profile + stats via `Promise.all([getProfile(), getProfileStats()])` and passes to `ProfileForm` client component. Handles null profile with fallback UI.
+- Created `components/admin/profile-form.tsx` — client component with 3-tab interface using shadcn/ui Tabs:
+  - **General tab**: Personal info (full_name, short_name, job_title, tagline), typewriter titles (dynamic array with add/remove), contact info (email, phone, location), social links (linkedin_url, github_url), footer text. Each section separated by `Separator`.
+  - **About tab**: Three textarea fields (about_tech_stack, about_current_focus, about_beyond_code) plus expertise highlights (dynamic array with add/remove).
+  - **Stats tab**: Inline editable rows with value (number), suffix (text), label (text). Up/down arrow buttons for reordering, add/delete buttons. Bulk replace on save (delete all → insert new).
+- Each tab has its own Save button, loading state (Loader2 spinner), and inline success/error status messages.
+- Added `updateProfile(data: Partial<ProfileInsert>)` server action — updates singleton profile row via `.update(data).eq('singleton', true)`, calls `revalidatePath('/')` for cache invalidation.
+- Added `updateProfileStats(stats: ProfileStatInsert[])` server action — bulk replace strategy: `.delete().gte('sort_order', 0)` to remove all existing rows, then `.insert(stats)` for new ones. Calls `revalidatePath('/')`.
+- Cache invalidation uses `revalidatePath('/')` instead of `revalidateTag('profile')` because Supabase client queries don't use `fetch()`, so Next.js cache tags aren't applicable. `revalidatePath('/')` ensures the homepage re-renders with fresh data.
+- Empty optional text fields are converted to `null` before saving (Postgres convention). Empty arrays are converted to `null` for `about_expertise`.
+- Stats validation: all stats must have a non-empty label before save is allowed.
+- Helper functions (`updateField`, `updateArrayItem`, `addArrayItem`, `removeArrayItem`) reduce repetition in form handlers.
+
+### 4B Status: COMPLETE
 
 ---
 
@@ -565,7 +580,25 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - `actions/admin.ts` — add `createExperience()`, `updateExperience()`, `deleteExperience()`, `reorderExperiences()`
 
-### 4C Status: PENDING
+### 4C Implementation Notes
+
+- Created `app/admin/(dashboard)/experience/page.tsx` — server component that fetches experiences via `getExperiences()` and passes `Experience[]` to `ExperienceEditor` client component. Handles null with fallback UI.
+- Created `components/admin/experience-editor.tsx` — client component with:
+  - **Table view**: Columns for Order (up/down arrows), Title, Company, Date (hidden on mobile), Actions (edit/delete icon buttons). Empty state when no experiences exist.
+  - **Add/Edit Dialog** (shared): Form fields for title, company, description (textarea), display_date (free text), start_date/end_date (date inputs), icon (Select dropdown: "work"/"react"), company_logo_url (optional URL). "Leave empty for current role" hint on end_date.
+  - **Delete Confirmation Dialog**: Shows experience title + company, Confirm/Cancel buttons with destructive variant.
+  - **Reorder**: Up/down ChevronUp/ChevronDown buttons call `reorderExperiences()` with optimistic local state. Reverts on error.
+- Optimistic local state updates: after successful create/edit/delete, local state is updated immediately without full page reload.
+- Added four server actions to `actions/admin.ts`:
+  - `createExperience(data: ExperienceInsert)` — inserts row, returns created `Experience` via `.select().single()`.
+  - `updateExperience(id, data: Partial<ExperienceInsert>)` — updates row by ID, returns updated `Experience`.
+  - `deleteExperience(id)` — deletes row by ID.
+  - `reorderExperiences(orderedIds: string[])` — updates `sort_order` for each ID using `Promise.all()` of individual update calls.
+- All actions follow the established pattern: `requireAdmin()` → DB operation → `revalidatePath('/')` → return `{ data?, error? }`.
+- New experience gets `sort_order` set to `experiences.length` (appended at end).
+- Empty optional fields (`end_date`, `company_logo_url`) converted to `null` before saving.
+
+### 4C Status: COMPLETE
 
 ---
 
