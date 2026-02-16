@@ -9,7 +9,10 @@ export async function upsertVisitorProfile(): Promise<{
   error?: string;
 }> {
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     return { error: 'Not authenticated' };
@@ -62,7 +65,10 @@ export async function updateVisitorOptionalFields(
   role: string
 ): Promise<{ error?: string }> {
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     return { error: 'Not authenticated' };
@@ -79,17 +85,17 @@ export async function updateVisitorOptionalFields(
 
 export async function downloadResume(): Promise<{ url?: string; error?: string }> {
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     return { error: 'Please sign in to download the resume' };
   }
 
   // Get the resume storage path from profile
-  const { data: profile } = await supabase
-    .from('profile')
-    .select('resume_url')
-    .single();
+  const { data: profile } = await supabase.from('profile').select('resume_url').single();
 
   if (!profile?.resume_url) {
     return { error: 'Resume not available' };

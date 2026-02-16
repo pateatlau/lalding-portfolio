@@ -65,7 +65,8 @@ export default async function Home() {
         companylogo: e.company_logo_url ?? '',
       }))
     : experiencesData.map((e) => {
-        const iconType = typeof e.icon.type === 'function' ? (e.icon.type as { name?: string }).name : '';
+        const iconType =
+          typeof e.icon.type === 'function' ? (e.icon.type as { name?: string }).name : '';
         return {
           title: e.title,
           company: e.location,
@@ -77,14 +78,10 @@ export default async function Home() {
       });
 
   // --- Project categories ---
-  const categories = dbCategories
-    ? dbCategories.map((c) => c.name)
-    : [...staticProjectCategories];
+  const categories = dbCategories ? dbCategories.map((c) => c.name) : [...staticProjectCategories];
 
   // --- Projects ---
-  const categoryMap = dbCategories
-    ? new Map(dbCategories.map((c) => [c.id, c.name]))
-    : null;
+  const categoryMap = dbCategories ? new Map(dbCategories.map((c) => [c.id, c.name])) : null;
 
   const projects: ProjectData[] = dbProjects
     ? dbProjects.map((p) => ({

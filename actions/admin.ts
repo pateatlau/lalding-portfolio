@@ -3,9 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import type { User } from '@supabase/supabase-js';
 
-type AdminResult =
-  | { user: User; error?: undefined }
-  | { user?: undefined; error: string };
+type AdminResult = { user: User; error?: undefined } | { user?: undefined; error: string };
 
 export async function requireAdmin(): Promise<AdminResult> {
   const supabase = await createClient();
@@ -51,19 +49,12 @@ export async function getAdminStats(): Promise<{
 
   const [visitorsResult, totalDownloadsResult, recentDownloadsResult, downloadsListResult] =
     await Promise.all([
-      supabase
-        .from('visitor_profiles')
-        .select('*', { count: 'exact', head: true }),
-      supabase
-        .from('resume_downloads')
-        .select('*', { count: 'exact', head: true }),
+      supabase.from('visitor_profiles').select('*', { count: 'exact', head: true }),
+      supabase.from('resume_downloads').select('*', { count: 'exact', head: true }),
       supabase
         .from('resume_downloads')
         .select('*', { count: 'exact', head: true })
-        .gte(
-          'downloaded_at',
-          new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-        ),
+        .gte('downloaded_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()),
       supabase
         .from('resume_downloads')
         .select('id, downloaded_at, visitor_id')
@@ -77,9 +68,7 @@ export async function getAdminStats(): Promise<{
 
   if (downloads && downloads.length > 0) {
     const visitorIds = Array.from(
-      new Set(
-        downloads.map((d) => d.visitor_id).filter(Boolean) as string[],
-      ),
+      new Set(downloads.map((d) => d.visitor_id).filter(Boolean) as string[])
     );
 
     const { data: visitors } =

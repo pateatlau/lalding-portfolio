@@ -513,6 +513,7 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 **Scope:** shadcn/ui installation, admin login page, admin layout with auth guard, admin shell (sidebar + topbar), dashboard overview page, `requireAdmin()` + `getAdminStats()` server actions.
 
 **Files created:**
+
 - `actions/admin.ts` — `requireAdmin()` helper + `getAdminStats()` action
 - `app/admin/login/page.tsx` — email/password + social login, fixed overlay
 - `app/admin/(dashboard)/layout.tsx` — auth guard + AdminShell wrapper
@@ -521,9 +522,11 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 - `components/admin/dashboard-content.tsx` — stats cards + downloads table + quick actions
 
 **Files modified:**
+
 - `proxy.ts` — exclude `/admin/login` from admin protection, redirect to `/admin/login` instead of `/`
 
 **Key decisions:**
+
 - `(dashboard)` route group separates auth-guarded pages from the public login page
 - `fixed inset-0 z-[1000]` overlay covers portfolio chrome without restructuring app directory
 - Dashboard stats use parallel Supabase queries via `Promise.all()`
@@ -537,10 +540,12 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 **Scope:** Profile editor page, tabbed form for General/About/Stats fields, `updateProfile()` + `updateProfileStats()` server actions, cache invalidation via `revalidateTag('profile')`.
 
 **Files to create:**
+
 - `app/admin/(dashboard)/profile/page.tsx` — server component, fetches profile + stats
 - `components/admin/profile-form.tsx` — client component, tabbed interface (General, About, Stats)
 
 **Files to modify:**
+
 - `actions/admin.ts` — add `updateProfile()`, `updateProfileStats()` actions
 
 ### 4B Status: PENDING
@@ -552,10 +557,12 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 **Scope:** Experience editor page, table view with add/edit/delete dialogs, sort_order controls, CRUD server actions, cache invalidation via `revalidateTag('experiences')`.
 
 **Files to create:**
+
 - `app/admin/(dashboard)/experience/page.tsx` — server component, fetches experiences
 - `components/admin/experience-editor.tsx` — client component, table + dialogs
 
 **Files to modify:**
+
 - `actions/admin.ts` — add `createExperience()`, `updateExperience()`, `deleteExperience()`, `reorderExperiences()`
 
 ### 4C Status: PENDING
@@ -567,11 +574,13 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 **Scope:** Projects editor page, card grid with add/edit/delete dialogs, image/video upload, reusable file upload component, CRUD server actions, cache invalidation via `revalidateTag('projects')`.
 
 **Files to create:**
+
 - `app/admin/(dashboard)/projects/page.tsx` — server component, fetches projects + categories
 - `components/admin/projects-editor.tsx` — client component, card grid + dialogs
 - `components/admin/file-upload.tsx` — reusable drag-and-drop upload with preview + progress
 
 **Files to modify:**
+
 - `actions/admin.ts` — add project CRUD + file upload/delete actions
 
 ### 4D Status: PENDING
@@ -583,10 +592,12 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 **Scope:** Skills editor page, grouped card view, add/remove/reorder groups and skills, CRUD server actions, cache invalidation via `revalidateTag('skills')`.
 
 **Files to create:**
+
 - `app/admin/(dashboard)/skills/page.tsx` — server component, fetches skill groups with skills
 - `components/admin/skills-editor.tsx` — client component, grouped view + dialogs
 
 **Files to modify:**
+
 - `actions/admin.ts` — add skill group and skill CRUD actions
 
 ### 4E Status: PENDING
@@ -598,10 +609,12 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 **Scope:** Resume management page, current resume info, upload new resume, download log table, `uploadResume()` + `getResumeDownloads()` server actions, cache invalidation via `revalidateTag('profile')`.
 
 **Files to create:**
+
 - `app/admin/(dashboard)/resume/page.tsx` — server component, fetches profile + downloads
 - `components/admin/resume-manager.tsx` — client component, upload + download log table
 
 **Files to modify:**
+
 - `actions/admin.ts` — add `uploadResume()`, `getResumeDownloads()`
 
 ### 4F Status: PENDING
@@ -613,10 +626,12 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 **Scope:** Visitors page, table with filter/search/sort, CSV export, pagination, `getVisitors()` + `getVisitorsCsvData()` server actions.
 
 **Files to create:**
+
 - `app/admin/(dashboard)/visitors/page.tsx` — server component, fetches visitors
 - `components/admin/visitors-table.tsx` — client component, table + filters + export
 
 **Files to modify:**
+
 - `actions/admin.ts` — add `getVisitors()`, `getVisitorsCsvData()`
 
 ### 4G Status: PENDING
@@ -628,6 +643,7 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 **Scope:** Loading states / skeleton screens, empty states, error boundaries, responsive verification, form validation.
 
 **Files to modify:**
+
 - All admin pages and components as needed
 
 ### 4H Status: PENDING

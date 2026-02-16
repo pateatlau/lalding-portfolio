@@ -8,13 +8,7 @@ import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { FaGoogle, FaGithub, FaLinkedin } from 'react-icons/fa';
 import { Loader2, ShieldCheck } from 'lucide-react';
@@ -67,9 +61,7 @@ export default function AdminLoginPage() {
     router.replace('/admin');
   };
 
-  const handleOAuthLogin = async (
-    provider: 'google' | 'github' | 'linkedin_oidc',
-  ) => {
+  const handleOAuthLogin = async (provider: 'google' | 'github' | 'linkedin_oidc') => {
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -80,15 +72,15 @@ export default function AdminLoginPage() {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-background">
+      <div className="bg-background fixed inset-0 z-[1000] flex items-center justify-center">
         <Loader2 className="text-muted-foreground size-8 animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-background">
-      <Card className="w-full max-w-md mx-4">
+    <div className="bg-background fixed inset-0 z-[1000] flex items-center justify-center">
+      <Card className="mx-4 w-full max-w-md">
         <CardHeader className="text-center">
           <div className="bg-primary/10 mx-auto mb-4 flex size-12 items-center justify-center rounded-full">
             <ShieldCheck className="text-primary size-6" />
@@ -130,28 +122,19 @@ export default function AdminLoginPage() {
 
           <div className="relative my-6">
             <Separator />
-            <span className="text-muted-foreground bg-card absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-2 text-xs">
+            <span className="text-muted-foreground bg-card absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 text-xs">
               Or continue with
             </span>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <Button
-              variant="outline"
-              onClick={() => handleOAuthLogin('google')}
-            >
+            <Button variant="outline" onClick={() => handleOAuthLogin('google')}>
               <FaGoogle />
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleOAuthLogin('github')}
-            >
+            <Button variant="outline" onClick={() => handleOAuthLogin('github')}>
               <FaGithub />
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleOAuthLogin('linkedin_oidc')}
-            >
+            <Button variant="outline" onClick={() => handleOAuthLogin('linkedin_oidc')}>
               <FaLinkedin />
             </Button>
           </div>
@@ -159,7 +142,7 @@ export default function AdminLoginPage() {
           <div className="mt-6 text-center">
             <Link
               href="/"
-              className="text-muted-foreground text-sm transition hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground text-sm transition"
             >
               Back to portfolio
             </Link>

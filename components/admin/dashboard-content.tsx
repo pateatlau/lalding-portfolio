@@ -2,13 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -31,9 +25,7 @@ import {
 } from 'lucide-react';
 
 function timeAgo(dateString: string): string {
-  const seconds = Math.floor(
-    (Date.now() - new Date(dateString).getTime()) / 1000,
-  );
+  const seconds = Math.floor((Date.now() - new Date(dateString).getTime()) / 1000);
   const intervals = [
     { label: 'year', seconds: 31536000 },
     { label: 'month', seconds: 2592000 },
@@ -43,8 +35,7 @@ function timeAgo(dateString: string): string {
   ];
   for (const interval of intervals) {
     const count = Math.floor(seconds / interval.seconds);
-    if (count >= 1)
-      return `${count} ${interval.label}${count > 1 ? 's' : ''} ago`;
+    if (count >= 1) return `${count} ${interval.label}${count > 1 ? 's' : ''} ago`;
   }
   return 'Just now';
 }
@@ -93,48 +84,36 @@ export default function DashboardContent({ stats }: { stats: AdminStats }) {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground text-sm">
-          Overview of your portfolio activity
-        </p>
+        <p className="text-muted-foreground text-sm">Overview of your portfolio activity</p>
       </div>
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Visitors
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total Visitors</CardTitle>
             <Users className="text-muted-foreground size-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalVisitors}</div>
-            <p className="text-muted-foreground text-xs">
-              Signed-in visitors
-            </p>
+            <p className="text-muted-foreground text-xs">Signed-in visitors</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Downloads
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Total Downloads</CardTitle>
             <Download className="text-muted-foreground size-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalDownloads}</div>
-            <p className="text-muted-foreground text-xs">
-              Resume downloads all time
-            </p>
+            <p className="text-muted-foreground text-xs">Resume downloads all time</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
-              Recent Downloads
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Recent Downloads</CardTitle>
             <TrendingUp className="text-muted-foreground size-4" />
           </CardHeader>
           <CardContent>
@@ -152,18 +131,14 @@ export default function DashboardContent({ stats }: { stats: AdminStats }) {
         </CardHeader>
         <CardContent>
           {stats.recentDownloadsList.length === 0 ? (
-            <p className="text-muted-foreground py-8 text-center text-sm">
-              No downloads yet
-            </p>
+            <p className="text-muted-foreground py-8 text-center text-sm">No downloads yet</p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead className="hidden sm:table-cell">
-                    Company
-                  </TableHead>
+                  <TableHead className="hidden sm:table-cell">Company</TableHead>
                   <TableHead>Downloaded</TableHead>
                 </TableRow>
               </TableHeader>
@@ -194,16 +169,14 @@ export default function DashboardContent({ stats }: { stats: AdminStats }) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {quickActions.map((action) => (
             <Link key={action.href} href={action.href}>
-              <Card className="transition-colors hover:bg-accent/50">
+              <Card className="hover:bg-accent/50 transition-colors">
                 <CardHeader className="flex flex-row items-center gap-3 pb-2">
                   <div className="bg-primary/10 flex size-10 items-center justify-center rounded-lg">
                     <action.icon className="text-primary size-5" />
                   </div>
                   <div>
                     <CardTitle className="text-sm">{action.label}</CardTitle>
-                    <CardDescription className="text-xs">
-                      {action.description}
-                    </CardDescription>
+                    <CardDescription className="text-xs">{action.description}</CardDescription>
                   </div>
                 </CardHeader>
               </Card>

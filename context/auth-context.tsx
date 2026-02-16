@@ -26,15 +26,18 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const [isNewUser, setIsNewUser] = useState(false);
   const supabase = createClient();
 
-  const fetchVisitorProfile = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from('visitor_profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    setVisitorProfile(data);
-    return data;
-  }, [supabase]);
+  const fetchVisitorProfile = useCallback(
+    async (userId: string) => {
+      const { data } = await supabase
+        .from('visitor_profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      setVisitorProfile(data);
+      return data;
+    },
+    [supabase]
+  );
 
   const refreshVisitorProfile = useCallback(async () => {
     if (user) {
@@ -53,42 +56,45 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        const currentUser = session?.user ?? null;
-        setUser(currentUser);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
 
-        if (event === 'SIGNED_IN' && currentUser) {
-          // Upsert visitor profile via server action
-          const result = await upsertVisitorProfile();
-          if (result.data) {
-            setVisitorProfile(result.data);
-            setIsNewUser(result.isNewUser ?? false);
-          }
-          // Notify pending action listeners that auth is ready
-          window.dispatchEvent(new CustomEvent('auth:signed-in', {
-            detail: { isNewUser: result.isNewUser ?? false },
-          }));
-        } else if (event === 'SIGNED_OUT') {
-          setVisitorProfile(null);
-          setIsNewUser(false);
+      if (event === 'SIGNED_IN' && currentUser) {
+        // Upsert visitor profile via server action
+        const result = await upsertVisitorProfile();
+        if (result.data) {
+          setVisitorProfile(result.data);
+          setIsNewUser(result.isNewUser ?? false);
         }
+        // Notify pending action listeners that auth is ready
+        window.dispatchEvent(
+          new CustomEvent('auth:signed-in', {
+            detail: { isNewUser: result.isNewUser ?? false },
+          })
+        );
+      } else if (event === 'SIGNED_OUT') {
+        setVisitorProfile(null);
+        setIsNewUser(false);
       }
-    );
+    });
 
     return () => subscription.unsubscribe();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const signInWithProvider = useCallback(async (
-    provider: 'google' | 'github' | 'linkedin_oidc'
-  ) => {
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${window.location.pathname}`,
-      },
-    });
-  }, [supabase]);
+  const signInWithProvider = useCallback(
+    async (provider: 'google' | 'github' | 'linkedin_oidc') => {
+      await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=${window.location.pathname}`,
+        },
+      });
+    },
+    [supabase]
+  );
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();

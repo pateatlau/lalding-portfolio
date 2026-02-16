@@ -254,84 +254,87 @@ export default function CommandPalette({ profile }: { profile: ProfileData }) {
 
   return (
     <>
-    <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
-    <OptionalFieldsModal isOpen={showOptionalFieldsModal} onComplete={handleOptionalFieldsComplete} />
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={close}
-          />
+      <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+      <OptionalFieldsModal
+        isOpen={showOptionalFieldsModal}
+        onComplete={handleOptionalFieldsComplete}
+      />
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="fixed inset-0 z-[9998] bg-black/40 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={close}
+            />
 
-          {/* Dialog */}
-          <motion.div
-            className="fixed top-[20%] left-1/2 z-[9999] w-[min(90vw,32rem)] -translate-x-1/2 overflow-hidden rounded-xl border border-black/10 bg-white/95 shadow-2xl backdrop-blur-md dark:border-white/10 dark:bg-gray-900/95"
-            initial={{ opacity: 0, scale: 0.95, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            transition={{ duration: 0.15 }}
-          >
-            {/* Search input */}
-            <div className="flex items-center gap-3 border-b border-black/5 px-4 dark:border-white/5">
-              <BsSearch className="text-muted-foreground shrink-0" />
-              <input
-                ref={inputRef}
-                className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500"
-                placeholder="Type a command or search..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={handleInputKeyDown}
-              />
-              <kbd className="text-muted-foreground hidden shrink-0 rounded border border-black/10 px-1.5 py-0.5 text-[0.65rem] font-medium sm:inline-block dark:border-white/10">
-                ESC
-              </kbd>
-            </div>
+            {/* Dialog */}
+            <motion.div
+              className="fixed top-[20%] left-1/2 z-[9999] w-[min(90vw,32rem)] -translate-x-1/2 overflow-hidden rounded-xl border border-black/10 bg-white/95 shadow-2xl backdrop-blur-md dark:border-white/10 dark:bg-gray-900/95"
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              transition={{ duration: 0.15 }}
+            >
+              {/* Search input */}
+              <div className="flex items-center gap-3 border-b border-black/5 px-4 dark:border-white/5">
+                <BsSearch className="text-muted-foreground shrink-0" />
+                <input
+                  ref={inputRef}
+                  className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500"
+                  placeholder="Type a command or search..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={handleInputKeyDown}
+                />
+                <kbd className="text-muted-foreground hidden shrink-0 rounded border border-black/10 px-1.5 py-0.5 text-[0.65rem] font-medium sm:inline-block dark:border-white/10">
+                  ESC
+                </kbd>
+              </div>
 
-            {/* Results */}
-            <div ref={listRef} className="max-h-72 overflow-y-auto p-2">
-              {filtered.length === 0 && (
-                <div className="text-muted-foreground py-8 text-center text-sm">
-                  No results found
-                </div>
-              )}
-              {Object.entries(groups).map(([group, groupItems]) => (
-                <div key={group}>
-                  <div className="text-muted-foreground px-3 pt-2 pb-1 text-xs font-semibold uppercase">
-                    {group}
+              {/* Results */}
+              <div ref={listRef} className="max-h-72 overflow-y-auto p-2">
+                {filtered.length === 0 && (
+                  <div className="text-muted-foreground py-8 text-center text-sm">
+                    No results found
                   </div>
-                  {groupItems.map((item) => {
-                    flatIndex++;
-                    const currentIndex = flatIndex;
-                    const isSelected = currentIndex === selectedIndex;
-                    return (
-                      <button
-                        key={item.id}
-                        data-selected={isSelected}
-                        className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${
-                          isSelected
-                            ? 'bg-accent-teal/10 text-accent-teal dark:bg-accent-teal/15 dark:text-accent-teal-light'
-                            : 'text-foreground hover:bg-black/5 dark:hover:bg-white/5'
-                        }`}
-                        onClick={item.action}
-                        onMouseEnter={() => setSelectedIndex(currentIndex)}
-                      >
-                        <span className="shrink-0 text-base">{item.icon}</span>
-                        {item.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+                )}
+                {Object.entries(groups).map(([group, groupItems]) => (
+                  <div key={group}>
+                    <div className="text-muted-foreground px-3 pt-2 pb-1 text-xs font-semibold uppercase">
+                      {group}
+                    </div>
+                    {groupItems.map((item) => {
+                      flatIndex++;
+                      const currentIndex = flatIndex;
+                      const isSelected = currentIndex === selectedIndex;
+                      return (
+                        <button
+                          key={item.id}
+                          data-selected={isSelected}
+                          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${
+                            isSelected
+                              ? 'bg-accent-teal/10 text-accent-teal dark:bg-accent-teal/15 dark:text-accent-teal-light'
+                              : 'text-foreground hover:bg-black/5 dark:hover:bg-white/5'
+                          }`}
+                          onClick={item.action}
+                          onMouseEnter={() => setSelectedIndex(currentIndex)}
+                        >
+                          <span className="shrink-0 text-base">{item.icon}</span>
+                          {item.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }

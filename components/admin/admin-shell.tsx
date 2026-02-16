@@ -9,12 +9,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import {
   LayoutDashboard,
   User,
@@ -60,16 +55,11 @@ function Breadcrumbs({ pathname }: { pathname: string }) {
     <div className="flex items-center gap-1 text-sm">
       {breadcrumbs.map((crumb, index) => (
         <React.Fragment key={crumb.href}>
-          {index > 0 && (
-            <ChevronRight className="text-muted-foreground size-3" />
-          )}
+          {index > 0 && <ChevronRight className="text-muted-foreground size-3" />}
           {index === breadcrumbs.length - 1 ? (
             <span className="font-medium">{crumb.label}</span>
           ) : (
-            <Link
-              href={crumb.href}
-              className="text-muted-foreground hover:text-foreground"
-            >
+            <Link href={crumb.href} className="text-muted-foreground hover:text-foreground">
               {crumb.label}
             </Link>
           )}
@@ -99,9 +89,7 @@ export default function AdminShell({ adminUser, children }: AdminShellProps) {
       <Separator className="mb-4" />
       {navItems.map((item) => {
         const isActive =
-          item.href === '/admin'
-            ? pathname === '/admin'
-            : pathname.startsWith(item.href);
+          item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
         return (
           <Link
             key={item.href}
@@ -111,7 +99,7 @@ export default function AdminShell({ adminUser, children }: AdminShellProps) {
               'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
               isActive
                 ? 'bg-accent text-accent-foreground font-medium'
-                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
             )}
           >
             <item.icon className="size-4" />
@@ -125,14 +113,14 @@ export default function AdminShell({ adminUser, children }: AdminShellProps) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden border-r bg-card md:flex md:w-60 md:flex-col">
+      <aside className="bg-card hidden border-r md:flex md:w-60 md:flex-col">
         {sidebarContent}
       </aside>
 
       {/* Main area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="flex h-14 items-center justify-between border-b bg-card px-4">
+        <header className="bg-card flex h-14 items-center justify-between border-b px-4">
           <div className="flex items-center gap-3">
             {/* Mobile hamburger */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -166,9 +154,7 @@ export default function AdminShell({ adminUser, children }: AdminShellProps) {
                 </AvatarFallback>
               )}
             </Avatar>
-            <span className="hidden text-sm font-medium sm:block">
-              {adminUser.name}
-            </span>
+            <span className="hidden text-sm font-medium sm:block">{adminUser.name}</span>
             <Button variant="ghost" size="icon" onClick={handleSignOut}>
               <LogOut className="size-4" />
             </Button>

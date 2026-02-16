@@ -112,16 +112,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
         <ThemeContextProvider>
           <AuthProvider>
-          <ActiveSectionContextProvider>
-            <ScrollProgress />
-            <Header />
-            <main id="main">{children}</main>
-            <Footer profile={profile} />
+            <ActiveSectionContextProvider>
+              <ScrollProgress />
+              <Header />
+              <main id="main">{children}</main>
+              <Footer profile={profile} />
 
-            <Toaster position="top-right" />
-            <ThemeSwitch />
-            <CommandPalette profile={profile} />
-          </ActiveSectionContextProvider>
+              <Toaster position="top-right" />
+              <ThemeSwitch />
+              <CommandPalette profile={profile} />
+            </ActiveSectionContextProvider>
           </AuthProvider>
         </ThemeContextProvider>
       </body>
