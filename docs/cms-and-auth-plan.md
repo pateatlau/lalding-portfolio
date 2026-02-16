@@ -368,6 +368,7 @@ When a visitor is logged in (has an active Supabase session):
 - Updated `app/layout.tsx` — wrapped with `AuthProvider` inside `ThemeContextProvider`.
 - Note: Next.js 16 shows a deprecation warning that "middleware" should use "proxy" convention. The middleware still works correctly; this is an informational warning for a future migration.
 - AdminLoginPage (`app/admin/login/page.tsx`) is deferred to Phase 4 since it's part of the admin dashboard.
+- **Known issue**: LinkedIn OIDC login is not working (Google and GitHub work fine). Deferred — will debug after all phases are implemented. Most likely a configuration issue in the LinkedIn Developer Portal (OIDC product approval, redirect URL, or scope mismatch).
 
 ### Phase 2 Status: COMPLETE
 
