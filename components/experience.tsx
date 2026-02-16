@@ -4,13 +4,26 @@ import React from 'react';
 import SectionHeading from './section-heading';
 import { VerticalTimeline, VerticalTimelineElement } from 'react-vertical-timeline-component';
 import 'react-vertical-timeline-component/style.min.css';
-import { experiencesData } from '@/lib/data';
 import { useSectionInView } from '@/lib/hooks';
 import { useTheme } from '@/context/theme-context';
 import CompaniesSlider from '@/components/companies-slider';
 import Image from 'next/image';
+import { CgWorkAlt } from 'react-icons/cg';
+import { FaReact } from 'react-icons/fa';
+import type { ExperienceData, CompanyData } from '@/lib/types';
 
-export default function Experience() {
+const iconMap: Record<string, React.ReactNode> = {
+  work: React.createElement(CgWorkAlt),
+  react: React.createElement(FaReact),
+};
+
+export default function Experience({
+  experiences,
+  companies,
+}: {
+  experiences: ExperienceData[];
+  companies: CompanyData[];
+}) {
   const { ref } = useSectionInView('Experience');
   const { theme } = useTheme();
 
@@ -18,8 +31,8 @@ export default function Experience() {
     <section id="experience" ref={ref} className="mb-28 scroll-mt-28 sm:mb-40">
       <SectionHeading>Career Journey</SectionHeading>
       <VerticalTimeline lineColor={theme === 'light' ? '#e5e7eb' : 'rgba(255,255,255,0.1)'}>
-        {experiencesData.map((item) => (
-          <React.Fragment key={`${item.title}-${item.location}`}>
+        {experiences.map((item) => (
+          <React.Fragment key={`${item.title}-${item.company}`}>
             <VerticalTimelineElement
               contentStyle={{
                 background: theme === 'light' ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.05)',
@@ -37,7 +50,7 @@ export default function Experience() {
                 borderRight: theme === 'light' ? '0.4rem solid #0d9488' : '0.4rem solid #14b8a6',
               }}
               date={item.date}
-              icon={item.icon}
+              icon={iconMap[item.icon] ?? iconMap['work']}
               iconStyle={{
                 background: theme === 'light' ? '#0d9488' : '#14b8a6',
                 color: 'white',
@@ -48,12 +61,12 @@ export default function Experience() {
                 <div className="min-w-0">
                   <h3 className="font-semibold capitalize">{item.title}</h3>
                   <p className="text-accent-teal dark:text-accent-teal-light mt-0! font-medium">
-                    {item.location}
+                    {item.company}
                   </p>
                 </div>
                 <Image
-                  src={item.companylogo}
-                  alt={`${item.location} company logo`}
+                  src={item.companyLogo}
+                  alt={`${item.company} company logo`}
                   height={50}
                   width={50}
                   className="h-10 w-10 shrink-0 rounded-lg sm:h-[50px] sm:w-[50px]"
@@ -64,7 +77,7 @@ export default function Experience() {
           </React.Fragment>
         ))}
       </VerticalTimeline>
-      <CompaniesSlider />
+      <CompaniesSlider companies={companies} />
     </section>
   );
 }

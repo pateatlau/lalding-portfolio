@@ -7,8 +7,10 @@ import ActiveSectionContextProvider from '@/context/active-section-context';
 import Footer from '@/components/footer';
 import ThemeSwitch from '@/components/theme-switch';
 import ThemeContextProvider from '@/context/theme-context';
+import AuthProvider from '@/context/auth-context';
 import { Toaster } from 'react-hot-toast';
 import type { Metadata } from 'next';
+import { getProfileData } from '@/lib/supabase/queries';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -61,7 +63,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const profile = await getProfileData();
+
   return (
     <html lang="en" className="scroll-smooth!">
       <head>
@@ -107,16 +111,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="mesh-gradient fixed inset-0 -z-10"></div>
 
         <ThemeContextProvider>
-          <ActiveSectionContextProvider>
-            <ScrollProgress />
-            <Header />
-            <main id="main">{children}</main>
-            <Footer />
+          <AuthProvider>
+            <ActiveSectionContextProvider>
+              <ScrollProgress />
+              <Header />
+              <main id="main">{children}</main>
+              <Footer profile={profile} />
 
-            <Toaster position="top-right" />
-            <ThemeSwitch />
-            <CommandPalette />
-          </ActiveSectionContextProvider>
+              <Toaster position="top-right" />
+              <ThemeSwitch />
+              <CommandPalette profile={profile} />
+            </ActiveSectionContextProvider>
+          </AuthProvider>
         </ThemeContextProvider>
       </body>
     </html>

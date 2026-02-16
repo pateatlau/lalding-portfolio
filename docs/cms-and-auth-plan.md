@@ -275,6 +275,20 @@ Create `lib/supabase/seed.ts` to migrate current `lib/data.ts` + hardcoded conte
 
 Example: `"May 2023 - 2025"` → `{ start_date: "2023-05-01", end_date: "2025-01-01", display_date: "May 2023 - 2025" }`
 
+### Phase 1 Implementation Notes
+
+- Auth/visitor tables (`visitor_profiles`, `resume_downloads`, email sync trigger) are deferred to Phase 2 since they depend on Supabase Auth being configured. Phase 1 creates content tables only.
+- SQL files are stored in `supabase/` directory at the project root:
+  - `supabase/schema.sql` — content tables
+  - `supabase/rls.sql` — RLS policies for content tables
+  - `supabase/storage.sql` — storage bucket creation + access policies
+- These SQL files must be run manually in the Supabase SQL Editor after creating the project.
+- TypeScript types in `lib/supabase/types.ts` are hand-written to match the schema. They can be regenerated later via `supabase gen types typescript` once the Supabase CLI is set up.
+- The seed script uses the admin client (service role key) to bypass RLS.
+- `next.config.js` is updated with Supabase hostname in `images.remotePatterns` so `<Image>` works with Supabase Storage URLs.
+
+### Phase 1 Status: COMPLETE
+
 ---
 
 ## Phase 2: Authentication
@@ -290,9 +304,9 @@ Configure providers in Supabase dashboard:
 | GitHub           | Visitor + Admin login | OAuth App in GitHub settings                 |
 | Email + Password | Admin login only      | Disabled for visitors                        |
 
-### 2.2 Auth Middleware
+### 2.2 Auth Proxy (Route Protection)
 
-Create `middleware.ts` at the project root to handle session refresh and route protection:
+Create `proxy.ts` at the project root to handle session refresh and route protection (Next.js 16 uses the `proxy` convention instead of `middleware`):
 
 ```text
 /admin/*     → Require authenticated user with admin role
@@ -332,6 +346,31 @@ When a visitor is logged in (has an active Supabase session):
 - Pre-fill the contact form's name and email fields from `visitor_profiles`
 - Fields remain editable (pre-filled, not locked)
 - No change to the server action `sendEmail.ts` — it still receives form data as before
+
+### Phase 2 Implementation Notes
+
+- Created `supabase/auth-schema.sql` with `visitor_profiles` table (references `auth.users`), `resume_downloads` table, and `sync_visitor_email()` trigger function.
+- Created `supabase/auth-rls.sql` with RLS policies: visitors can read/update/insert own profile row, admin can read all; visitors can insert own downloads, admin can read all.
+- Added `VisitorProfile`, `ResumeDownload`, and their Insert types to `lib/supabase/types.ts`, following the existing pattern with Row, Insert, Update, Relationships properties.
+- Created `proxy.ts` at project root using `@supabase/ssr` `createServerClient` with request/response cookie handling (Next.js 16 convention). Refreshes auth session on every request, protects `/admin/*` routes (requires `app_metadata.role === 'admin'`), redirects unauthorized users to `/`.
+- Created `app/auth/callback/route.ts` — GET route handler that exchanges OAuth `code` for a session via `supabase.auth.exchangeCodeForSession()` and redirects to the `next` query param or `/`.
+- Created `context/auth-context.tsx` following existing context provider pattern. Provides `user`, `visitorProfile`, `isLoading`, `isNewUser`, `signInWithProvider()`, `signOut()`, `refreshVisitorProfile()`, `clearNewUserFlag()`. Listens to `onAuthStateChange` and upserts visitor profile via server action on `SIGNED_IN`.
+- Created `actions/resume.ts` with three server actions:
+  - `upsertVisitorProfile()` — gets user from session, upserts `visitor_profiles` row, returns `{ data, isNewUser }`.
+  - `updateVisitorOptionalFields(company, role)` — updates company and role fields.
+  - `downloadResume()` — verifies auth, generates signed URL (5-min expiry) from private `resume` bucket, logs download in `resume_downloads`.
+- Created `components/auth/login-modal.tsx` — Framer Motion modal with Google, GitHub, LinkedIn social login buttons. Stores `pendingAction` in localStorage before OAuth redirect.
+- Created `components/auth/optional-fields-modal.tsx` — Framer Motion modal with Company and Role inputs, Skip/Continue buttons.
+- Added `useResumeDownload` hook to `lib/hooks.ts` — encapsulates the full auth-gated download flow. Checks auth state, shows login modal for unauthenticated users, shows optional fields modal for new users, triggers signed URL download for authenticated users. Subscribes to `onAuthStateChange` to resume download after OAuth redirect.
+- Updated `components/intro.tsx` — replaced `<a>` download link with `<button>` that calls `handleResumeClick()`, shows loading spinner during download, renders `LoginModal` and `OptionalFieldsModal`.
+- Updated `components/command-palette.tsx` — replaced direct download action with `handleResumeClick()`, renders `LoginModal` and `OptionalFieldsModal`.
+- Updated `components/contact.tsx` — added `senderName` text input above email field, pre-fills both name and email from `visitorProfile` using `defaultValue` with `key`-based re-mounting when profile loads. Fields remain editable.
+- Updated `app/layout.tsx` — wrapped with `AuthProvider` inside `ThemeContextProvider`.
+- Note: Next.js 16 shows a deprecation warning that "middleware" should use "proxy" convention. The middleware still works correctly; this is an informational warning for a future migration.
+- AdminLoginPage (`app/admin/login/page.tsx`) is deferred to Phase 4 since it's part of the admin dashboard.
+- **Known issue**: LinkedIn OIDC login is not working (Google and GitHub work fine). Deferred — will debug after all phases are implemented. Most likely a configuration issue in the LinkedIn Developer Portal (OIDC product approval, redirect URL, or scope mismatch).
+
+### Phase 2 Status: COMPLETE
 
 ---
 
@@ -402,100 +441,212 @@ To avoid a big-bang migration, implement a **fallback pattern** during developme
 3. Log a warning when fallback is triggered so it's never silently active
 4. Remove fallback before production deployment — production always requires Supabase
 
+### Phase 3 Implementation Notes
+
+- Created `lib/supabase/queries.ts` with 9 data fetching functions (`getProfile`, `getProfileStats`, `getNavLinks`, `getCompanies`, `getExperiences`, `getProjectCategories`, `getProjects`, `getSkillGroups`) plus a shared `getProfileData()` helper that maps DB columns to frontend camelCase types with static fallback.
+- Converted `app/page.tsx` from a client component to an async **server component**. It fetches all content data from Supabase via `Promise.all()` and passes serializable props to child components. Uses `export const revalidate = 3600` for ISR.
+- Created `components/section-animation.tsx` — a client component wrapper for Framer Motion scroll-triggered animations, extracted from page.tsx since server components cannot use Framer Motion directly.
+- Created shared serializable data types in `lib/types.ts` (`ProfileData`, `ProfileStatData`, `CompanyData`, `ExperienceData`, `ProjectData`, `SkillGroupData`) to bridge the server→client boundary with camelCase naming.
+- Refactored all content-consuming components to receive data as props instead of importing from `lib/data.ts`:
+  - `intro.tsx` — accepts `{ profile: ProfileData }`
+  - `about.tsx` — accepts `{ profile: ProfileData; stats: ProfileStatData[] }`
+  - `projects.tsx` — accepts `{ projects: ProjectData[]; categories: string[] }`
+  - `project.tsx` — accepts `ProjectData` props directly
+  - `skills.tsx` — accepts `{ skillGroups: SkillGroupData[] }`
+  - `experience.tsx` — accepts `{ experiences: ExperienceData[]; companies: CompanyData[] }`, maps icon string identifiers (`"work"`, `"react"`) to React elements via `iconMap`
+  - `companies-slider.tsx` — accepts `{ companies: CompanyData[] }`
+  - `contact.tsx` — accepts `{ profile: ProfileData }`, uses profile data for email/phone/location/social links
+  - `footer.tsx` — accepts `{ profile: ProfileData }`, uses profile data for name, footer text, and source code link
+  - `command-palette.tsx` — accepts `{ profile: ProfileData }`, uses profile data for resume URL, LinkedIn/GitHub links
+- Updated `app/layout.tsx` to be an async server component that fetches profile data via `getProfileData()` and passes it to `Footer` and `CommandPalette`.
+- `header.tsx` still imports `links` from `lib/data.ts` — navigation links are structural and tightly coupled to the `SectionName` type used across the app. These will be migrated when nav_links are needed from the DB.
+- The `lib/data.ts` file is preserved as a static fallback; all query functions return `null` when Supabase env vars are missing, triggering the static data path.
+
+### Phase 3 Status: COMPLETE
+
 ---
 
 ## Phase 4: Admin Dashboard
 
-### 4.1 Route Structure
+Phase 4 is split into sub-tasks 4A–4H, implemented sequentially with manual verification between each.
+
+### Route Structure (actual)
 
 ```tree
 app/admin/
 ├── login/
-│   └── page.tsx              # Admin login (email/password + social)
-├── layout.tsx                # Admin layout (sidebar, auth guard)
-├── page.tsx                  # Dashboard overview (visitor stats, download counts)
-├── profile/
-│   └── page.tsx              # Edit profile info, about section, contact info
-├── experience/
-│   └── page.tsx              # CRUD experience entries (reorderable)
-├── projects/
-│   └── page.tsx              # CRUD projects, upload images, manage categories
-├── skills/
-│   └── page.tsx              # CRUD skill groups and skills (reorderable)
-├── resume/
-│   └── page.tsx              # Upload/replace resume PDF, view download log
-└── visitors/
-    └── page.tsx              # View visitor profiles and download history
+│   └── page.tsx              # Admin login (public, outside route group)
+└── (dashboard)/              # Route group — auth guard + AdminShell
+    ├── layout.tsx            # Server component: auth check, fixed overlay
+    ├── page.tsx              # Dashboard overview (URL: /admin)
+    ├── profile/
+    │   └── page.tsx          # Edit profile info, about section, contact info
+    ├── experience/
+    │   └── page.tsx          # CRUD experience entries (reorderable)
+    ├── projects/
+    │   └── page.tsx          # CRUD projects, upload images, manage categories
+    ├── skills/
+    │   └── page.tsx          # CRUD skill groups and skills (reorderable)
+    ├── resume/
+    │   └── page.tsx          # Upload/replace resume PDF, view download log
+    └── visitors/
+        └── page.tsx          # View visitor profiles and download history
 ```
 
-### 4.2 Admin Layout
+### Server Actions for Admin
 
-- Sidebar navigation (collapsible on mobile)
-- Top bar with admin user info and sign-out
-- Breadcrumb navigation
-- Uses existing shadcn/ui components (Button, Card, Badge) + add Table, Dialog, Input, Textarea, Label, Select, Tabs
+All admin server actions live in `actions/admin.ts`. Every action:
 
-### 4.3 Admin Features by Page
+- Calls `requireAdmin()` to verify auth + `app_metadata.role === 'admin'`
+- Performs the database operation via `createClient()` (RLS-respecting)
+- Calls `revalidateTag()` for granular cache invalidation + `revalidatePath('/')` as fallback
+- Returns `{ data?, error? }` response
 
-**Dashboard** (`/admin`)
+### shadcn/ui Components
 
-- Total visitors who logged in
-- Total resume downloads (with chart over time)
-- Quick links to edit sections
+Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialog`, `input`, `textarea`, `label`, `select`, `tabs`, `dropdown-menu`, `avatar`, `separator`, `sheet` (added in 4A).
 
-**Profile** (`/admin/profile`)
+---
 
-- Edit all fields from the `profile` table
-- Edit stats (add/remove/reorder)
-- Live preview of changes (optional, later phase)
+### 4A: Foundation — Login + Layout + Dashboard
 
-**Experience** (`/admin/experience`)
+**Scope:** shadcn/ui installation, admin login page, admin layout with auth guard, admin shell (sidebar + topbar), dashboard overview page, `requireAdmin()` + `getAdminStats()` server actions.
 
-- Table of experiences with inline editing
-- Drag-to-reorder (or sort_order input)
-- Add/delete entries
-- Upload company logos
+**Files created:**
 
-**Projects** (`/admin/projects`)
+- `actions/admin.ts` — `requireAdmin()` helper + `getAdminStats()` action
+- `app/admin/login/page.tsx` — email/password + social login, fixed overlay
+- `app/admin/(dashboard)/layout.tsx` — auth guard + AdminShell wrapper
+- `app/admin/(dashboard)/page.tsx` — dashboard overview
+- `components/admin/admin-shell.tsx` — sidebar nav + topbar + mobile sheet
+- `components/admin/dashboard-content.tsx` — stats cards + downloads table + quick actions
 
-- Card-based list of projects
-- Add/edit/delete projects
-- Upload project images
-- Upload optional demo videos (short clips hosted in Supabase Storage; YouTube embedding planned for the future but not in scope yet)
-- Manage categories
+**Files modified:**
 
-**Skills** (`/admin/skills`)
+- `proxy.ts` — exclude `/admin/login` from admin protection, redirect to `/admin/login` instead of `/`
 
-- Grouped view matching the frontend
-- Add/remove/reorder groups and skills within groups
+**Key decisions:**
 
-**Resume** (`/admin/resume`)
+- `(dashboard)` route group separates auth-guarded pages from the public login page
+- `fixed inset-0 z-[1000]` overlay covers portfolio chrome without restructuring app directory
+- Dashboard stats use parallel Supabase queries via `Promise.all()`
 
-- Current resume file info (name, size, upload date)
-- Upload new resume (replaces current file in Supabase Storage)
-- Table of recent downloads (visitor name, email, company, date)
+### 4A Status: COMPLETE
 
-**Visitors** (`/admin/visitors`)
+---
 
-- Table of all visitors who logged in
-- Filter by provider (Google, LinkedIn, GitHub)
-- Export to CSV
+### 4B: Profile Editor
 
-### 4.4 Server Actions for Admin
+**Scope:** Profile editor page, tabbed form for General/About/Stats fields, `updateProfile()` + `updateProfileStats()` server actions, cache invalidation via `revalidateTag('profile')`.
 
-Create `actions/admin.ts` with server actions for each CRUD operation. All actions:
+**Files to create:**
 
-- Verify admin role via Supabase session
-- Perform the database operation
-- Call `revalidatePath('/')` to bust the ISR cache for the homepage; use `revalidateTag()` with granular cache tags for targeted invalidation when editing specific sections
-- Return success/error response
+- `app/admin/(dashboard)/profile/page.tsx` — server component, fetches profile + stats
+- `components/admin/profile-form.tsx` — client component, tabbed interface (General, About, Stats)
 
-### 4.5 Additional shadcn/ui Components Needed
+**Files to modify:**
 
-```bash
-npx shadcn@latest add table dialog input textarea label select tabs
-npx shadcn@latest add dropdown-menu avatar separator sheet
-```
+- `actions/admin.ts` — add `updateProfile()`, `updateProfileStats()` actions
+
+### 4B Status: PENDING
+
+---
+
+### 4C: Experience CRUD
+
+**Scope:** Experience editor page, table view with add/edit/delete dialogs, sort_order controls, CRUD server actions, cache invalidation via `revalidateTag('experiences')`.
+
+**Files to create:**
+
+- `app/admin/(dashboard)/experience/page.tsx` — server component, fetches experiences
+- `components/admin/experience-editor.tsx` — client component, table + dialogs
+
+**Files to modify:**
+
+- `actions/admin.ts` — add `createExperience()`, `updateExperience()`, `deleteExperience()`, `reorderExperiences()`
+
+### 4C Status: PENDING
+
+---
+
+### 4D: Projects CRUD + File Uploads
+
+**Scope:** Projects editor page, card grid with add/edit/delete dialogs, image/video upload, reusable file upload component, CRUD server actions, cache invalidation via `revalidateTag('projects')`.
+
+**Files to create:**
+
+- `app/admin/(dashboard)/projects/page.tsx` — server component, fetches projects + categories
+- `components/admin/projects-editor.tsx` — client component, card grid + dialogs
+- `components/admin/file-upload.tsx` — reusable drag-and-drop upload with preview + progress
+
+**Files to modify:**
+
+- `actions/admin.ts` — add project CRUD + file upload/delete actions
+
+### 4D Status: PENDING
+
+---
+
+### 4E: Skills CRUD
+
+**Scope:** Skills editor page, grouped card view, add/remove/reorder groups and skills, CRUD server actions, cache invalidation via `revalidateTag('skills')`.
+
+**Files to create:**
+
+- `app/admin/(dashboard)/skills/page.tsx` — server component, fetches skill groups with skills
+- `components/admin/skills-editor.tsx` — client component, grouped view + dialogs
+
+**Files to modify:**
+
+- `actions/admin.ts` — add skill group and skill CRUD actions
+
+### 4E Status: PENDING
+
+---
+
+### 4F: Resume Management
+
+**Scope:** Resume management page, current resume info, upload new resume, download log table, `uploadResume()` + `getResumeDownloads()` server actions, cache invalidation via `revalidateTag('profile')`.
+
+**Files to create:**
+
+- `app/admin/(dashboard)/resume/page.tsx` — server component, fetches profile + downloads
+- `components/admin/resume-manager.tsx` — client component, upload + download log table
+
+**Files to modify:**
+
+- `actions/admin.ts` — add `uploadResume()`, `getResumeDownloads()`
+
+### 4F Status: PENDING
+
+---
+
+### 4G: Visitors Page
+
+**Scope:** Visitors page, table with filter/search/sort, CSV export, pagination, `getVisitors()` + `getVisitorsCsvData()` server actions.
+
+**Files to create:**
+
+- `app/admin/(dashboard)/visitors/page.tsx` — server component, fetches visitors
+- `components/admin/visitors-table.tsx` — client component, table + filters + export
+
+**Files to modify:**
+
+- `actions/admin.ts` — add `getVisitors()`, `getVisitorsCsvData()`
+
+### 4G Status: PENDING
+
+---
+
+### 4H: Polish & Final Touches
+
+**Scope:** Loading states / skeleton screens, empty states, error boundaries, responsive verification, form validation.
+
+**Files to modify:**
+
+- All admin pages and components as needed
+
+### 4H Status: PENDING
 
 ---
 
@@ -605,7 +756,7 @@ lib/supabase/admin.ts            # Admin client (service role key, RLS bypass)
 lib/supabase/queries.ts          # Typed data fetching functions
 lib/supabase/types.ts            # Generated TypeScript types
 lib/supabase/seed.ts             # Seed script for initial data migration
-middleware.ts                    # Auth + route protection middleware
+proxy.ts                        # Auth + route protection proxy (Next.js 16)
 context/auth-context.tsx         # Supabase auth React context
 components/auth/login-modal.tsx  # Visitor social login modal
 components/auth/optional-fields-modal.tsx
@@ -652,9 +803,9 @@ lib/data.ts                      # Kept as fallback initially, removed once Supa
 
 ---
 
-## Open Questions
+## Resolved Questions
 
-1. **Admin seeding**: Should the first admin user be created via Supabase dashboard manually, or should there be a setup/invite flow?
-2. **Image optimization**: Should uploaded images be processed (resized/compressed) before storage, or rely on Next.js `<Image>` optimization?
-3. **Content versioning**: Is there a need to track edit history / rollback changes in the admin dashboard?
-4. **Rate limiting**: Should resume downloads or login attempts be rate-limited?
+1. **Admin seeding**: Setup/invite flow — build an admin setup flow rather than manual Supabase dashboard creation.
+2. **Image optimization**: Uploaded images should be processed (resized/compressed) before storage.
+3. **Content versioning**: Yes — track edit history and support rollback in the admin dashboard.
+4. **Rate limiting**: Yes — rate-limit both resume downloads and login attempts.

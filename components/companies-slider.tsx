@@ -5,9 +5,9 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Image from 'next/image';
-import { companiesSliderData } from '@/lib/data';
+import type { CompanyData } from '@/lib/types';
 
-function CompaniesSlider() {
+function CompaniesSlider({ companies }: { companies: CompanyData[] }) {
   const settings = {
     arrows: false,
     dots: false,
@@ -72,7 +72,7 @@ function CompaniesSlider() {
   return (
     <div className="container mt-10 hidden pt-2 pb-0 sm:block">
       <Slider {...settings}>
-        {companiesSliderData.map((company) => (
+        {companies.map((company) => (
           <div key={company.name}>
             <Image
               src={company.logo}
