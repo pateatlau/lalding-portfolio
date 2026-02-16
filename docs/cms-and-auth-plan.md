@@ -761,6 +761,10 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 - Old file is deleted on replacement
 - `profile.resume_url` updated with the new storage path
 
+### 5.1 Status: COMPLETE (implemented in 4F)
+
+---
+
 ### 5.2 Resume Download (Visitor)
 
 - Authenticated visitor triggers download
@@ -768,12 +772,18 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 - Client receives the signed URL and triggers browser download
 - Download logged in `resume_downloads`
 
+### 5.2 Status: COMPLETE (implemented in Phase 2)
+
 ### 5.3 Image Uploads (Admin)
 
 - Project images → `project-images` bucket (public)
 - Company logos → `company-logos` bucket (public)
 - On upload, store the **storage path** in the respective table; derive public URLs at read time via `getPublicUrl()`
 - Support image preview before saving
+
+### 5.3 Status: PENDING
+
+---
 
 ### 5.4 Demo Video Uploads (Admin)
 
@@ -783,6 +793,8 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 - Support video preview before saving
 - Visitors can view the demo video inline on the project card and download it
 - **Future**: YouTube embedding is planned but not in scope for this implementation; the `demo_video_url` field will initially store Supabase Storage paths only
+
+### 5.4 Status: PENDING
 
 ---
 

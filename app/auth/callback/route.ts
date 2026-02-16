@@ -1,5 +1,6 @@
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { cookies } from 'next/headers';
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -9,12 +10,45 @@ export async function GET(request: Request) {
   const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/';
 
   if (code) {
-    const supabase = await createClient();
+    const cookieStore = await cookies();
+
+    // Create a Supabase client that collects cookies to set, so we can
+    // attach them to the redirect response (cookies().set + NextResponse.redirect
+    // don't share the same response object, causing session cookies to be lost).
+    const pendingCookies: { name: string; value: string; options: Record<string, unknown> }[] = [];
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              pendingCookies.push({ name, value, options });
+            });
+          },
+        },
+      }
+    );
+
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const response = NextResponse.redirect(`${origin}${next}`);
+      // Attach session cookies to the redirect response
+      pendingCookies.forEach(({ name, value, options }) => {
+        response.cookies.set(name, value, options);
+      });
+      return response;
     }
+
+    console.error('Auth callback: exchangeCodeForSession failed', {
+      message: error.message,
+      status: error.status,
+    });
   }
 
   // OAuth error — redirect home
