@@ -122,30 +122,34 @@ export default function ProjectsEditor({
       live_site_url: formData.live_site_url || null,
     };
 
-    if (editingProject) {
-      const { data, error } = await updateProject(editingProject.id, payload);
-      if (error) {
-        setStatus({ type: 'error', message: error });
-      } else if (data) {
-        setProjects((prev) => prev.map((p) => (p.id === data.id ? data : p)));
-        setStatus({ type: 'success', message: 'Project updated successfully!' });
-        setIsDialogOpen(false);
+    try {
+      if (editingProject) {
+        const { data, error } = await updateProject(editingProject.id, payload);
+        if (error) {
+          setStatus({ type: 'error', message: error });
+        } else if (data) {
+          setProjects((prev) => prev.map((p) => (p.id === data.id ? data : p)));
+          setStatus({ type: 'success', message: 'Project updated successfully!' });
+          setIsDialogOpen(false);
+        }
+      } else {
+        const { data, error } = await createProject({
+          ...payload,
+          sort_order: projects.length,
+        });
+        if (error) {
+          setStatus({ type: 'error', message: error });
+        } else if (data) {
+          setProjects((prev) => [...prev, data]);
+          setStatus({ type: 'success', message: 'Project created successfully!' });
+          setIsDialogOpen(false);
+        }
       }
-    } else {
-      const { data, error } = await createProject({
-        ...payload,
-        sort_order: projects.length,
-      });
-      if (error) {
-        setStatus({ type: 'error', message: error });
-      } else if (data) {
-        setProjects((prev) => [...prev, data]);
-        setStatus({ type: 'success', message: 'Project created successfully!' });
-        setIsDialogOpen(false);
-      }
+    } catch (err) {
+      setStatus({ type: 'error', message: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setIsSaving(false);
     }
-
-    setIsSaving(false);
   }
 
   async function handleDelete() {
@@ -153,17 +157,21 @@ export default function ProjectsEditor({
     setIsDeleting(true);
     setStatus(null);
 
-    const { error } = await deleteProject(deletingProject.id);
-    if (error) {
-      setStatus({ type: 'error', message: error });
-    } else {
-      setProjects((prev) => prev.filter((p) => p.id !== deletingProject.id));
-      setStatus({ type: 'success', message: 'Project deleted successfully!' });
-      setIsDeleteDialogOpen(false);
-      setDeletingProject(null);
+    try {
+      const { error } = await deleteProject(deletingProject.id);
+      if (error) {
+        setStatus({ type: 'error', message: error });
+      } else {
+        setProjects((prev) => prev.filter((p) => p.id !== deletingProject.id));
+        setStatus({ type: 'success', message: 'Project deleted successfully!' });
+        setIsDeleteDialogOpen(false);
+        setDeletingProject(null);
+      }
+    } catch (err) {
+      setStatus({ type: 'error', message: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setIsDeleting(false);
     }
-
-    setIsDeleting(false);
   }
 
   async function handleMove(index: number, direction: 'up' | 'down') {
@@ -173,19 +181,24 @@ export default function ProjectsEditor({
     setIsReordering(true);
     setStatus(null);
 
+    const snapshot = projects;
     const reordered = [...projects];
     [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
 
-    const snapshot = projects;
     setProjects(reordered);
 
-    const { error } = await reorderProjects(reordered.map((p) => p.id));
-    if (error) {
+    try {
+      const { error } = await reorderProjects(reordered.map((p) => p.id));
+      if (error) {
+        setProjects(snapshot);
+        setStatus({ type: 'error', message: error });
+      }
+    } catch (err) {
       setProjects(snapshot);
-      setStatus({ type: 'error', message: error });
+      setStatus({ type: 'error', message: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setIsReordering(false);
     }
-
-    setIsReordering(false);
   }
 
   const isAddMode = editingProject === null;

@@ -119,30 +119,34 @@ export default function ExperienceEditor({
       company_logo_url: formData.company_logo_url || null,
     };
 
-    if (editingExp) {
-      const { data, error } = await updateExperience(editingExp.id, payload);
-      if (error) {
-        setStatus({ type: 'error', message: error });
-      } else if (data) {
-        setExperiences((prev) => prev.map((e) => (e.id === data.id ? data : e)));
-        setStatus({ type: 'success', message: 'Experience updated successfully!' });
-        setIsDialogOpen(false);
+    try {
+      if (editingExp) {
+        const { data, error } = await updateExperience(editingExp.id, payload);
+        if (error) {
+          setStatus({ type: 'error', message: error });
+        } else if (data) {
+          setExperiences((prev) => prev.map((e) => (e.id === data.id ? data : e)));
+          setStatus({ type: 'success', message: 'Experience updated successfully!' });
+          setIsDialogOpen(false);
+        }
+      } else {
+        const { data, error } = await createExperience({
+          ...payload,
+          sort_order: experiences.length,
+        });
+        if (error) {
+          setStatus({ type: 'error', message: error });
+        } else if (data) {
+          setExperiences((prev) => [...prev, data]);
+          setStatus({ type: 'success', message: 'Experience created successfully!' });
+          setIsDialogOpen(false);
+        }
       }
-    } else {
-      const { data, error } = await createExperience({
-        ...payload,
-        sort_order: experiences.length,
-      });
-      if (error) {
-        setStatus({ type: 'error', message: error });
-      } else if (data) {
-        setExperiences((prev) => [...prev, data]);
-        setStatus({ type: 'success', message: 'Experience created successfully!' });
-        setIsDialogOpen(false);
-      }
+    } catch (err) {
+      setStatus({ type: 'error', message: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setIsSaving(false);
     }
-
-    setIsSaving(false);
   }
 
   async function handleDelete() {
@@ -150,17 +154,21 @@ export default function ExperienceEditor({
     setIsDeleting(true);
     setStatus(null);
 
-    const { error } = await deleteExperience(deletingExp.id);
-    if (error) {
-      setStatus({ type: 'error', message: error });
-    } else {
-      setExperiences((prev) => prev.filter((e) => e.id !== deletingExp.id));
-      setStatus({ type: 'success', message: 'Experience deleted successfully!' });
-      setIsDeleteDialogOpen(false);
-      setDeletingExp(null);
+    try {
+      const { error } = await deleteExperience(deletingExp.id);
+      if (error) {
+        setStatus({ type: 'error', message: error });
+      } else {
+        setExperiences((prev) => prev.filter((e) => e.id !== deletingExp.id));
+        setStatus({ type: 'success', message: 'Experience deleted successfully!' });
+        setIsDeleteDialogOpen(false);
+        setDeletingExp(null);
+      }
+    } catch (err) {
+      setStatus({ type: 'error', message: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setIsDeleting(false);
     }
-
-    setIsDeleting(false);
   }
 
   async function handleMove(index: number, direction: 'up' | 'down') {
@@ -170,18 +178,24 @@ export default function ExperienceEditor({
     setIsReordering(true);
     setStatus(null);
 
+    const snapshot = experiences;
     const reordered = [...experiences];
     [reordered[index], reordered[targetIndex]] = [reordered[targetIndex], reordered[index]];
 
     setExperiences(reordered);
 
-    const { error } = await reorderExperiences(reordered.map((e) => e.id));
-    if (error) {
-      setExperiences(experiences); // revert
-      setStatus({ type: 'error', message: error });
+    try {
+      const { error } = await reorderExperiences(reordered.map((e) => e.id));
+      if (error) {
+        setExperiences(snapshot);
+        setStatus({ type: 'error', message: error });
+      }
+    } catch (err) {
+      setExperiences(snapshot);
+      setStatus({ type: 'error', message: err instanceof Error ? err.message : String(err) });
+    } finally {
+      setIsReordering(false);
     }
-
-    setIsReordering(false);
   }
 
   const isAddMode = editingExp === null;

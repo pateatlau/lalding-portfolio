@@ -172,21 +172,30 @@ export async function updateProfileStats(
 
   const supabase = await createClient();
 
-  // Bulk replace: delete all existing stats, then insert new ones
-  const { error: deleteError } = await supabase.from('profile_stats').delete().gte('sort_order', 0);
+  // Bulk replace: delete all existing stats, then insert new ones.
+  // Wrapped so that failures at any step return a clear error.
+  try {
+    const { error: deleteError } = await supabase
+      .from('profile_stats')
+      .delete()
+      .gte('sort_order', 0);
 
-  if (deleteError) {
-    console.error('updateProfileStats delete error:', deleteError.message);
-    return { error: 'Failed to update stats' };
-  }
-
-  if (stats.length > 0) {
-    const { error: insertError } = await supabase.from('profile_stats').insert(stats);
-
-    if (insertError) {
-      console.error('updateProfileStats insert error:', insertError.message);
-      return { error: 'Failed to save new stats' };
+    if (deleteError) {
+      console.error('updateProfileStats delete error:', deleteError.message);
+      return { error: 'Failed to update stats' };
     }
+
+    if (stats.length > 0) {
+      const { error: insertError } = await supabase.from('profile_stats').insert(stats);
+
+      if (insertError) {
+        console.error('updateProfileStats insert error:', insertError.message);
+        return { error: 'Failed to save new stats (previous stats were cleared)' };
+      }
+    }
+  } catch (err) {
+    console.error('updateProfileStats unexpected error:', err);
+    return { error: 'An unexpected error occurred while updating stats' };
   }
 
   revalidatePath('/');

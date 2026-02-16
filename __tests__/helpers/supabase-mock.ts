@@ -8,9 +8,7 @@ type SupabaseResponse = { data: unknown; error: unknown; count?: number | null }
  */
 export function createChainMock(
   response: SupabaseResponse = { data: null, error: null }
-): Record<string, ReturnType<typeof vi.fn>> & PromiseLike<SupabaseResponse> {
-  const chain = {} as Record<string, ReturnType<typeof vi.fn>> & PromiseLike<SupabaseResponse>;
-
+): Record<string, ReturnType<typeof vi.fn>> & Promise<SupabaseResponse> {
   const methods = [
     'select',
     'insert',
@@ -33,14 +31,14 @@ export function createChainMock(
     'range',
   ];
 
+  const chain = Object.assign(
+    Promise.resolve(response),
+    {} as Record<string, ReturnType<typeof vi.fn>>
+  );
+
   for (const method of methods) {
     chain[method] = vi.fn().mockReturnValue(chain);
   }
-
-  // Thenable so `await` resolves to the configured response
-  chain.then = vi.fn((resolve: (value: SupabaseResponse) => void) =>
-    resolve(response)
-  ) as unknown as PromiseLike<SupabaseResponse>['then'];
 
   return chain;
 }

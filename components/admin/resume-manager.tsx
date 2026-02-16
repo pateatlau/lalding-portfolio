@@ -63,23 +63,26 @@ export default function ResumeManager({
     setIsUploading(true);
     setStatus(null);
 
-    const formData = new FormData();
-    formData.append('file', file);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
 
-    const { data, error } = await uploadResume(formData);
+      const { data, error } = await uploadResume(formData);
 
-    if (error) {
-      setStatus({ type: 'error', message: error });
-    } else if (data) {
-      setCurrentResumeUrl(data.path);
-      setStatus({ type: 'success', message: 'Resume uploaded successfully!' });
-    }
-
-    setIsUploading(false);
-
-    // Reset file input so the same file can be re-selected
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      if (error) {
+        setStatus({ type: 'error', message: error });
+      } else if (data) {
+        setCurrentResumeUrl(data.path);
+        setStatus({ type: 'success', message: 'Resume uploaded successfully!' });
+      }
+    } catch (err) {
+      setStatus({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'An unexpected error occurred',
+      });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   }
 

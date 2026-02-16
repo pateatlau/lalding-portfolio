@@ -461,7 +461,6 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                         size="icon"
                         variant="ghost"
                         onClick={() => removeArrayItem('about_expertise', index)}
-                        disabled={formData.about_expertise.length === 1}
                       >
                         <Trash2 className="size-4" />
                       </Button>
