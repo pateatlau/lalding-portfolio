@@ -7,7 +7,7 @@ import ResumeComposer from './resume-composer';
 import ResumePreview from './resume-preview';
 import TemplateManager from './template-manager';
 import VersionHistory from './version-history';
-import type { ResumeConfigListItem } from '@/actions/resume-builder';
+import type { ResumeConfigListItem, TemplateListItem } from '@/actions/resume-builder';
 import type {
   Education,
   Experience,
@@ -15,18 +15,6 @@ import type {
   SkillGroupWithSkills,
   ResumeConfig,
 } from '@/lib/supabase/types';
-
-type TemplateListItem = {
-  id: string;
-  registry_key: string;
-  name: string;
-  description: string | null;
-  is_builtin: boolean;
-  page_size: string;
-  columns: number;
-  style_config: Record<string, unknown>;
-  sort_order: number;
-};
 
 type ResumeBuilderTabsProps = {
   educations: Education[];

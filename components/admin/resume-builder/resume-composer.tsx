@@ -202,10 +202,7 @@ export default function ResumeComposer({
           const selectedIds = section.itemIds ?? [];
 
           return (
-            <Card
-              key={`${section.section}-${index}`}
-              className={!section.enabled ? 'opacity-50' : ''}
-            >
+            <Card key={section.section} className={!section.enabled ? 'opacity-50' : ''}>
               <CardHeader className="py-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -213,6 +210,7 @@ export default function ResumeComposer({
                       type="checkbox"
                       checked={section.enabled}
                       onChange={() => toggleSection(index)}
+                      aria-label={`Toggle ${section.label} section`}
                       className="size-4"
                     />
                     <Input

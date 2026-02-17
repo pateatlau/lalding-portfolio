@@ -61,3 +61,7 @@ CREATE TABLE resume_versions (
 CREATE UNIQUE INDEX resume_versions_single_active
   ON resume_versions ((true))
   WHERE is_active = true;
+
+-- FK indexes for efficient joins and cascading deletes.
+CREATE INDEX idx_resume_configs_template_id ON resume_configs (template_id);
+CREATE INDEX idx_resume_versions_config_id ON resume_versions (config_id);

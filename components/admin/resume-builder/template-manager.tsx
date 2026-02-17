@@ -8,18 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Save, RotateCcw } from 'lucide-react';
 import { updateResumeTemplate } from '@/actions/resume-builder';
-
-type TemplateListItem = {
-  id: string;
-  registry_key: string;
-  name: string;
-  description: string | null;
-  is_builtin: boolean;
-  page_size: string;
-  columns: number;
-  style_config: Record<string, unknown>;
-  sort_order: number;
-};
+import type { TemplateListItem } from '@/actions/resume-builder';
 
 type TemplateManagerProps = {
   templates: TemplateListItem[];

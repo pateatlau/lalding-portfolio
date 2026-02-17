@@ -2,6 +2,7 @@
 // by Playwright for PDF generation, where the compiled Tailwind stylesheet is
 // not available. Inline styles guarantee visual fidelity in the headless context.
 
+import DOMPurify from 'isomorphic-dompurify';
 import PageWrapper from './shared/page-wrapper';
 import SectionHeading from './shared/section-heading';
 import type {
@@ -257,13 +258,6 @@ function EducationEntry({ item }: { item: EducationItem }) {
 
 // ── Custom Section ────────────────────────────────────────────────
 
-function sanitizeHtml(html: string): string {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
-    .replace(/\son\w+\s*=/gi, ' data-sanitized=');
-}
-
 function CustomContent({ items }: { items: CustomItem[] }) {
   return (
     <div>
@@ -271,7 +265,12 @@ function CustomContent({ items }: { items: CustomItem[] }) {
         <div
           key={i}
           style={{ marginBottom: '8px' }}
-          dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.content) }}
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(item.content, {
+              FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'base', 'meta'],
+              FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
+            }),
+          }}
         />
       ))}
     </div>

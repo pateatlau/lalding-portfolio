@@ -42,6 +42,7 @@ export default function ResumePreview({ config }: ResumePreviewProps) {
   async function loadPreview() {
     setIsLoadingPreview(true);
     setStatus(null);
+    setGenerationResult(null);
 
     const result = await previewResumeHtml(config.id);
 

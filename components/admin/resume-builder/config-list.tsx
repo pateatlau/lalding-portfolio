@@ -183,21 +183,26 @@ export default function ConfigList({
     setIsDeleting(true);
     setStatus(null);
 
-    const result = await deleteResumeConfig(deletingConfig.id);
-    if (result.error) {
-      setStatus({ type: 'error', message: result.error });
+    try {
+      const result = await deleteResumeConfig(deletingConfig.id);
+      if (result.error) {
+        setStatus({ type: 'error', message: result.error });
+        return;
+      }
+
+      const refreshed = await getResumeConfigs();
+      if (refreshed.data) {
+        onConfigsChanged(refreshed.data);
+      } else if (refreshed.error) {
+        setStatus({ type: 'error', message: refreshed.error });
+        return;
+      }
+
+      setIsDeleteDialogOpen(false);
+      setStatus({ type: 'success', message: 'Config deleted' });
+    } finally {
       setIsDeleting(false);
-      return;
     }
-
-    const refreshed = await getResumeConfigs();
-    if (refreshed.data) {
-      onConfigsChanged(refreshed.data);
-    }
-
-    setIsDeleteDialogOpen(false);
-    setIsDeleting(false);
-    setStatus({ type: 'success', message: 'Config deleted' });
   }
 
   async function handleSelect(configItem: ResumeConfigListItem) {

@@ -259,6 +259,14 @@ export async function activateResumeVersion(
 
   if (profileError) {
     console.error('activateResumeVersion: profile update error:', profileError.message);
+    // Roll back: deactivate the newly activated version, reactivate previous
+    await supabase.from('resume_versions').update({ is_active: false }).eq('id', versionId);
+    if (previouslyActive) {
+      await supabase
+        .from('resume_versions')
+        .update({ is_active: true })
+        .eq('id', previouslyActive.id);
+    }
     return { error: 'Version activated but failed to update profile resume URL' };
   }
 
@@ -334,18 +342,20 @@ export async function getResumeVersionDownloadUrl(
 
 // ── Resume Template Actions ────────────────────────────────────────
 
+export type TemplateListItem = {
+  id: string;
+  registry_key: string;
+  name: string;
+  description: string | null;
+  is_builtin: boolean;
+  page_size: string;
+  columns: number;
+  style_config: Record<string, unknown>;
+  sort_order: number;
+};
+
 export async function getResumeTemplates(): Promise<{
-  data?: Array<{
-    id: string;
-    registry_key: string;
-    name: string;
-    description: string | null;
-    is_builtin: boolean;
-    page_size: string;
-    columns: number;
-    style_config: Record<string, unknown>;
-    sort_order: number;
-  }>;
+  data?: TemplateListItem[];
   error?: string;
 }> {
   const adminResult = await requireAdmin();
