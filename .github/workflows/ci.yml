@@ -136,6 +136,9 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
 
+      - name: Remove files with invalid artifact characters
+        run: find .next -name '*:*' -delete
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
