@@ -18,7 +18,8 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "seed": "npx tsx lib/supabase/seed.ts",
-    "setup-admin": "npx tsx lib/supabase/setup-admin.ts"
+    "setup-admin": "npx tsx lib/supabase/setup-admin.ts",
+    "validate-supabase": "npx tsx scripts/validate-supabase.ts"
   },
   "dependencies": {
     "@react-email/components": "^1.0.7",

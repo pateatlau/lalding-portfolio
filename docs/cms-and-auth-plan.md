@@ -1000,7 +1000,21 @@ The following tests were built alongside their respective features:
 
 4. **Document contributor setup** — note in `.env.example` or README that fork contributors without Supabase access will see a logged warning and the build will use static data fallback.
 
-### 6E Status: PENDING
+### 6E Implementation Notes
+
+- `.env.example` already had Supabase env vars from Phase 1. Updated with descriptive comments explaining fallback behavior, and added optional `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` entries for E2E testing.
+- Created `scripts/validate-supabase.ts` — uses `@supabase/supabase-js` directly (not the SSR server client) to avoid cookie dependencies. Queries `profile` table with `.select('id').limit(1)`. Exits 0 on success or when env vars are missing (fallback is acceptable), exits 1 on connection failure.
+- Added `"validate-supabase"` npm script to `package.json` (`npx tsx scripts/validate-supabase.ts`).
+- Updated `.github/workflows/ci.yml`:
+  - Added top-level comment documenting that fork contributors without Supabase secrets will use static data fallback.
+  - **Build job**: Added `validate-supabase` step before `npm run build`, with `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from secrets. Build step also receives these env vars.
+  - **E2E job**: Added Supabase env vars + `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` from secrets to the E2E test run step.
+- Verified both script paths: exits 0 with warning when env vars are missing, exits 0 with success message when Supabase is configured and reachable.
+- All checks pass: lint, format, build.
+
+### 6E Status: COMPLETE
+
+### Phase 6 Status: COMPLETE
 
 ---
 
