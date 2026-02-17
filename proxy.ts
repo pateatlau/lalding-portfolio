@@ -9,6 +9,11 @@ export async function proxy(request: NextRequest) {
     return supabaseResponse;
   }
 
+  // Skip Sentry tunnel route — handled by @sentry/nextjs
+  if (request.nextUrl.pathname.startsWith('/monitoring')) {
+    return supabaseResponse;
+  }
+
   // Skip session refresh on the auth callback route — getUser() with no
   // session removes the PKCE code verifier cookie, which the callback route
   // handler needs to exchange the auth code for a session.
