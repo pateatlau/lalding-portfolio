@@ -778,23 +778,45 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - Project images → `project-images` bucket (public)
 - Company logos → `company-logos` bucket (public)
-- On upload, store the **storage path** in the respective table; derive public URLs at read time via `getPublicUrl()`
+- On upload, persist the **full public URL** (returned by `getPublicUrl()`) in the `image_url` / `logo_url` column so consumers can use it directly in `<Image src={...}>`. Storage cleanup uses `extractStoragePath()` to derive the path from the URL for `deleteStorageFile()`.
 - Support image preview before saving
 
-### 5.3 Status: PENDING
+### 5.3 Implementation Notes
+
+- Created `components/admin/image-upload.tsx` — reusable image upload component with click-to-upload dashed placeholder, instant local preview via `URL.createObjectURL()`, image preview with "Replace Image" button, destructive remove button, client-side validation (JPEG/PNG/WebP/GIF, max 5 MB), loading spinner overlay, and error display.
+- Added `uploadProjectImage(formData)` server action to `actions/admin.ts` — validates file type and size, uploads to `project-images` bucket with UUID filename, returns both storage `path` and derived `publicUrl`.
+- Added `deleteStorageFile(bucket, path)` server action — generic helper to remove a file from any Supabase Storage bucket, reusable across project images, company logos, and videos.
+- Integrated `ImageUpload` into `components/admin/projects-editor.tsx`, replacing the plain "Image URL" text input. On upload, stores the full public URL in `image_url`; on replace/remove, cleans up old Supabase-hosted images via `deleteStorageFile`.
+- Added `extractStoragePath()` helper to derive storage path from Supabase public URLs for cleanup. Non-Supabase URLs (e.g. local `/images/...` paths) are left alone.
+- Stores full public URL (not storage path) in `image_url` column — matches existing code that uses `image_url` directly in `<Image src={...}>` without transformation.
+- Company logos upload deferred — the `ImageUpload` component is reusable and can be integrated into a company logos editor in a future phase.
+
+### 5.3 Status: COMPLETE
 
 ---
 
 ### 5.4 Demo Video Uploads (Admin)
 
 - Optional short demo videos for projects → `project-videos` bucket (public)
-- On upload, store the **storage path** (e.g. `project-videos/demo.mp4`) in `projects.demo_video_url` — the public URL is derived at read time via `supabase.storage.from('project-videos').getPublicUrl(path)`. Storing the path (not the full URL) makes deletion straightforward and is resilient to CDN/URL changes.
-- Old video is deleted from storage on replacement (using the stored path)
+- On upload, persist the **full public URL** (returned by `getPublicUrl()`) in `projects.demo_video_url` — consistent with the image upload approach. Storage cleanup uses `extractStoragePath()` to derive the path from the URL for `deleteStorageFile()`.
+- Old video is deleted from storage on replacement (path derived from the stored URL)
 - Support video preview before saving
 - Visitors can view the demo video inline on the project card and download it
 - **Future**: YouTube embedding is planned but not in scope for this implementation; the `demo_video_url` field will initially store Supabase Storage paths only
 
-### 5.4 Status: PENDING
+### 5.4 Implementation Notes
+
+- Added `uploadProjectVideo(formData)` server action to `actions/admin.ts` — validates file type (MP4/WebM) and size (max 50 MB), uploads to `project-videos` bucket with UUID filename, returns storage `path` and `publicUrl`.
+- Created `components/admin/video-upload.tsx` — reusable video upload component following the same pattern as `ImageUpload`: click-to-upload placeholder with `Film` icon, `<video>` preview with controls, replace/remove buttons, client-side validation, loading overlay, error display.
+- Integrated `VideoUpload` into `components/admin/projects-editor.tsx`, replacing the plain "Demo Video URL" text input. On replace/remove, cleans up old Supabase-hosted videos via `deleteStorageFile`.
+- Updated `components/project.tsx` (public project card) to support inline video playback:
+  - Destructures `demoVideoUrl` from `ProjectData` props.
+  - Desktop: when `demoVideoUrl` is present, renders a `<video>` element (with controls) in place of the static `<Image>`, using the same absolute positioning and hover animations.
+  - Mobile: renders a full-width `<video>` element below the project description (since desktop media is hidden on mobile).
+  - When no video is present, falls back to the existing `<Image>` behavior.
+- Stores full public URL (not storage path) in `demo_video_url` column — consistent with `image_url` approach from Phase 5.3.
+
+### 5.4 Status: COMPLETE
 
 ---
 

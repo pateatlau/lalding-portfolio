@@ -12,6 +12,7 @@ export default function Project({
   description,
   tags,
   imageUrl,
+  demoVideoUrl,
   sourceCode,
   liveSite,
 }: ProjectData) {
@@ -72,16 +73,44 @@ export default function Project({
               </span>
             </a>
           </div>
+
+          {/* Mobile-only video */}
+          {demoVideoUrl && (
+            <div className="mt-2 overflow-hidden rounded-lg sm:hidden">
+              <video
+                src={demoVideoUrl}
+                controls
+                preload="metadata"
+                className="w-full rounded-lg"
+                aria-label={`Demo video for ${title} project`}
+              >
+                <track kind="captions" />
+              </video>
+            </div>
+          )}
         </div>
 
-        <Image
-          src={imageUrl}
-          alt={`Screenshot of ${title} project`}
-          width={452}
-          height={300}
-          quality={85}
-          className="absolute top-8 -right-40 hidden w-[28.25rem] rounded-t-lg shadow-2xl transition group-even:right-[initial] group-even:-left-40 group-hover:-translate-x-3 group-hover:translate-y-3 group-hover:scale-[1.04] group-hover:-rotate-2 group-hover:group-even:translate-x-3 group-hover:group-even:translate-y-3 group-hover:group-even:rotate-2 sm:block"
-        />
+        {/* Desktop media: video if available, otherwise image */}
+        {demoVideoUrl ? (
+          <video
+            src={demoVideoUrl}
+            controls
+            preload="metadata"
+            aria-label={`Demo video for ${title} project`}
+            className="absolute top-8 -right-40 hidden w-[28.25rem] rounded-t-lg shadow-2xl transition group-even:right-[initial] group-even:-left-40 group-hover:-translate-x-3 group-hover:translate-y-3 group-hover:scale-[1.04] group-hover:-rotate-2 group-hover:group-even:translate-x-3 group-hover:group-even:translate-y-3 group-hover:group-even:rotate-2 sm:block"
+          >
+            <track kind="captions" />
+          </video>
+        ) : (
+          <Image
+            src={imageUrl}
+            alt={`Screenshot of ${title} project`}
+            width={452}
+            height={300}
+            quality={85}
+            className="absolute top-8 -right-40 hidden w-[28.25rem] rounded-t-lg shadow-2xl transition group-even:right-[initial] group-even:-left-40 group-hover:-translate-x-3 group-hover:translate-y-3 group-hover:scale-[1.04] group-hover:-rotate-2 group-hover:group-even:translate-x-3 group-hover:group-even:translate-y-3 group-hover:group-even:rotate-2 sm:block"
+          />
+        )}
       </section>
     </motion.div>
   );

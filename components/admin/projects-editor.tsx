@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -30,10 +30,26 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, Loader2 } from 'lucide-react';
-import { createProject, updateProject, deleteProject, reorderProjects } from '@/actions/admin';
+import {
+  createProject,
+  updateProject,
+  deleteProject,
+  reorderProjects,
+  deleteStorageFile,
+} from '@/actions/admin';
+import ImageUpload from '@/components/admin/image-upload';
+import VideoUpload from '@/components/admin/video-upload';
 import type { Project, ProjectCategory } from '@/lib/supabase/types';
 
 type StatusMessage = { type: 'success' | 'error'; message: string } | null;
+
+/** Extract the storage path from a Supabase public URL. Returns null for non-Supabase URLs. */
+function extractStoragePath(url: string, bucket: string): string | null {
+  const marker = `/storage/v1/object/public/${bucket}/`;
+  const idx = url.indexOf(marker);
+  if (idx === -1) return null;
+  return url.slice(idx + marker.length);
+}
 
 const NO_CATEGORY = '__none__';
 
@@ -61,6 +77,10 @@ export default function ProjectsEditor({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const imageUrlRef = useRef(formData.image_url);
+  imageUrlRef.current = formData.image_url;
+  const videoUrlRef = useRef(formData.demo_video_url);
+  videoUrlRef.current = formData.demo_video_url;
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
@@ -162,6 +182,24 @@ export default function ProjectsEditor({
       if (error) {
         setStatus({ type: 'error', message: error });
       } else {
+        // Clean up associated storage files
+        if (deletingProject.image_url) {
+          const imgPath = extractStoragePath(deletingProject.image_url, 'project-images');
+          if (imgPath) {
+            deleteStorageFile('project-images', imgPath).catch((err) =>
+              console.error('Failed to delete project image:', imgPath, err)
+            );
+          }
+        }
+        if (deletingProject.demo_video_url) {
+          const vidPath = extractStoragePath(deletingProject.demo_video_url, 'project-videos');
+          if (vidPath) {
+            deleteStorageFile('project-videos', vidPath).catch((err) =>
+              console.error('Failed to delete project video:', vidPath, err)
+            );
+          }
+        }
+
         setProjects((prev) => prev.filter((p) => p.id !== deletingProject.id));
         setStatus({ type: 'success', message: 'Project deleted successfully!' });
         setIsDeleteDialogOpen(false);
@@ -381,25 +419,61 @@ export default function ProjectsEditor({
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="proj-image">Image URL</Label>
-              <Input
-                id="proj-image"
-                value={formData.image_url}
-                onChange={(e) => setFormData((p) => ({ ...p, image_url: e.target.value }))}
-                placeholder="/images/project.png or https://..."
-              />
-            </div>
+            <ImageUpload
+              currentUrl={formData.image_url || null}
+              onUploadComplete={(_path, publicUrl) => {
+                const oldUrl = imageUrlRef.current;
+                if (oldUrl) {
+                  const oldPath = extractStoragePath(oldUrl, 'project-images');
+                  if (oldPath) {
+                    deleteStorageFile('project-images', oldPath).catch((err) =>
+                      console.error('Failed to delete old image:', oldPath, err)
+                    );
+                  }
+                }
+                setFormData((p) => ({ ...p, image_url: publicUrl }));
+              }}
+              onRemove={() => {
+                const oldUrl = imageUrlRef.current;
+                if (oldUrl) {
+                  const oldPath = extractStoragePath(oldUrl, 'project-images');
+                  if (oldPath) {
+                    deleteStorageFile('project-images', oldPath).catch((err) =>
+                      console.error('Failed to delete image:', oldPath, err)
+                    );
+                  }
+                }
+                setFormData((p) => ({ ...p, image_url: '' }));
+              }}
+            />
 
-            <div className="space-y-2">
-              <Label htmlFor="proj-video">Demo Video URL</Label>
-              <Input
-                id="proj-video"
-                value={formData.demo_video_url}
-                onChange={(e) => setFormData((p) => ({ ...p, demo_video_url: e.target.value }))}
-                placeholder="Optional video URL"
-              />
-            </div>
+            <VideoUpload
+              currentUrl={formData.demo_video_url || null}
+              onUploadComplete={(_path, publicUrl) => {
+                const oldUrl = videoUrlRef.current;
+                if (oldUrl) {
+                  const oldPath = extractStoragePath(oldUrl, 'project-videos');
+                  if (oldPath) {
+                    deleteStorageFile('project-videos', oldPath).catch((err) =>
+                      console.error('Failed to delete old video:', oldPath, err)
+                    );
+                  }
+                }
+                setFormData((p) => ({ ...p, demo_video_url: publicUrl }));
+              }}
+              onRemove={() => {
+                const oldUrl = videoUrlRef.current;
+                if (oldUrl) {
+                  const oldPath = extractStoragePath(oldUrl, 'project-videos');
+                  if (oldPath) {
+                    deleteStorageFile('project-videos', oldPath).catch((err) =>
+                      console.error('Failed to delete video:', oldPath, err)
+                    );
+                  }
+                }
+                setFormData((p) => ({ ...p, demo_video_url: '' }));
+              }}
+            />
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">

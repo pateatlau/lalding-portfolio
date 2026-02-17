@@ -787,3 +787,119 @@ function escapeCsvField(value: string): string {
   }
   return value;
 }
+
+// --- Image Upload Actions ---
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_IMAGE_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+const ALLOWED_VIDEO_EXTS = ['mp4', 'webm'];
+const ALLOWED_STORAGE_BUCKETS = ['project-images', 'project-videos', 'company-logos', 'resume'];
+
+function sanitizeExtension(filename: string, allowlist: string[], fallback: string): string {
+  const raw = filename.split('.').pop() ?? '';
+  const clean = raw.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+  return allowlist.includes(clean) ? clean : fallback;
+}
+
+export async function uploadProjectImage(
+  formData: FormData
+): Promise<{ data?: { path: string; publicUrl: string }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const file = formData.get('file') as File | null;
+  if (!file) return { error: 'No file provided' };
+
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return { error: 'Only JPEG, PNG, WebP, and GIF images are allowed' };
+  }
+
+  if (file.size > MAX_IMAGE_SIZE) {
+    return { error: 'Image must be smaller than 5 MB' };
+  }
+
+  const supabase = await createClient();
+
+  const ext = sanitizeExtension(file.name, ALLOWED_IMAGE_EXTS, 'png');
+  const storagePath = `${crypto.randomUUID()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('project-images')
+    .upload(storagePath, file, { contentType: file.type });
+
+  if (uploadError) {
+    console.error('uploadProjectImage storage error:', uploadError.message);
+    return { error: 'Failed to upload image' };
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('project-images').getPublicUrl(storagePath);
+
+  return { data: { path: storagePath, publicUrl } };
+}
+
+const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm'];
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50 MB
+
+export async function uploadProjectVideo(
+  formData: FormData
+): Promise<{ data?: { path: string; publicUrl: string }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const file = formData.get('file') as File | null;
+  if (!file) return { error: 'No file provided' };
+
+  if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
+    return { error: 'Only MP4 and WebM videos are allowed' };
+  }
+
+  if (file.size > MAX_VIDEO_SIZE) {
+    return { error: 'Video must be smaller than 50 MB' };
+  }
+
+  const supabase = await createClient();
+
+  const ext = sanitizeExtension(file.name, ALLOWED_VIDEO_EXTS, 'mp4');
+  const storagePath = `${crypto.randomUUID()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('project-videos')
+    .upload(storagePath, file, { contentType: file.type });
+
+  if (uploadError) {
+    console.error('uploadProjectVideo storage error:', uploadError.message);
+    return { error: 'Failed to upload video' };
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('project-videos').getPublicUrl(storagePath);
+
+  return { data: { path: storagePath, publicUrl } };
+}
+
+export async function deleteStorageFile(
+  bucket: string,
+  path: string
+): Promise<{ data?: { success: true }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  if (!ALLOWED_STORAGE_BUCKETS.includes(bucket)) {
+    return { error: 'Invalid bucket' };
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.storage.from(bucket).remove([path]);
+
+  if (error) {
+    console.error(`deleteStorageFile error (${bucket}/${path}):`, error.message);
+    return { error: 'Failed to delete file' };
+  }
+
+  return { data: { success: true } };
+}
