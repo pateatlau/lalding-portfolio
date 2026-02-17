@@ -632,7 +632,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 
 - Unit tests following the existing `admin.test.ts` pattern: mock Supabase, verify CRUD operations, verify `revalidatePath` calls, verify `requireAdmin` is called
 
-### 8D Status: PENDING
+### 8D Status: DONE
 
 ---
 
