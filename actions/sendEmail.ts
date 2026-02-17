@@ -16,6 +16,7 @@ if (!RESEND_API_KEY) {
 const resend = new Resend(RESEND_API_KEY);
 
 export const sendEmail = async (formData: FormData) => {
+  const senderName = formData.get('senderName');
   const senderEmail = formData.get('senderEmail');
   const message = formData.get('message');
 
@@ -31,25 +32,36 @@ export const sendEmail = async (formData: FormData) => {
     };
   }
 
-  let data;
+  // Normalize: trim whitespace and strip CR/LF to prevent email header injection
+  const name =
+    (validateString(senderName, 200) && senderName.trim().replace(/[\r\n]/g, '')) || undefined;
+  const subject = name
+    ? `Message from ${name} via Lalding's Portfolio`
+    : "Message from Lalding's Portfolio Contact form";
+
   try {
-    data = await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: 'Laldings Portfolio Contact Form <onboarding@resend.dev>',
       to: 'laldingliana.tv@gmail.com',
-      subject: "Message from Lalding's Portfolio's Contact form",
+      subject,
       replyTo: senderEmail,
       react: React.createElement(ContactFormEmail, {
         message: message,
         senderEmail: senderEmail,
+        senderName: name,
       }),
     });
+
+    if (error) {
+      console.error('Resend API error:', error);
+      return { error: error.message };
+    }
+
+    return { data };
   } catch (error: unknown) {
+    console.error('Email send failed:', error);
     return {
       error: getErrorMessage(error),
     };
   }
-
-  return {
-    data,
-  };
 };
