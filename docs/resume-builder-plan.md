@@ -261,7 +261,7 @@ The primary template is built to **pixel-match** the existing resume PDF (`temp-
 | **Accent color**     | Teal/cyan `#2bbcb3` — used for section labels and the "LT" monogram logo                                                                                                                                                                     |
 | **Body font**        | Clean sans-serif (likely Open Sans / Lato / similar), ~10-11pt                                                                                                                                                                               |
 | **Section labels**   | Uppercase, teal, bold, left-aligned in the margin column                                                                                                                                                                                     |
-| **Contact line**     | Pipe-separated, below name: email \| phone \| location \| website \| LinkedIn                                                                                                                                                                |
+| **Contact line**     | Pipe-separated, below name: email \| phone \| location \| website (optional) \| GitHub (optional) \| LinkedIn (optional). All sourced from `profile` table. Website requires new `website_url` column (added in 8A).                         |
 | **Work history**     | **Bold title** \| Company — Location, date right-aligned on same line                                                                                                                                                                        |
 | **Bullets**          | Standard disc bullets, indented under each role                                                                                                                                                                                              |
 | **Skills**           | Categorized by group (e.g., "Frontend", "Backend & Database") with bold group name, comma-separated skills per group. Differs from reference PDF which uses a flat two-column bullet list — we use the CMS `skill_groups` structure instead. |
@@ -301,6 +301,7 @@ export type ResumeData = {
     email: string;
     phone: string | null;
     location: string | null;
+    websiteUrl: string | null;
     linkedinUrl: string | null;
     githubUrl: string | null;
   };
@@ -502,9 +503,10 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 
 1. Create `supabase/resume-builder-schema.sql` with `resume_templates`, `resume_configs`, `resume_versions` tables
 2. Create `supabase/resume-builder-rls.sql` with RLS policies
-3. Add Row, Insert, Update types to `lib/supabase/types.ts` for all three tables
-4. Add `ResumeSectionConfig` type for the JSONB sections array
-5. Seed 1 built-in template ("Professional" — matching the reference PDF `temp-downloads/resume.pdf`) via a seed script or SQL insert
+3. Add `website_url TEXT` column to the existing `profile` table (needed for resume header contact line — not currently in the CMS schema). Update `Profile` / `ProfileInsert` types in `lib/supabase/types.ts`.
+4. Add Row, Insert, Update types to `lib/supabase/types.ts` for all three new tables
+5. Add `ResumeSectionConfig` type for the JSONB sections array
+6. Seed 1 built-in template ("Professional" — matching the reference PDF `temp-downloads/resume.pdf`) via a seed script or SQL insert
 
 **Testing:**
 
