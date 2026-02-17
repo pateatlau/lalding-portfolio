@@ -894,7 +894,28 @@ The following tests were built alongside their respective features:
 
 **Follows:** existing component test patterns in `__tests__/components/admin/`.
 
-### 6B Status: PENDING
+### 6B Implementation Notes
+
+- Created `__tests__/components/auth/login-modal.test.tsx` with 9 tests:
+  - Renders nothing when `isOpen` is false (empty container)
+  - Renders heading ("Sign in to download"), all 3 social login buttons, and Cancel button
+  - Calls `onClose` when Cancel button is clicked
+  - Calls `onClose` when backdrop overlay is clicked
+  - Calls `signInWithProvider` with correct provider string for each button (`'google'`, `'github'`, `'linkedin_oidc'`)
+  - Stores `pendingAction: 'download_resume'` in localStorage before OAuth redirect
+- Mocks `@/context/auth-context` (`useAuth`) to provide a mock `signInWithProvider` function.
+- Created `__tests__/components/auth/optional-fields-modal.test.tsx` with 7 tests:
+  - Renders nothing when `isOpen` is false
+  - Renders heading, Company/Role inputs, Skip and Continue buttons
+  - Calls `onComplete` without calling server action when Skip is clicked
+  - Calls `updateVisitorOptionalFields` with typed values and then `onComplete` on Continue
+  - Handles empty fields (submits empty strings)
+  - Shows "Saving..." loading text while server action is pending
+  - Shows toast error on server action failure, still calls `onComplete`
+- Mocks `@/actions/resume` (`updateVisitorOptionalFields`) and `react-hot-toast` (`toast.error`).
+- All 251 tests pass (16 new + 235 existing). Lint, format, and build all pass.
+
+### 6B Status: COMPLETE
 
 ---
 
