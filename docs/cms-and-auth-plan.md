@@ -932,7 +932,20 @@ The following tests were built alongside their respective features:
 
 **Note:** Requires `E2E_VISITOR_EMAIL` / `E2E_VISITOR_PASSWORD` env vars or mocked auth state. May need a test visitor account in Supabase.
 
-### 6C Status: PENDING
+### 6C Implementation Notes
+
+- Created `e2e/resume-download.spec.ts` with 6 Playwright tests covering the unauthenticated resume download flow:
+  - "Download Resume" button is visible in the intro section
+  - Clicking "Download Resume" opens the LoginModal for unauthenticated users
+  - LoginModal displays all three social login buttons (Google, GitHub, LinkedIn)
+  - LoginModal can be closed via the Cancel button
+  - LoginModal can be closed by clicking the backdrop overlay
+  - "Download Resume" button is enabled and not in downloading state initially
+- Test runs on all three browser projects (chromium, firefox, webkit) — it doesn't match the `admin-*` ignore pattern.
+- **Limitation:** The full authenticated flow (OAuth login → OptionalFieldsModal → download trigger) cannot be tested in E2E without real OAuth credentials or a test visitor account. Visitor auth uses social login only (no email/password), so there's no way to programmatically authenticate a visitor like the admin auth setup does. The unauthenticated path (modal appearance, interactions, dismissal) is fully covered. The authenticated download logic is covered by unit tests (6A: `downloadResume` server action, 6B: `OptionalFieldsModal` component).
+- All 6 E2E tests pass on chromium. All 251 unit tests pass. Lint and format clean.
+
+### 6C Status: COMPLETE
 
 ---
 
