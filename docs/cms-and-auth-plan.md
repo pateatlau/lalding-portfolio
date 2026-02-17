@@ -1127,7 +1127,7 @@ Before implementation can begin, complete these steps:
    - `project:releases`
    - `org:read`
 5. **Add environment variables to Vercel** (production + preview):
-   - `SENTRY_DSN`
+   - `NEXT_PUBLIC_SENTRY_DSN`
    - `SENTRY_AUTH_TOKEN`
    - `SENTRY_ORG`
    - `SENTRY_PROJECT`
@@ -1135,7 +1135,7 @@ Before implementation can begin, complete these steps:
    - `SENTRY_AUTH_TOKEN`
    - `SENTRY_ORG`
    - `SENTRY_PROJECT`
-   - `SENTRY_DSN`
+   - `NEXT_PUBLIC_SENTRY_DSN`
 
 ### Environment Variables
 
@@ -1161,19 +1161,17 @@ Before implementation can begin, complete these steps:
 
 1. Install `@sentry/nextjs` (latest v10.x, compatible with Next.js 16)
 2. Create `instrumentation-client.ts` — client-side Sentry init with:
-   - DSN from `process.env.SENTRY_DSN`
+   - DSN from `process.env.NEXT_PUBLIC_SENTRY_DSN`
    - `tracesSampleRate: 0.1` (low to stay within free tier)
-   - `replaysSessionSampleRate: 0` (disabled — not needed for portfolio)
-   - `replaysOnErrorSampleRate: 1.0` (capture replay on errors)
-   - Guard: skip init if `SENTRY_DSN` is not set
+   - Guard: skip init if `NEXT_PUBLIC_SENTRY_DSN` is not set
    - `onRouterTransitionStart` export for App Router navigation tracking
 3. Create `sentry.server.config.ts` — server-side Sentry init with:
-   - DSN from `process.env.SENTRY_DSN`
+   - DSN from `process.env.NEXT_PUBLIC_SENTRY_DSN`
    - `tracesSampleRate: 0.1`
-   - Guard: skip init if `SENTRY_DSN` is not set
+   - Guard: skip init if `NEXT_PUBLIC_SENTRY_DSN` is not set
 4. Create `sentry.edge.config.ts` — edge runtime Sentry init with:
    - Same config as server, used by `proxy.ts` edge runtime
-   - Guard: skip init if `SENTRY_DSN` is not set
+   - Guard: skip init if `NEXT_PUBLIC_SENTRY_DSN` is not set
 5. Create `instrumentation.ts` — Next.js instrumentation hook:
    - Import `sentry.server.config` when `NEXT_RUNTIME === 'nodejs'`
    - Import `sentry.edge.config` when `NEXT_RUNTIME === 'edge'`
@@ -1202,7 +1200,7 @@ Before implementation can begin, complete these steps:
    - Import `@sentry/nextjs`
    - Call `Sentry.captureException(error)` in a `useEffect` on mount
    - Keep existing UI (NextError fallback)
-   - Guard: only call Sentry if it's initialized (check `SENTRY_DSN`)
+   - Guard: only call Sentry if it's initialized (check `Sentry.getClient()`)
 2. Optionally instrument critical server actions:
    - `actions/sendEmail.ts` — wrap with `Sentry.withServerActionInstrumentation()` for contact form error tracking
    - `actions/resume.ts` — wrap `downloadResume()` for resume download error tracking
@@ -1225,7 +1223,7 @@ Before implementation can begin, complete these steps:
    - Replace `NEXT_PUBLIC_SENTRY_AUTH_TOKEN=sntrys_xxx` with the four Sentry env vars
    - Add comments explaining each variable and that they're optional
 2. Update `.github/workflows/ci.yml`:
-   - **Build job**: Add `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_DSN` from secrets to the build step (enables source map upload during CI builds)
+   - **Build job**: Add `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `NEXT_PUBLIC_SENTRY_DSN` from secrets to the build step (enables source map upload during CI builds)
    - Source maps are uploaded automatically by `withSentryConfig` during `next build` when auth token is present
 3. Verify source maps are **not** uploaded during dev (`next dev`) — only during production builds
 
@@ -1257,7 +1255,7 @@ Before implementation can begin, complete these steps:
 ### Implementation Notes
 
 - **SDK version**: `@sentry/nextjs` v10.x (latest, tested with Next.js 16)
-- **Optional pattern**: All Sentry config files guard on `SENTRY_DSN` being set — matches the existing Supabase fallback pattern where the app gracefully degrades without external services
+- **Optional pattern**: All Sentry config files guard on `NEXT_PUBLIC_SENTRY_DSN` being set — matches the existing Supabase fallback pattern where the app gracefully degrades without external services. `next.config.js` conditionally applies `withSentryConfig` only when `SENTRY_ORG`, `SENTRY_PROJECT`, and `SENTRY_AUTH_TOKEN` are all present.
 - **Performance budget**: `tracesSampleRate: 0.1` (10% of requests) keeps within Sentry's free tier (~50K transactions/month). Can be adjusted once baseline traffic is known.
 - **Tunnel route**: `/monitoring` proxies Sentry events through the Next.js server, avoiding ad blocker interference. The `proxy.ts` file must be updated to skip this path.
 - **Source maps**: Uploaded automatically during `next build` when `SENTRY_AUTH_TOKEN` is present. The `withSentryConfig` wrapper handles this — no separate upload step needed.

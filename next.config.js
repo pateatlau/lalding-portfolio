@@ -30,16 +30,21 @@ const nextConfig = {
   },
 };
 
-module.exports = withSentryConfig(nextConfig, {
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
+const sentryConfigured =
+  process.env.SENTRY_ORG && process.env.SENTRY_PROJECT && process.env.SENTRY_AUTH_TOKEN;
 
-  // Suppress logs outside CI
-  silent: !process.env.CI,
+module.exports = sentryConfigured
+  ? withSentryConfig(nextConfig, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
 
-  // Upload wider set of source maps for better stack traces
-  widenClientFileUpload: true,
+      // Suppress logs outside CI
+      silent: !process.env.CI,
 
-  // Route Sentry events through the server to avoid ad blockers
-  tunnelRoute: '/monitoring',
-});
+      // Upload wider set of source maps for better stack traces
+      widenClientFileUpload: true,
+
+      // Route Sentry events through the server to avoid ad blockers
+      tunnelRoute: '/monitoring',
+    })
+  : nextConfig;

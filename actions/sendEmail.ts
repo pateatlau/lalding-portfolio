@@ -18,7 +18,7 @@ if (!RESEND_API_KEY) {
 const resend = new Resend(RESEND_API_KEY);
 
 export const sendEmail = async (formData: FormData) => {
-  return Sentry.withServerActionInstrumentation('sendEmail', { formData }, async () => {
+  return Sentry.withServerActionInstrumentation('sendEmail', {}, async () => {
     const senderName = formData.get('senderName');
     const senderEmail = formData.get('senderEmail');
     const message = formData.get('message');
