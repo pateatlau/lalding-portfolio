@@ -9,8 +9,6 @@ export async function GET(request: Request) {
   // Sanitize redirect target — only allow relative paths (no protocol or double-slash)
   const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/';
 
-  console.log('[auth/callback] hit', { code: code ? 'present' : 'missing', origin, next });
-
   if (code) {
     // Skip when env vars are not configured (e.g. CI builds)
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
@@ -18,13 +16,6 @@ export async function GET(request: Request) {
     }
 
     const cookieStore = await cookies();
-    const allCookies = cookieStore.getAll();
-    const codeVerifierCookie = allCookies.find((c) => c.name.includes('code-verifier'));
-    console.log('[auth/callback] cookies', {
-      total: allCookies.length,
-      names: allCookies.map((c) => c.name),
-      hasCodeVerifier: !!codeVerifierCookie,
-    });
 
     // Create a Supabase client that collects cookies to set, so we can
     // attach them to the redirect response (cookies().set + NextResponse.redirect
@@ -50,13 +41,6 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-    console.log('[auth/callback] exchangeCodeForSession', {
-      success: !error,
-      error: error ? { message: error.message, status: error.status } : null,
-      pendingCookiesCount: pendingCookies.length,
-      pendingCookieNames: pendingCookies.map((c) => c.name),
-    });
-
     if (!error) {
       const response = NextResponse.redirect(`${origin}${next}`);
       // Attach session cookies to the redirect response
@@ -65,6 +49,11 @@ export async function GET(request: Request) {
       });
       return response;
     }
+
+    console.error('Auth callback: exchangeCodeForSession failed', {
+      message: error.message,
+      status: error.status,
+    });
   }
 
   // OAuth error — redirect home
