@@ -1263,6 +1263,16 @@ Before implementation can begin, complete these steps:
 
 ---
 
+## Phase 8: Resume Builder
+
+Full architecture design, data model, template system, PDF generation pipeline, and implementation sub-tasks (8A–8H) are documented in a separate file:
+
+**[`docs/resume-builder-plan.md`](./resume-builder-plan.md)**
+
+### Phase 8 Status: PENDING
+
+---
+
 ## Resolved Questions
 
 1. **Admin seeding**: Setup/invite flow — build an admin setup flow rather than manual Supabase dashboard creation.
