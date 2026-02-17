@@ -190,6 +190,7 @@ export default function ResumePreview({ config }: ResumePreviewProps) {
             <iframe
               ref={iframeRef}
               title="Resume Preview"
+              sandbox="allow-same-origin"
               className="mx-auto block border-0 shadow-lg"
               style={{
                 width: pageSize === 'A4' ? '210mm' : '8.5in',

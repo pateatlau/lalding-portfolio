@@ -17,14 +17,8 @@ import type {
   SkillGroupWithSkills,
 } from '@/lib/supabase/types';
 
-type TemplateOption = {
-  id: string;
-  name: string;
-};
-
 type ResumeComposerProps = {
   config: ResumeConfig;
-  templates: TemplateOption[];
   educations: Education[];
   experiences: Experience[];
   projects: Project[];
@@ -36,7 +30,6 @@ type StatusMessage = { type: 'success' | 'error'; message: string } | null;
 
 export default function ResumeComposer({
   config,
-  templates,
   educations,
   experiences,
   projects,
@@ -206,7 +199,10 @@ export default function ResumeComposer({
           const selectedIds = section.itemIds ?? [];
 
           return (
-            <Card key={index} className={!section.enabled ? 'opacity-50' : ''}>
+            <Card
+              key={`${section.section}-${index}`}
+              className={!section.enabled ? 'opacity-50' : ''}
+            >
               <CardHeader className="py-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">

@@ -11,6 +11,7 @@ export type ResumeConfigListItem = {
   id: string;
   name: string;
   description: string | null;
+  template_id: string | null;
   templateName: string | null;
   is_active: boolean;
   updated_at: string;
@@ -54,6 +55,7 @@ export async function getResumeConfigs(): Promise<{
       id: c.id,
       name: c.name,
       description: c.description,
+      template_id: c.template_id ?? null,
       templateName: c.template_id ? (templateMap.get(c.template_id) ?? null) : null,
       is_active: c.is_active,
       updated_at: c.updated_at,
@@ -135,13 +137,21 @@ export async function deleteResumeConfig(
 
   const supabase = await createClient();
 
-  // Fetch associated versions to clean up storage files
+  // Fetch associated versions to get storage paths before deleting
   const { data: versions } = await supabase
     .from('resume_versions')
     .select('id, pdf_storage_path')
     .eq('config_id', id);
 
-  // Remove PDFs from storage (log errors but don't block)
+  // Delete config row first (cascade removes version rows)
+  const { error } = await supabase.from('resume_configs').delete().eq('id', id);
+
+  if (error) {
+    console.error('deleteResumeConfig error:', error.message);
+    return { error: 'Failed to delete resume config' };
+  }
+
+  // Clean up storage files after successful DB deletion (log errors but don't block)
   if (versions && versions.length > 0) {
     for (const version of versions) {
       const result = await deleteStorageFile('resume', version.pdf_storage_path);
@@ -152,14 +162,6 @@ export async function deleteResumeConfig(
         );
       }
     }
-  }
-
-  // Delete config row (cascade removes version rows)
-  const { error } = await supabase.from('resume_configs').delete().eq('id', id);
-
-  if (error) {
-    console.error('deleteResumeConfig error:', error.message);
-    return { error: 'Failed to delete resume config' };
   }
 
   revalidatePath('/admin');
@@ -211,8 +213,23 @@ export async function activateResumeVersion(
 
   const supabase = await createClient();
 
+  // Find the currently active version (if any) to allow rollback
+  const { data: previouslyActive } = await supabase
+    .from('resume_versions')
+    .select('id')
+    .eq('is_active', true)
+    .maybeSingle();
+
   // Deactivate any currently active version
-  await supabase.from('resume_versions').update({ is_active: false }).eq('is_active', true);
+  const { error: deactivateError } = await supabase
+    .from('resume_versions')
+    .update({ is_active: false })
+    .eq('is_active', true);
+
+  if (deactivateError) {
+    console.error('activateResumeVersion: deactivate error:', deactivateError.message);
+    return { error: 'Failed to deactivate current version' };
+  }
 
   // Activate the requested version
   const { data: version, error: activateError } = await supabase
@@ -224,6 +241,13 @@ export async function activateResumeVersion(
 
   if (activateError || !version) {
     console.error('activateResumeVersion error:', activateError?.message);
+    // Roll back: reactivate the previously active version
+    if (previouslyActive) {
+      await supabase
+        .from('resume_versions')
+        .update({ is_active: true })
+        .eq('id', previouslyActive.id);
+    }
     return { error: 'Failed to activate resume version' };
   }
 
@@ -267,7 +291,15 @@ export async function deleteResumeVersion(
     return { error: 'Cannot delete the active resume version. Deactivate it first.' };
   }
 
-  // Delete storage file
+  // Delete version row first, then clean up storage
+  const { error } = await supabase.from('resume_versions').delete().eq('id', id);
+
+  if (error) {
+    console.error('deleteResumeVersion error:', error.message);
+    return { error: 'Failed to delete resume version' };
+  }
+
+  // Clean up storage file after successful DB deletion (log errors but don't block)
   const storageResult = await deleteStorageFile('resume', version.pdf_storage_path);
   if (storageResult.error) {
     console.error(
@@ -276,16 +308,28 @@ export async function deleteResumeVersion(
     );
   }
 
-  // Delete version row
-  const { error } = await supabase.from('resume_versions').delete().eq('id', id);
-
-  if (error) {
-    console.error('deleteResumeVersion error:', error.message);
-    return { error: 'Failed to delete resume version' };
-  }
-
   revalidatePath('/admin');
   return { data: { success: true } };
+}
+
+// ── Resume Version Download ───────────────────────────────────────
+
+export async function getResumeVersionDownloadUrl(
+  storagePath: string
+): Promise<{ data?: string; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.storage.from('resume').createSignedUrl(storagePath, 60); // 60 seconds expiry
+
+  if (error || !data?.signedUrl) {
+    console.error('getResumeVersionDownloadUrl error:', error?.message);
+    return { error: 'Failed to generate download URL' };
+  }
+
+  return { data: data.signedUrl };
 }
 
 // ── Resume Template Actions ────────────────────────────────────────

@@ -79,6 +79,7 @@ export default function ConfigList({
   function openAddDialog() {
     setEditingConfig(null);
     setFormData(EMPTY_FORM);
+    setStatus(null);
     setIsDialogOpen(true);
   }
 
@@ -87,13 +88,15 @@ export default function ConfigList({
     setFormData({
       name: config.name,
       description: config.description ?? '',
-      template_id: undefined, // We don't have template_id on list item, will keep current on save
+      template_id: config.template_id ?? undefined,
     });
+    setStatus(null);
     setIsDialogOpen(true);
   }
 
   function openDeleteDialog(config: ResumeConfigListItem) {
     setDeletingConfig(config);
+    setStatus(null);
     setIsDeleteDialogOpen(true);
   }
 
@@ -101,69 +104,78 @@ export default function ConfigList({
     setIsSaving(true);
     setStatus(null);
 
-    const payload: Record<string, unknown> = {
-      name: formData.name,
-      description: formData.description || null,
-    };
-    if (formData.template_id) {
-      payload.template_id = formData.template_id;
-    }
+    try {
+      const payload: Record<string, unknown> = {
+        name: formData.name,
+        description: formData.description || null,
+      };
+      if (formData.template_id) {
+        payload.template_id = formData.template_id;
+      }
 
-    if (editingConfig) {
-      const result = await updateResumeConfig(editingConfig.id, payload);
-      if (result.error) {
-        setStatus({ type: 'error', message: result.error });
-        setIsSaving(false);
+      if (editingConfig) {
+        const result = await updateResumeConfig(editingConfig.id, payload);
+        if (result.error) {
+          setStatus({ type: 'error', message: result.error });
+          return;
+        }
+      } else {
+        payload.sections = [
+          {
+            section: 'summary',
+            enabled: true,
+            label: 'Professional Summary',
+            itemIds: null,
+            sort_order: 0,
+          },
+          {
+            section: 'skills',
+            enabled: true,
+            label: 'Skills',
+            itemIds: null,
+            sort_order: 1,
+          },
+          {
+            section: 'experience',
+            enabled: true,
+            label: 'Work History',
+            itemIds: null,
+            sort_order: 2,
+          },
+          {
+            section: 'education',
+            enabled: true,
+            label: 'Education',
+            itemIds: null,
+            sort_order: 3,
+          },
+        ];
+        const result = await createResumeConfig(
+          payload as Parameters<typeof createResumeConfig>[0]
+        );
+        if (result.error) {
+          setStatus({ type: 'error', message: result.error });
+          return;
+        }
+      }
+
+      // Refresh the configs list
+      const refreshed = await getResumeConfigs();
+      if (refreshed.data) {
+        onConfigsChanged(refreshed.data);
+      } else if (refreshed.error) {
+        setStatus({ type: 'error', message: refreshed.error });
         return;
       }
-    } else {
-      payload.sections = [
-        {
-          section: 'summary',
-          enabled: true,
-          label: 'Professional Summary',
-          itemIds: null,
-          sort_order: 0,
-        },
-        {
-          section: 'skills',
-          enabled: true,
-          label: 'Skills',
-          itemIds: null,
-          sort_order: 1,
-        },
-        {
-          section: 'experience',
-          enabled: true,
-          label: 'Work History',
-          itemIds: null,
-          sort_order: 2,
-        },
-        {
-          section: 'education',
-          enabled: true,
-          label: 'Education',
-          itemIds: null,
-          sort_order: 3,
-        },
-      ];
-      const result = await createResumeConfig(payload as Parameters<typeof createResumeConfig>[0]);
-      if (result.error) {
-        setStatus({ type: 'error', message: result.error });
-        setIsSaving(false);
-        return;
-      }
-    }
 
-    // Refresh the configs list
-    const refreshed = await getResumeConfigs();
-    if (refreshed.data) {
-      onConfigsChanged(refreshed.data);
+      setIsDialogOpen(false);
+      setStatus({
+        type: 'success',
+        message: editingConfig ? 'Config updated' : 'Config created',
+      });
+    } finally {
+      setIsSaving(false);
     }
-
-    setIsDialogOpen(false);
-    setIsSaving(false);
-    setStatus({ type: 'success', message: editingConfig ? 'Config updated' : 'Config created' });
   }
 
   async function handleDelete() {
@@ -266,6 +278,7 @@ export default function ConfigList({
                       onClick={() => handleSelect(config)}
                       disabled={isSelecting === config.id}
                       title="Open in Composer"
+                      aria-label="Open in Composer"
                     >
                       {isSelecting === config.id ? (
                         <Loader2 className="size-4 animate-spin" />
@@ -278,6 +291,7 @@ export default function ConfigList({
                       size="icon"
                       onClick={() => openEditDialog(config)}
                       title="Edit"
+                      aria-label="Edit"
                     >
                       <Pencil className="size-4" />
                     </Button>
@@ -286,6 +300,7 @@ export default function ConfigList({
                       size="icon"
                       onClick={() => openDeleteDialog(config)}
                       title="Delete"
+                      aria-label="Delete"
                     >
                       <Trash2 className="size-4" />
                     </Button>

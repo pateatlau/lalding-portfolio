@@ -24,6 +24,7 @@ import {
   getResumeVersions,
   activateResumeVersion,
   deleteResumeVersion,
+  getResumeVersionDownloadUrl,
 } from '@/actions/resume-builder';
 import type { ResumeVersionListItem } from '@/actions/resume-builder';
 
@@ -109,12 +110,15 @@ export default function VersionHistory({ configId, configName }: VersionHistoryP
     setStatus({ type: 'success', message: 'Version deleted' });
   }
 
-  function handleDownload(version: ResumeVersionListItem) {
-    // Build Supabase storage public URL
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if (!supabaseUrl) return;
-    const url = `${supabaseUrl}/storage/v1/object/public/resume/${version.pdf_storage_path}`;
-    window.open(url, '_blank');
+  async function handleDownload(version: ResumeVersionListItem) {
+    const result = await getResumeVersionDownloadUrl(version.pdf_storage_path);
+    if (result.error) {
+      setStatus({ type: 'error', message: result.error });
+      return;
+    }
+    if (result.data) {
+      window.open(result.data, '_blank', 'noopener,noreferrer');
+    }
   }
 
   if (isLoading) {

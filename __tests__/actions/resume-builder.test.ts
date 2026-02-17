@@ -77,6 +77,7 @@ describe('getResumeConfigs', () => {
       id: 'cfg-1',
       name: 'Default Resume',
       description: 'Main config',
+      template_id: 'tmpl-1',
       templateName: 'Professional',
       is_active: true,
       updated_at: '2025-01-01T00:00:00Z',
@@ -198,9 +199,9 @@ describe('deleteResumeConfig', () => {
   it('deletes config, cleans up storage, and revalidates', async () => {
     setAdmin();
 
-    // First call: fetch versions for cleanup
-    // Second call: storage delete (via deleteStorageFile → admin action)
-    // Third call: delete config
+    // First call: fetch versions for storage paths
+    // Second call: delete config row (cascade removes versions)
+    // Third call: storage delete (via deleteStorageFile → admin action)
     mockClient.from
       .mockReturnValueOnce(createChainMock({ data: [mockResumeVersion], error: null }))
       .mockReturnValueOnce(createChainMock({ data: null, error: null }))
@@ -283,10 +284,12 @@ describe('activateResumeVersion', () => {
   it('deactivates all, activates target, updates profile', async () => {
     setAdmin();
 
-    // 1. Deactivate all active versions
-    // 2. Activate target version (returns pdf_storage_path)
-    // 3. Update profile resume_url
+    // 1. Find previously active version (maybeSingle)
+    // 2. Deactivate all active versions
+    // 3. Activate target version (returns pdf_storage_path)
+    // 4. Update profile resume_url
     mockClient.from
+      .mockReturnValueOnce(createChainMock({ data: { id: 'ver-old' }, error: null }))
       .mockReturnValueOnce(createChainMock({ data: null, error: null }))
       .mockReturnValueOnce(
         createChainMock({
@@ -305,7 +308,11 @@ describe('activateResumeVersion', () => {
   it('returns error when activation fails', async () => {
     setAdmin();
 
+    // 1. Find previously active version
+    // 2. Deactivate all
+    // 3. Activate target fails
     mockClient.from
+      .mockReturnValueOnce(createChainMock({ data: null, error: null }))
       .mockReturnValueOnce(createChainMock({ data: null, error: null }))
       .mockReturnValueOnce(createChainMock({ data: null, error: { message: 'Activate failed' } }));
 
@@ -338,8 +345,8 @@ describe('deleteResumeVersion', () => {
     setAdmin();
 
     // 1. Fetch version
-    // 2. Delete storage file (via deleteStorageFile)
-    // 3. Delete version row
+    // 2. Delete version row (DB first)
+    // 3. Delete storage file (via deleteStorageFile)
     mockClient.from
       .mockReturnValueOnce(
         createChainMock({

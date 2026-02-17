@@ -30,12 +30,17 @@ async function renderToHtml(registryKey: string, data: ResumeData): Promise<stri
 
   const markup = renderToStaticMarkup(createElement(Template, { data }));
 
+  // Build Google Fonts import for the configured font family
+  const fontFamily = data.style?.fontFamily ?? 'Open Sans, sans-serif';
+  const primaryFont = fontFamily.split(',')[0].trim().replace(/['"]/g, '');
+  const fontImport = `@import url('https://fonts.googleapis.com/css2?family=${encodeURIComponent(primaryFont)}:wght@400;600;700;800&display=swap');`;
+
   return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap');
+    ${fontImport}
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     @page { margin: 0; }
@@ -58,6 +63,9 @@ const DEFAULT_STYLE: ResumeStyle = {
 // ── assembleResumeData ─────────────────────────────────────────────
 
 export async function assembleResumeData(config: ResumeConfig): Promise<ResumeData> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) throw new Error(adminResult.error);
+
   const supabase = await createClient();
 
   // Fetch profile
@@ -214,6 +222,9 @@ export async function assembleResumeData(config: ResumeConfig): Promise<ResumeDa
         sections.push({ type: 'education', label: sectionConfig.label, items });
         break;
       }
+      case 'summary':
+        // Summary is rendered separately via config.custom_summary — skip here.
+        break;
       case 'custom': {
         sections.push({
           type: 'custom',
@@ -276,10 +287,15 @@ export async function previewResumeHtml(
   }
 
   // Assemble data and render to HTML
-  const resumeData = await assembleResumeData(config as ResumeConfig);
-  const html = await renderToHtml(registryKey, resumeData);
-
-  return { data: { html, pageSize: resumeData.pageSize } };
+  try {
+    const resumeData = await assembleResumeData(config as ResumeConfig);
+    const html = await renderToHtml(registryKey, resumeData);
+    return { data: { html, pageSize: resumeData.pageSize } };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to generate preview';
+    console.error('previewResumeHtml error:', message);
+    return { error: message };
+  }
 }
 
 // ── generateResumePdf ──────────────────────────────────────────────
@@ -327,11 +343,27 @@ export async function generateResumePdf(
       message: 'Assembling resume data',
       data: { registryKey },
     });
-    const resumeData = await assembleResumeData(config as ResumeConfig);
+    let resumeData: ResumeData;
+    try {
+      resumeData = await assembleResumeData(config as ResumeConfig);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to assemble resume data';
+      Sentry.captureException(err);
+      console.error('generateResumePdf: assembleResumeData failed:', message);
+      return { error: message };
+    }
 
     // 4. Render to HTML
     Sentry.addBreadcrumb({ category: 'resume-pdf', message: 'Rendering HTML' });
-    const html = await renderToHtml(registryKey, resumeData);
+    let html: string;
+    try {
+      html = await renderToHtml(registryKey, resumeData);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to render HTML';
+      Sentry.captureException(err);
+      console.error('generateResumePdf: renderToHtml failed:', message);
+      return { error: message };
+    }
 
     // 5. Generate PDF
     Sentry.addBreadcrumb({ category: 'resume-pdf', message: 'Generating PDF via Playwright' });
@@ -385,6 +417,8 @@ export async function generateResumePdf(
 
     if (insertError) {
       console.error('generateResumePdf: version insert failed:', insertError.message);
+      // Clean up orphaned PDF from storage
+      await supabase.storage.from('resume').remove([storagePath]);
       return { error: 'PDF generated but failed to save version record' };
     }
 

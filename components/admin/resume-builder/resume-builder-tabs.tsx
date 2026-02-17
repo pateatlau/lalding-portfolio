@@ -113,7 +113,6 @@ export default function ResumeBuilderTabs({
           {selectedConfig && (
             <ResumeComposer
               config={selectedConfig}
-              templates={templateList}
               educations={educations}
               experiences={experiences}
               projects={projects}

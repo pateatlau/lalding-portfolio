@@ -12,7 +12,11 @@ import type {
 
 // ── Monogram Logo ──────────────────────────────────────────────────
 
-function Monogram({ accentColor }: { accentColor: string }) {
+function Monogram({ accentColor, fullName }: { accentColor: string; fullName: string }) {
+  const nameParts = fullName.trim().split(/\s+/);
+  const firstInitial = nameParts[0]?.[0]?.toUpperCase() ?? '';
+  const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1][0].toUpperCase() : '';
+
   return (
     <div
       style={{
@@ -30,17 +34,21 @@ function Monogram({ accentColor }: { accentColor: string }) {
         position: 'relative',
       }}
     >
-      <span>L</span>
-      <div
-        style={{
-          width: '70%',
-          height: '1px',
-          backgroundColor: accentColor,
-          transform: 'rotate(-45deg)',
-          position: 'absolute',
-        }}
-      />
-      <span>T</span>
+      <span>{firstInitial}</span>
+      {lastInitial && (
+        <>
+          <div
+            style={{
+              width: '70%',
+              height: '1px',
+              backgroundColor: accentColor,
+              transform: 'rotate(-45deg)',
+              position: 'absolute',
+            }}
+          />
+          <span>{lastInitial}</span>
+        </>
+      )}
     </div>
   );
 }
@@ -222,6 +230,13 @@ function EducationEntry({ item }: { item: EducationItem }) {
 
 // ── Custom Section ────────────────────────────────────────────────
 
+function sanitizeHtml(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<iframe[\s\S]*?<\/iframe>/gi, '')
+    .replace(/\son\w+\s*=/gi, ' data-sanitized=');
+}
+
 function CustomContent({ items }: { items: CustomItem[] }) {
   return (
     <div>
@@ -229,7 +244,7 @@ function CustomContent({ items }: { items: CustomItem[] }) {
         <div
           key={i}
           style={{ marginBottom: '8px' }}
-          dangerouslySetInnerHTML={{ __html: item.content }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.content) }}
         />
       ))}
     </div>
@@ -282,7 +297,7 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
     <PageWrapper pageSize={data.pageSize} style={style}>
       {/* Header: Logo + Name + Contact */}
       <div style={{ display: 'flex', gap: '20px', marginBottom: '8px' }}>
-        <Monogram accentColor={style.accentColor} />
+        <Monogram accentColor={style.accentColor} fullName={profile.fullName} />
         <div style={{ flex: 1 }}>
           <h1
             style={{

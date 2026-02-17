@@ -19,8 +19,8 @@ CREATE TABLE resume_templates (
   columns INTEGER NOT NULL DEFAULT 1,
   style_config JSONB NOT NULL DEFAULT '{}'::jsonb,
   sort_order INTEGER NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Resume configs (a "composition" — which sections + items to include)
@@ -38,8 +38,8 @@ CREATE TABLE resume_configs (
   jd_coverage_score REAL CHECK (jd_coverage_score >= 0.0 AND jd_coverage_score <= 1.0),
   jd_analysis JSONB,
   is_active BOOLEAN NOT NULL DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Resume versions (generated PDF snapshots)
@@ -54,7 +54,7 @@ CREATE TABLE resume_versions (
   page_count INTEGER,
   generation_time_ms INTEGER,
   is_active BOOLEAN NOT NULL DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT now()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- Enforce at most one active version across all configs at the database level.
