@@ -73,6 +73,9 @@ Copy `.env.example` to `.env.local` and fill in the values:
 | `NEXT_PUBLIC_SUPABASE_URL`      | No\*     | Supabase project URL                                                  |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No\*     | Supabase anonymous/public key                                         |
 | `SUPABASE_SERVICE_ROLE_KEY`     | No\*     | Supabase service role key (server-side only, for seeding/admin setup) |
+| `NEXT_PUBLIC_SENTRY_AUTH_TOKEN` | No       | Sentry auth token for error monitoring                                |
+| `NEXT_TELEMETRY_DISABLED`       | No       | Set to `1` to disable Next.js telemetry                               |
+| `VERCEL_OIDC_TOKEN`             | No       | Vercel OIDC token (set automatically in Vercel deployments)           |
 | `E2E_ADMIN_EMAIL`               | No       | Admin email for E2E tests (tests skip without this)                   |
 | `E2E_ADMIN_PASSWORD`            | No       | Admin password for E2E tests                                          |
 
@@ -87,7 +90,7 @@ Copy `.env.example` to `.env.local` and fill in the values:
    - `supabase/storage.sql` — storage buckets and access policies
    - `supabase/auth-schema.sql` — visitor profiles and resume downloads tables
    - `supabase/auth-rls.sql` — RLS policies for auth tables
-3. Configure OAuth providers (Google, GitHub) in the Supabase dashboard
+3. Configure OAuth providers (Google, GitHub, LinkedIn) in the Supabase dashboard
 4. Seed the database: `npm run seed`
 5. Create an admin user: `npm run setup-admin`
 
