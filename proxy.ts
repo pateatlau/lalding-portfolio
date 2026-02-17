@@ -9,6 +9,13 @@ export async function proxy(request: NextRequest) {
     return supabaseResponse;
   }
 
+  // Skip session refresh on the auth callback route — getUser() with no
+  // session removes the PKCE code verifier cookie, which the callback route
+  // handler needs to exchange the auth code for a session.
+  if (request.nextUrl.pathname.startsWith('/auth/callback')) {
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
