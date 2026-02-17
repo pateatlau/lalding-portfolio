@@ -17,6 +17,7 @@ import {
   FolderOpen,
   Wrench,
   FileText,
+  FileCog,
   Users,
   LogOut,
   Menu,
@@ -40,6 +41,7 @@ const navItems = [
   { href: '/admin/projects', label: 'Projects', icon: FolderOpen },
   { href: '/admin/skills', label: 'Skills', icon: Wrench },
   { href: '/admin/resume', label: 'Resume', icon: FileText },
+  { href: '/admin/resume-builder', label: 'Resume Builder', icon: FileCog },
   { href: '/admin/visitors', label: 'Visitors', icon: Users },
 ];
 

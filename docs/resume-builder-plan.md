@@ -663,7 +663,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Component tests: render ConfigList with mock data, verify CRUD interactions
 - Component tests: render ResumeComposer with mock config + CMS data, verify section toggling and item selection
 
-### 8E Status: PENDING
+### 8E Status: DONE
 
 ---
 

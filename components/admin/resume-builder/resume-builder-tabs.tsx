@@ -1,0 +1,129 @@
+'use client';
+
+import { useState } from 'react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import ConfigList from './config-list';
+import ResumeComposer from './resume-composer';
+import type { ResumeConfigListItem } from '@/actions/resume-builder';
+import type { Experience, Project, SkillGroupWithSkills, ResumeConfig } from '@/lib/supabase/types';
+
+type TemplateListItem = {
+  id: string;
+  registry_key: string;
+  name: string;
+  description: string | null;
+  is_builtin: boolean;
+  page_size: string;
+  columns: number;
+  style_config: Record<string, unknown>;
+  sort_order: number;
+};
+
+type ResumeBuilderTabsProps = {
+  experiences: Experience[];
+  projects: Project[];
+  skillGroups: SkillGroupWithSkills[];
+  configs: ResumeConfigListItem[];
+  templates: TemplateListItem[];
+};
+
+export default function ResumeBuilderTabs({
+  experiences,
+  projects,
+  skillGroups,
+  configs: initialConfigs,
+  templates,
+}: ResumeBuilderTabsProps) {
+  const [configs, setConfigs] = useState(initialConfigs);
+  const [activeTab, setActiveTab] = useState('configs');
+  const [selectedConfig, setSelectedConfig] = useState<ResumeConfig | null>(null);
+
+  function handleSelectConfig(config: ResumeConfig) {
+    setSelectedConfig(config);
+    setActiveTab('composer');
+  }
+
+  function handleConfigsChanged(updated: ResumeConfigListItem[]) {
+    setConfigs(updated);
+  }
+
+  function handleComposerSaved(updated: ResumeConfig) {
+    setSelectedConfig(updated);
+    // Update the configs list with new name/description
+    setConfigs((prev) =>
+      prev.map((c) =>
+        c.id === updated.id
+          ? {
+              ...c,
+              name: updated.name,
+              description: updated.description,
+              updated_at: updated.updated_at,
+            }
+          : c
+      )
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Resume Builder</h1>
+        <p className="text-muted-foreground text-sm">
+          Create and manage tailored resume configurations.
+        </p>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="configs">Configs</TabsTrigger>
+          <TabsTrigger value="composer" disabled={!selectedConfig}>
+            Composer
+          </TabsTrigger>
+          <TabsTrigger value="preview" disabled>
+            Preview
+          </TabsTrigger>
+          <TabsTrigger value="templates" disabled>
+            Templates
+          </TabsTrigger>
+          <TabsTrigger value="history" disabled>
+            History
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="configs">
+          <ConfigList
+            configs={configs}
+            templates={templates}
+            onSelectConfig={handleSelectConfig}
+            onConfigsChanged={handleConfigsChanged}
+          />
+        </TabsContent>
+
+        <TabsContent value="composer">
+          {selectedConfig && (
+            <ResumeComposer
+              config={selectedConfig}
+              templates={templates}
+              experiences={experiences}
+              projects={projects}
+              skillGroups={skillGroups}
+              onSaved={handleComposerSaved}
+            />
+          )}
+        </TabsContent>
+
+        <TabsContent value="preview">
+          <p className="text-muted-foreground py-12 text-center">Coming in 8F.</p>
+        </TabsContent>
+
+        <TabsContent value="templates">
+          <p className="text-muted-foreground py-12 text-center">Coming in 8G.</p>
+        </TabsContent>
+
+        <TabsContent value="history">
+          <p className="text-muted-foreground py-12 text-center">Coming in 8G.</p>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
