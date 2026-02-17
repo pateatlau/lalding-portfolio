@@ -49,6 +49,7 @@ Three new tables. All follow existing conventions (UUID PKs, `sort_order`, RLS w
 -- Built-in templates are shipped with the app; custom templates can be added.
 CREATE TABLE resume_templates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  registry_key TEXT NOT NULL UNIQUE,     -- maps to React component in template registry ("professional", "modern")
   name TEXT NOT NULL,                    -- "Professional", "Modern", "Minimal"
   description TEXT,                      -- short description shown in template picker
   thumbnail_url TEXT,                    -- preview image (Supabase Storage path)
@@ -81,7 +82,7 @@ CREATE TABLE resume_configs (
   description TEXT,                      -- optional notes about this config
   template_id UUID REFERENCES resume_templates(id) ON DELETE SET NULL,
   -- Section inclusion & ordering (JSONB array)
-  -- Each entry: { "section": "experience"|"projects"|"skills"|"summary"|"education"|"custom",
+  -- Each entry: { "section": "experience"|"projects"|"skills"|"summary"|"custom",
   --               "enabled": true, "label": "Work Experience",
   --               "itemIds": ["uuid1","uuid2"] | null,  -- null = include all
   --               "sort_order": 0 }
@@ -112,6 +113,13 @@ CREATE TABLE resume_versions (
   is_active BOOLEAN NOT NULL DEFAULT false,  -- the version currently served for downloads
   created_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Enforce at most one active version across all configs at the database level.
+-- The activation server action should deactivate all others first, but this
+-- constraint prevents concurrent requests from leaving >1 active row.
+CREATE UNIQUE INDEX resume_versions_single_active
+  ON resume_versions ((true))
+  WHERE is_active = true;
 ```
 
 **RLS Policies** (follow existing admin-only write pattern):
@@ -145,6 +153,7 @@ CREATE POLICY "Admin all" ON resume_versions
 ```typescript
 export type ResumeTemplate = {
   id: string;
+  registry_key: string;
   name: string;
   description: string | null;
   thumbnail_url: string | null;
@@ -171,7 +180,7 @@ export type ResumeConfig = {
 };
 
 export type ResumeSectionConfig = {
-  section: 'summary' | 'experience' | 'projects' | 'skills' | 'education' | 'custom';
+  section: 'summary' | 'experience' | 'projects' | 'skills' | 'custom';
   enabled: boolean;
   label: string;
   itemIds: string[] | null; // null = include all items
@@ -256,7 +265,7 @@ The primary template is built to **pixel-match** the existing resume PDF (`temp-
 | **Work history**     | **Bold title** \| Company — Location, date right-aligned on same line                                                                                                                                                                        |
 | **Bullets**          | Standard disc bullets, indented under each role                                                                                                                                                                                              |
 | **Skills**           | Categorized by group (e.g., "Frontend", "Backend & Database") with bold group name, comma-separated skills per group. Differs from reference PDF which uses a flat two-column bullet list — we use the CMS `skill_groups` structure instead. |
-| **Education**        | Institution name, then **bold degree** on next line                                                                                                                                                                                          |
+| **Education**        | Institution name, then **bold degree** on next line. No CMS education table exists — rendered via the `custom` section type using `CustomItem` with free-form content.                                                                       |
 | **Logo**             | "L/T" monogram in a teal-bordered square, top-left corner                                                                                                                                                                                    |
 | **Page size**        | A4                                                                                                                                                                                                                                           |
 | **Margins**          | ~0.75in all sides                                                                                                                                                                                                                            |
@@ -351,23 +360,26 @@ export type ResumeTemplateComponent = React.FC<{ data: ResumeData }>;
 // components/resume-templates/registry.ts
 import type { ResumeTemplateComponent } from './types';
 
-// Lazy imports to avoid loading all templates upfront
+// Keys match the `registry_key` column in the `resume_templates` DB table.
+// The DB stores human-readable keys (not UUIDs) so the registry can look up
+// components directly without an extra mapping layer.
 const templateRegistry: Record<string, () => Promise<{ default: ResumeTemplateComponent }>> = {
   professional: () => import('./professional'),
   // Additional templates can be added here in the future:
   // modern: () => import('./modern'),
 };
 
+// Accepts a registry_key (from resume_templates.registry_key), not a UUID.
 export async function getTemplateComponent(
-  templateId: string
+  registryKey: string
 ): Promise<ResumeTemplateComponent | null> {
-  const loader = templateRegistry[templateId];
+  const loader = templateRegistry[registryKey];
   if (!loader) return null;
   const mod = await loader();
   return mod.default;
 }
 
-export function getAvailableTemplateIds(): string[] {
+export function getAvailableRegistryKeys(): string[] {
   return Object.keys(templateRegistry);
 }
 ```
@@ -428,11 +440,12 @@ The resume builder produces versions stored in the `resume` bucket alongside the
 
 1. Each `resume_version` has an `is_active` boolean (only one can be active at a time)
 2. Each `resume_config` has an `is_active` boolean (only one config can be active)
-3. When a version is "activated", the system:
+3. When a version is "activated", the `activateResumeVersion` server action:
    a. Sets `is_active = false` on all other versions
    b. Sets `is_active = true` on the selected version
    c. Updates `profile.resume_url` to point to the activated version's `pdf_storage_path`
-   d. This means the existing visitor download flow (`actions/resume.ts`) works unchanged
+   d. Steps a–c should run sequentially (Supabase doesn't support multi-statement transactions via the JS client, but the unique partial index `resume_versions_single_active` prevents concurrent activations from producing >1 active row — a constraint violation is surfaced as an error to the caller)
+   e. The existing visitor download flow (`actions/resume.ts`) works unchanged
 4. The admin can still manually upload a resume via the existing Resume Manager — this overwrites `profile.resume_url` and sets all builder versions to `is_active = false`
 5. The Resume Manager page shows which resume is currently active: a generated version or a manually uploaded file
 
@@ -522,7 +535,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
    - Section labels: uppercase, teal, bold, in left column
    - Work history: bold title | company — location, date right-aligned
    - Skills: categorized by group — bold group name, comma-separated skills (uses CMS `skill_groups` structure, not flat list from reference PDF)
-   - Education: institution name, bold degree below
+   - Education: institution name, bold degree below (uses `custom` section type — no CMS education table)
    - Inline CSS only (no Tailwind) for PDF fidelity
 
 **Testing:**
@@ -574,7 +587,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
    - `getResumeConfig(id: string)` — fetch single config with full data
    - `createResumeConfig(data: ResumeConfigInsert)` — insert + return
    - `updateResumeConfig(id: string, data: Partial<ResumeConfigInsert>)` — update + return
-   - `deleteResumeConfig(id: string)` — delete config and cascade to versions
+   - `deleteResumeConfig(id: string)` — fetch all associated versions, remove their PDFs from storage via `deleteStorageFile`, then delete config row (DB cascade removes version rows). Storage errors are logged but do not block DB cleanup.
    - `activateResumeVersion(versionId: string)` — set version as active, update `profile.resume_url`
    - `getResumeVersions(configId: string)` — fetch versions for a config, ordered by `created_at` desc
    - `deleteResumeVersion(id: string)` — delete version + clean up storage file
