@@ -12,6 +12,15 @@ import type {
   SkillGroupItem,
 } from '@/components/resume-templates/types';
 
+// Helper: dynamically loads render-to-html at runtime to avoid
+// Turbopack tracing react-dom/server into the module graph.
+async function renderToHtml(registryKey: string, data: ResumeData): Promise<string> {
+  const mod = await (Function('return import("@/lib/resume-builder/render-to-html")')() as Promise<
+    typeof import('@/lib/resume-builder/render-to-html')
+  >);
+  return mod.renderTemplateToHtml(registryKey, data);
+}
+
 const DEFAULT_STYLE: ResumeStyle = {
   primaryColor: '#1a1a1a',
   accentColor: '#2bbcb3',
@@ -181,6 +190,45 @@ export async function assembleResumeData(config: ResumeConfig): Promise<ResumeDa
   };
 }
 
+// ── previewResumeHtml ──────────────────────────────────────────────
+
+export async function previewResumeHtml(
+  configId: string
+): Promise<{ data?: { html: string; pageSize: 'A4' | 'Letter' }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+
+  // Fetch config
+  const { data: config, error: configError } = await supabase
+    .from('resume_configs')
+    .select('*')
+    .eq('id', configId)
+    .single();
+
+  if (configError || !config) {
+    return { error: 'Resume config not found' };
+  }
+
+  // Fetch template registry key
+  let registryKey = 'professional';
+  if (config.template_id) {
+    const { data: template } = await supabase
+      .from('resume_templates')
+      .select('registry_key')
+      .eq('id', config.template_id)
+      .single();
+    if (template) registryKey = template.registry_key;
+  }
+
+  // Assemble data and render to HTML
+  const resumeData = await assembleResumeData(config as ResumeConfig);
+  const html = await renderToHtml(registryKey, resumeData);
+
+  return { data: { html, pageSize: resumeData.pageSize } };
+}
+
 // ── generateResumePdf ──────────────────────────────────────────────
 
 export async function generateResumePdf(
@@ -218,8 +266,7 @@ export async function generateResumePdf(
   const resumeData = await assembleResumeData(config as ResumeConfig);
 
   // 4. Render to HTML
-  const { renderTemplateToHtml } = await import('@/lib/resume-builder/render-to-html');
-  const html = await renderTemplateToHtml(registryKey, resumeData);
+  const html = await renderToHtml(registryKey, resumeData);
 
   // 5. Generate PDF
   const { htmlToPdf } = await import('@/lib/resume-builder/render-to-pdf');

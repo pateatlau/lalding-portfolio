@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import ConfigList from './config-list';
 import ResumeComposer from './resume-composer';
+import ResumePreview from './resume-preview';
 import type { ResumeConfigListItem } from '@/actions/resume-builder';
 import type { Experience, Project, SkillGroupWithSkills, ResumeConfig } from '@/lib/supabase/types';
 
@@ -79,7 +80,7 @@ export default function ResumeBuilderTabs({
           <TabsTrigger value="composer" disabled={!selectedConfig}>
             Composer
           </TabsTrigger>
-          <TabsTrigger value="preview" disabled>
+          <TabsTrigger value="preview" disabled={!selectedConfig}>
             Preview
           </TabsTrigger>
           <TabsTrigger value="templates" disabled>
@@ -113,7 +114,7 @@ export default function ResumeBuilderTabs({
         </TabsContent>
 
         <TabsContent value="preview">
-          <p className="text-muted-foreground py-12 text-center">Coming in 8F.</p>
+          {selectedConfig && <ResumePreview config={selectedConfig} />}
         </TabsContent>
 
         <TabsContent value="templates">

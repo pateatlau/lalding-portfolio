@@ -688,7 +688,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Component tests: render ResumePreview with mock HTML, verify iframe renders, verify generate button calls server action
 - Verify loading/success/error states
 
-### 8F Status: PENDING
+### 8F Status: DONE
 
 ---
 
