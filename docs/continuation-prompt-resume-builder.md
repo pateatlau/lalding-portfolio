@@ -1,111 +1,126 @@
-# Continuation Prompt: Resume Builder — Architecture Design & Implementation Plan
+# Continuation Prompt: Resume Builder — Implementation
 
 ## Context
 
-We're building a **Resume Builder** feature for the portfolio site (lalding.in). The architecture design and phased implementation plan are in `docs/resume-builder-plan.md` (Phase 8, sub-tasks 8A–8H).
+We're implementing the **Resume Builder** feature (Phase 8) for the portfolio site (lalding.in). The full architecture design and implementation plan is in `docs/resume-builder-plan.md` — **read this file first**, it is the source of truth for everything: data model, types, template system, PDF pipeline, admin UI, and sub-task breakdown (8A–8J).
 
-The Resume Builder generates PDF resumes from existing CMS data (profile, experience, skills, projects) already stored in Supabase. The design was informed by PRD and NFR documents from a separate project called "Open Resume Engine (ORE)" (not included in the repo — they were local reference files used during the planning phase only).
+## Branch
 
-## What's Been Done
+You should be on branch `feature/resume-builder-implement` (created from `main`). If not, create it.
 
-The portfolio site has completed:
+## What's Already Built (Phases 1–7)
 
-- **Phases 1–6**: Full Supabase CMS with admin dashboard, OAuth auth, resume gating, testing, CI/CD
-- **Phase 7**: Sentry error monitoring and performance tracking
-- **Contact form email**: Working with verified `lalding.in` domain via Resend
+The portfolio site has a fully working Supabase CMS with admin dashboard:
 
-## Key Files to Read First
+- **Supabase CMS**: Tables for `profile`, `experiences`, `projects`, `skill_groups`, `skills`, `profile_stats` — all with RLS
+- **Auth**: Supabase OAuth, admin-only gated dashboard
+- **Admin dashboard**: `/admin/*` with sidebar nav (Dashboard, Profile, Experience, Projects, Skills, Resume, Visitors)
+- **File uploads**: Supabase Storage with `resume` bucket (manual upload + download tracking)
+- **Testing**: Vitest unit tests, Playwright E2E tests
+- **CI/CD**: GitHub Actions (lint → build + test + e2e in parallel) → Vercel deploy
+- **Monitoring**: Sentry error tracking
 
-- `docs/cms-and-auth-plan.md` — Master plan document (Phases 1–7)
-- `docs/resume-builder-plan.md` — Phase 8 Resume Builder plan (extracted from master plan due to file size)
-- `CLAUDE.md` — Project conventions and structure
-- `lib/supabase/types.ts` — Current Supabase schema types (existing data the builder will leverage)
-- `actions/admin.ts` — Existing admin server actions pattern
-- `components/admin/` — Existing admin UI component patterns
+## Key Files to Read
 
-## Current CMS Data Model (already in Supabase)
+Before starting any sub-task, read these:
 
-The resume builder can leverage these existing tables:
+| File                               | Why                                                                           |
+| ---------------------------------- | ----------------------------------------------------------------------------- |
+| `docs/resume-builder-plan.md`      | **THE PLAN** — architecture, schema, types, sub-tasks (8A–8J)                 |
+| `CLAUDE.md`                        | Project conventions and structure                                             |
+| `lib/supabase/types.ts`            | Current Supabase schema types (existing tables the builder uses)              |
+| `actions/admin.ts`                 | Server action patterns: `requireAdmin()`, return types, Supabase client usage |
+| `components/admin/admin-shell.tsx` | Admin sidebar nav structure (add "Resume Builder" nav item)                   |
+| `temp-downloads/resume.pdf`        | Visual reference for the "Professional" template (pixel-match target)         |
 
-| Table                     | Key Fields                                                                                                                  | Resume Relevance              |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
-| `profile`                 | `full_name`, `job_title`, `email`, `phone`, `location`, `linkedin_url`, `github_url`, `about_tech_stack`, `about_expertise` | Header, contact info, summary |
-| `experiences`             | `title`, `company`, `description`, `start_date`, `end_date`, `display_date`                                                 | Work experience section       |
-| `projects`                | `title`, `description`, `tags`, `source_code_url`, `live_site_url`                                                          | Projects section              |
-| `skill_groups` + `skills` | `category`, `name` (grouped skills)                                                                                         | Skills section                |
-| `profile_stats`           | `value`, `suffix`, `label`                                                                                                  | Optional stats/highlights     |
+## Existing Patterns to Follow
 
-## Current Architecture
+### Server Actions (`actions/admin.ts`)
 
-- **Framework**: Next.js 16 (App Router) with `proxy.ts` (Next.js 16 convention)
-- **Database**: Supabase (Postgres) with RLS
-- **Auth**: Supabase Auth (admin-only for resume builder)
-- **File storage**: Supabase Storage (already has `resume` bucket)
-- **Admin dashboard**: `/admin/*` with sidebar nav, CRUD editors, image/video uploads
-- **CI/CD**: GitHub Actions → Vercel
-- **Monitoring**: Sentry for error tracking
+```typescript
+// Discriminated union return type
+type AdminResult = { user: User; error?: undefined } | { user?: undefined; error: string };
 
-## PRD Summary (adapt for portfolio, not standalone)
+// Every server action:
+// 1. Calls requireAdmin() first
+// 2. Returns { data } on success or { error: string } on failure
+// 3. Calls revalidatePath() after mutations
+```
 
-The ORE PRD envisions a standalone resume engine. For the portfolio site, we need to **adapt** this to:
+### Admin Navigation (`components/admin/admin-shell.tsx`)
 
-- Use existing CMS data (no separate resume data model duplication)
-- Fit into the existing admin dashboard (new `/admin/resume-builder` route)
-- Single-user (admin only, not multi-tenant)
-- Template-driven HTML → PDF generation
-- Store generated PDFs in the existing Supabase `resume` bucket
+```typescript
+// Icons from lucide-react
+const navItems = [
+  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/profile', label: 'Profile', icon: User },
+  // ... existing items
+  { href: '/admin/resume', label: 'Resume', icon: FileText },
+  { href: '/admin/visitors', label: 'Visitors', icon: Users },
+];
+// Add Resume Builder between Resume and Visitors
+```
 
-### Key ORE concepts to adopt:
+### Admin Page Structure
 
-- **Resume composition**: Select/filter/reorder CMS sections for a specific resume
-- **Template system**: HTML/CSS templates with React rendering
-- **PDF generation**: Headless browser (Playwright — already a dev dependency) for HTML → PDF
-- **Versioning**: Track resume versions with template + filter config
+```
+app/admin/(dashboard)/<section>/
+├── page.tsx      # Server component: fetches data, passes to client components
+└── loading.tsx   # Skeleton loader
+```
 
-### Key ORE concepts to skip (not needed for portfolio):
+### Profile Type (note: `website_url` column is added in 8A)
 
-- Multi-user auth / user-scoped data (single admin)
-- Resume marketplace / community templates
-- SaaS features / payment integration
-- Docker deployment
-- AI layer (Phase 3 in PRD — skip entirely)
+The `profile` table currently has: `full_name`, `job_title`, `email`, `phone`, `location`, `linkedin_url`, `github_url`, `resume_url`, `about_tech_stack`, `about_expertise`, etc. The `website_url` field does NOT exist yet — it's added as part of sub-task 8A.
 
-## NFR Summary (relevant ones)
+## Sub-tasks (8A–8J)
 
-- PDF generation < 5 seconds
-- Deterministic rendering (locked Chromium version — Playwright handles this)
-- A4 and US Letter support
-- Print-optimized CSS
-- Page-break management
-- Signed URLs for generated PDFs (already have this pattern)
+All sub-task details are in `docs/resume-builder-plan.md`. Summary:
 
-## What to Do
+| Sub-task | Scope                                  | Status  |
+| -------- | -------------------------------------- | ------- |
+| **8A**   | Database schema & TypeScript types     | PENDING |
+| **8B**   | Template system & React components     | PENDING |
+| **8C**   | PDF generation server action           | PENDING |
+| **8D**   | Resume config CRUD server actions      | PENDING |
+| **8E**   | Admin UI — Config List & Composer      | PENDING |
+| **8F**   | Admin UI — Preview & Generation        | PENDING |
+| **8G**   | Admin UI — Templates & Version History | PENDING |
+| **8H**   | Testing & Polish                       | PENDING |
+| **8I**   | JD Analysis Engine (LLM-powered)       | PENDING |
+| **8J**   | JD Optimization UI                     | PENDING |
 
-1. **Read the existing plan** in `docs/resume-builder-plan.md` (architecture, data model, and sub-tasks are already designed)
-2. **Read the existing CMS data model** in `lib/supabase/types.ts`
-3. **Design the architecture** — how the resume builder integrates with the existing portfolio:
-   - New Supabase tables needed (resume configs, versions, templates)
-   - How to reference existing CMS data without duplication
-   - PDF generation approach (server action using Playwright)
-   - Template system design
-   - Admin UI pages/components needed
-4. **Write a phased implementation plan** as a new section in `docs/cms-and-auth-plan.md` (Phase 8)
-   - Break into sub-tasks (8A, 8B, 8C, etc.)
-   - Each sub-task should be implementable independently
-   - Include testing strategy per phase
-5. **Do NOT implement anything** — this is planning and design only
+## Workflow Constraints
 
-## Workflow Rules
+**These are strict rules — follow them exactly:**
 
-- Phases 1–7 plans are in `docs/cms-and-auth-plan.md`; Phase 8 (Resume Builder) is in `docs/resume-builder-plan.md`
-- Wait for user confirmation before finalizing the plan
-- Consider the existing patterns (how Phases 1–7 are structured in the plan doc)
+1. **One sub-task at a time.** Implement the current sub-task fully before moving to the next.
+2. **Read the sub-task spec first.** Before writing any code, re-read the sub-task's section in `docs/resume-builder-plan.md` to understand all requirements.
+3. **Test before declaring done.** After completing a sub-task, run:
+   - `npm run lint` — no lint errors
+   - `npm run build` — build succeeds
+   - `npm run format:check` — Prettier passes (run `npx prettier --write .` to fix)
+   - Sub-task-specific tests as defined in the plan
+4. **Wait for user confirmation** before proceeding to the next sub-task. Do NOT auto-advance.
+5. **Update status in the plan.** After completing a sub-task, change its status from `PENDING` to `DONE` in `docs/resume-builder-plan.md`.
+6. **Commit after each sub-task.** Create a descriptive commit with the sub-task ID (e.g., "Implement 8A: Database schema & types").
+7. **Follow existing patterns.** Match the coding style, file structure, and conventions already in the codebase. Read before writing.
+8. **No over-engineering.** Implement exactly what the plan specifies. Don't add features, abstractions, or "improvements" beyond the sub-task scope.
 
-## Design Questions to Address
+## CI Checks
 
-1. **Data model**: What new tables are needed? How do they reference existing CMS tables vs. duplicating data?
-2. **Template system**: How are templates stored and rendered? React components? HTML strings? CSS approach?
-3. **PDF generation**: Server action with Playwright? API route? Edge function limitations?
-4. **Admin UI**: What pages are needed? Resume list, editor/composer, preview, template picker?
-5. **Storage**: Where do generated PDFs go? How do they relate to the current manually-uploaded resume?
-6. **Integration point**: Should the generated resume replace the current manually-uploaded one, or coexist?
+Before committing, always run:
+
+```bash
+npm run lint
+npm run build
+npx prettier --write .
+npm run format:check
+```
+
+## What to Do Now
+
+1. Read `docs/resume-builder-plan.md` in full
+2. Read `lib/supabase/types.ts` and `actions/admin.ts` for existing patterns
+3. Start implementing **sub-task 8A** (Database Schema & Types)
+4. After completing 8A, run all CI checks, commit, and wait for confirmation
