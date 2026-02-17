@@ -4,6 +4,7 @@ import React from 'react';
 import { Resend } from 'resend';
 import { validateString, getErrorMessage } from '@/lib/utils';
 import ContactFormEmail from '@/email/contact-form-email';
+import AcknowledgementEmail from '@/email/acknowledgement-email';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
@@ -41,7 +42,7 @@ export const sendEmail = async (formData: FormData) => {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Laldings Portfolio Contact Form <onboarding@resend.dev>',
+      from: "Lalding's Portfolio <noreply@lalding.in>",
       to: 'laldingliana.tv@gmail.com',
       subject,
       replyTo: senderEmail,
@@ -56,6 +57,21 @@ export const sendEmail = async (formData: FormData) => {
       console.error('Resend API error:', error);
       return { error: error.message };
     }
+
+    // Send acknowledgement email to the sender (fire-and-forget, don't block the response)
+    resend.emails
+      .send({
+        from: "Lalding's Portfolio <noreply@lalding.in>",
+        to: senderEmail,
+        subject: "Thanks for reaching out — Lalding's Portfolio",
+        react: React.createElement(AcknowledgementEmail, {
+          senderName: name,
+          message: message,
+        }),
+      })
+      .catch((ackError) => {
+        console.error('Acknowledgement email failed:', ackError);
+      });
 
     return { data };
   } catch (error: unknown) {

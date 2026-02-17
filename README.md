@@ -293,7 +293,7 @@ Fork contributors without Supabase secrets will see a warning — the build uses
 
 - [ ] **Resume builder** — generate a resume PDF from admin CMS data (leveraging existing profile, experience, skills, and projects content)
 - [ ] **Sentry integration** — full error monitoring and performance tracking (previously implemented but removed due to issues; needs re-implementation)
-- [ ] **Contact form email** — fix broken email delivery in the contact section (Resend API integration)
+- [x] **Contact form email** — fixed email delivery with verified custom domain (noreply@lalding.in)
 - [ ] **UI improvements** — misc UI polish and optimizations across public site and admin dashboard
 - [ ] **SEO optimizations** — structured data, Open Graph tags, sitemap, and meta tag improvements
 
