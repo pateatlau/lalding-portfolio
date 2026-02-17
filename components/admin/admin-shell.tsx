@@ -22,6 +22,7 @@ import {
   Menu,
   ChevronRight,
 } from 'lucide-react';
+import SentryFeedback from '@/components/admin/sentry-feedback';
 
 type AdminShellProps = {
   adminUser: {
@@ -163,6 +164,8 @@ export default function AdminShell({ adminUser, children }: AdminShellProps) {
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
+
+        <SentryFeedback />
       </div>
     </>
   );

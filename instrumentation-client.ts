@@ -10,6 +10,16 @@ if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
     // Session Replay — only capture on errors (not all sessions)
     replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 1.0,
+
+    integrations: [
+      Sentry.feedbackIntegration({
+        autoInject: false,
+        colorScheme: 'system',
+        showBranding: false,
+        triggerLabel: 'Report a Bug',
+        formTitle: 'Report a Bug',
+      }),
+    ],
   });
 }
 
