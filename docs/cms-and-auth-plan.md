@@ -962,7 +962,21 @@ The following tests were built alongside their respective features:
 
 **Depends on:** admin auth setup (`e2e/auth.setup.ts`), saved auth state.
 
-### 6D Status: PENDING
+### 6D Implementation Notes
+
+- Created `e2e/admin-public-sync.spec.ts` with 1 comprehensive test that covers the full round-trip:
+  1. Reads the current profile tagline from `/admin/profile`
+  2. Edits it to a unique timestamped test value
+  3. Saves and waits for confirmation
+  4. Navigates to the public homepage `/` and verifies the new tagline is visible
+  5. Reverts the tagline to its original value via the admin editor
+  6. Verifies the public homepage shows the restored original value
+- Uses `test.skip(!hasAuth, ...)` to gracefully skip when `E2E_ADMIN_EMAIL` / `E2E_ADMIN_PASSWORD` are not set — consistent with all other `admin-*` E2E tests.
+- Filename matches `admin-*` pattern so it runs in the `admin` Playwright project with saved auth state from `auth.setup.ts`.
+- Test is self-cleaning: always reverts the change regardless of test outcome within the test flow.
+- Skips as expected locally (no admin credentials). Lint and format clean.
+
+### 6D Status: COMPLETE
 
 ---
 
