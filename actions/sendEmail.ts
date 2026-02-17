@@ -32,9 +32,13 @@ export const sendEmail = async (formData: FormData) => {
     };
   }
 
-  const name = validateString(senderName, 200) ? senderName : undefined;
-  const subject = name
-    ? `Message from ${name} via Lalding's Portfolio`
+  // Normalize: trim whitespace and strip CR/LF to prevent email header injection
+  const name = validateString(senderName, 200)
+    ? senderName.trim().replace(/[\r\n]/g, '')
+    : undefined;
+  const sanitizedName = name || undefined;
+  const subject = sanitizedName
+    ? `Message from ${sanitizedName} via Lalding's Portfolio`
     : "Message from Lalding's Portfolio Contact form";
 
   let data;
@@ -47,7 +51,7 @@ export const sendEmail = async (formData: FormData) => {
       react: React.createElement(ContactFormEmail, {
         message: message,
         senderEmail: senderEmail,
-        senderName: name,
+        senderName: sanitizedName,
       }),
     });
 
