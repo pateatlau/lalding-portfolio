@@ -42,10 +42,10 @@ test.describe('Resume Download Flow', () => {
     await page.getByRole('button', { name: /download resume/i }).click();
     await expect(page.getByText('Sign in to download')).toBeVisible();
 
-    // Click the backdrop overlay (the fixed inset-0 element behind the modal)
-    // Use force: true because the backdrop is behind the modal content
-    const backdrop = page.locator('div.fixed.inset-0').first();
-    await backdrop.click({ force: true });
+    // Click outside the modal content area to hit the backdrop overlay.
+    // The modal is centered horizontally and positioned at top 20%, so
+    // clicking the top-left corner (10, 10) reliably hits the backdrop.
+    await page.mouse.click(10, 10);
 
     await expect(page.getByText('Sign in to download')).not.toBeVisible();
   });
