@@ -14,7 +14,7 @@ Add a resume builder to the admin dashboard that generates PDF resumes from exis
 
 ## Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │                  Admin Dashboard                     │
 │  /admin/resume-builder                              │
@@ -269,7 +269,7 @@ The primary template is built to **pixel-match** the existing resume PDF (`temp-
 
 Templates are React components that accept a standardized `ResumeData` prop and render print-optimized HTML. Each template lives as a file in `components/resume-templates/`.
 
-```
+```text
 components/resume-templates/
 ├── types.ts                  # ResumeData type + TemplateComponent interface
 ├── registry.ts               # Maps template IDs to React components
@@ -412,7 +412,7 @@ async function generateResumePdf(
 - Set `page.setContent(html, { waitUntil: 'networkidle' })` for font loading
 - PDF options: `format: 'A4'` or `'Letter'`, `margin` from style config, `printBackground: true`
 - **Server-only**: Playwright runs on the server in the Node.js runtime, not edge
-- **Timeout**: 30 second timeout for PDF generation, with Sentry breadcrumb logging
+- **Timeout**: 30-second timeout for PDF generation, with Sentry breadcrumb logging
 - **Cleanup**: Always close browser in a `finally` block
 
 **Performance considerations**:
@@ -438,7 +438,7 @@ The resume builder produces versions stored in the `resume` bucket alongside the
 
 ## Admin UI Pages
 
-```
+```text
 app/admin/(dashboard)/
 ├── resume-builder/
 │   └── page.tsx              # Main resume builder page (URL: /admin/resume-builder)
@@ -456,7 +456,7 @@ The resume builder page uses a **tabbed interface** (consistent with the profile
 
 **Components** (in `components/admin/`):
 
-```
+```text
 components/admin/
 ├── resume-builder/
 │   ├── resume-builder-tabs.tsx      # Main tabbed container

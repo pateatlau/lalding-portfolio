@@ -2,9 +2,9 @@
 
 ## Context
 
-We're designing and planning a **Resume Builder** feature for the portfolio site (lalding.in). This is **planning only** — no implementation yet. The goal is to produce a comprehensive architecture design and phased implementation plan in `docs/cms-and-auth-plan.md`.
+We're building a **Resume Builder** feature for the portfolio site (lalding.in). The architecture design and phased implementation plan are in `docs/resume-builder-plan.md` (Phase 8, sub-tasks 8A–8H).
 
-The Resume Builder will generate PDF resumes from existing CMS data (profile, experience, skills, projects) already stored in Supabase. The user has PRD and NFR documents from a separate project called "Open Resume Engine (ORE)" that inform the design, but this feature is being built **into the existing portfolio site**, not as a standalone product.
+The Resume Builder generates PDF resumes from existing CMS data (profile, experience, skills, projects) already stored in Supabase. The design was informed by PRD and NFR documents from a separate project called "Open Resume Engine (ORE)" (not included in the repo — they were local reference files used during the planning phase only).
 
 ## What's Been Done
 
@@ -16,10 +16,9 @@ The portfolio site has completed:
 
 ## Key Files to Read First
 
-- `docs/cms-and-auth-plan.md` — Master plan document (all plans go here, do NOT create separate plan files)
+- `docs/cms-and-auth-plan.md` — Master plan document (Phases 1–7)
+- `docs/resume-builder-plan.md` — Phase 8 Resume Builder plan (extracted from master plan due to file size)
 - `CLAUDE.md` — Project conventions and structure
-- `temp-downloads/open-resume-engine-PRD.md` — PRD reference document (standalone product vision, adapt for portfolio integration)
-- `temp-downloads/open-resume-engine-NFR.md` — Non-functional requirements reference
 - `lib/supabase/types.ts` — Current Supabase schema types (existing data the builder will leverage)
 - `actions/admin.ts` — Existing admin server actions pattern
 - `components/admin/` — Existing admin UI component patterns
@@ -82,7 +81,7 @@ The ORE PRD envisions a standalone resume engine. For the portfolio site, we nee
 
 ## What to Do
 
-1. **Read the PRD and NFR documents** in `temp-downloads/`
+1. **Read the existing plan** in `docs/resume-builder-plan.md` (architecture, data model, and sub-tasks are already designed)
 2. **Read the existing CMS data model** in `lib/supabase/types.ts`
 3. **Design the architecture** — how the resume builder integrates with the existing portfolio:
    - New Supabase tables needed (resume configs, versions, templates)
@@ -98,7 +97,7 @@ The ORE PRD envisions a standalone resume engine. For the portfolio site, we nee
 
 ## Workflow Rules
 
-- All plans and implementation notes go in `docs/cms-and-auth-plan.md` — do NOT create separate plan files
+- Phases 1–7 plans are in `docs/cms-and-auth-plan.md`; Phase 8 (Resume Builder) is in `docs/resume-builder-plan.md`
 - Wait for user confirmation before finalizing the plan
 - Consider the existing patterns (how Phases 1–7 are structured in the plan doc)
 
