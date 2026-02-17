@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -77,6 +77,10 @@ export default function ProjectsEditor({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [formData, setFormData] = useState(EMPTY_FORM);
+  const imageUrlRef = useRef(formData.image_url);
+  imageUrlRef.current = formData.image_url;
+  const videoUrlRef = useRef(formData.demo_video_url);
+  videoUrlRef.current = formData.demo_video_url;
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
@@ -178,6 +182,24 @@ export default function ProjectsEditor({
       if (error) {
         setStatus({ type: 'error', message: error });
       } else {
+        // Clean up associated storage files
+        if (deletingProject.image_url) {
+          const imgPath = extractStoragePath(deletingProject.image_url, 'project-images');
+          if (imgPath) {
+            deleteStorageFile('project-images', imgPath).catch((err) =>
+              console.error('Failed to delete project image:', imgPath, err)
+            );
+          }
+        }
+        if (deletingProject.demo_video_url) {
+          const vidPath = extractStoragePath(deletingProject.demo_video_url, 'project-videos');
+          if (vidPath) {
+            deleteStorageFile('project-videos', vidPath).catch((err) =>
+              console.error('Failed to delete project video:', vidPath, err)
+            );
+          }
+        }
+
         setProjects((prev) => prev.filter((p) => p.id !== deletingProject.id));
         setStatus({ type: 'success', message: 'Project deleted successfully!' });
         setIsDeleteDialogOpen(false);
@@ -400,8 +422,9 @@ export default function ProjectsEditor({
             <ImageUpload
               currentUrl={formData.image_url || null}
               onUploadComplete={(_path, publicUrl) => {
-                if (formData.image_url) {
-                  const oldPath = extractStoragePath(formData.image_url, 'project-images');
+                const oldUrl = imageUrlRef.current;
+                if (oldUrl) {
+                  const oldPath = extractStoragePath(oldUrl, 'project-images');
                   if (oldPath) {
                     deleteStorageFile('project-images', oldPath).catch((err) =>
                       console.error('Failed to delete old image:', oldPath, err)
@@ -411,8 +434,9 @@ export default function ProjectsEditor({
                 setFormData((p) => ({ ...p, image_url: publicUrl }));
               }}
               onRemove={() => {
-                if (formData.image_url) {
-                  const oldPath = extractStoragePath(formData.image_url, 'project-images');
+                const oldUrl = imageUrlRef.current;
+                if (oldUrl) {
+                  const oldPath = extractStoragePath(oldUrl, 'project-images');
                   if (oldPath) {
                     deleteStorageFile('project-images', oldPath).catch((err) =>
                       console.error('Failed to delete image:', oldPath, err)
@@ -426,8 +450,9 @@ export default function ProjectsEditor({
             <VideoUpload
               currentUrl={formData.demo_video_url || null}
               onUploadComplete={(_path, publicUrl) => {
-                if (formData.demo_video_url) {
-                  const oldPath = extractStoragePath(formData.demo_video_url, 'project-videos');
+                const oldUrl = videoUrlRef.current;
+                if (oldUrl) {
+                  const oldPath = extractStoragePath(oldUrl, 'project-videos');
                   if (oldPath) {
                     deleteStorageFile('project-videos', oldPath).catch((err) =>
                       console.error('Failed to delete old video:', oldPath, err)
@@ -437,8 +462,9 @@ export default function ProjectsEditor({
                 setFormData((p) => ({ ...p, demo_video_url: publicUrl }));
               }}
               onRemove={() => {
-                if (formData.demo_video_url) {
-                  const oldPath = extractStoragePath(formData.demo_video_url, 'project-videos');
+                const oldUrl = videoUrlRef.current;
+                if (oldUrl) {
+                  const oldPath = extractStoragePath(oldUrl, 'project-videos');
                   if (oldPath) {
                     deleteStorageFile('project-videos', oldPath).catch((err) =>
                       console.error('Failed to delete video:', oldPath, err)
