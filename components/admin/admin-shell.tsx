@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -77,6 +77,11 @@ export default function AdminShell({ adminUser, children }: AdminShellProps) {
   const router = useRouter();
   const { signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   const handleSignOut = async () => {
     await signOut();
@@ -125,18 +130,20 @@ export default function AdminShell({ adminUser, children }: AdminShellProps) {
         {/* Top bar */}
         <header className="bg-card flex h-14 items-center justify-between border-b px-4">
           <div className="flex items-center gap-3">
-            {/* Mobile hamburger */}
-            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="size-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-60 p-0">
-                <SheetTitle className="sr-only">Navigation</SheetTitle>
-                {sidebarContent}
-              </SheetContent>
-            </Sheet>
+            {/* Mobile hamburger — rendered client-only to avoid Radix ID hydration mismatch */}
+            {mounted && (
+              <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden">
+                    <Menu className="size-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-60 p-0">
+                  <SheetTitle className="sr-only">Navigation</SheetTitle>
+                  {sidebarContent}
+                </SheetContent>
+              </Sheet>
+            )}
             <Breadcrumbs pathname={pathname} />
           </div>
 

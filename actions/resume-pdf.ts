@@ -13,13 +13,35 @@ import type {
   SkillGroupItem,
 } from '@/components/resume-templates/types';
 
-// Helper: dynamically loads render-to-html at runtime to avoid
-// Turbopack tracing react-dom/server into the module graph.
+// Helper: renders resume data to HTML.
+// Lazily imports react-dom/server to avoid Turbopack tracing it into the
+// module graph (which would fail the build for 'use server' files).
+// The Function() constructor creates a scope Turbopack cannot statically analyze.
 async function renderToHtml(registryKey: string, data: ResumeData): Promise<string> {
-  const mod = await (Function('return import("@/lib/resume-builder/render-to-html")')() as Promise<
-    typeof import('@/lib/resume-builder/render-to-html')
-  >);
-  return mod.renderTemplateToHtml(registryKey, data);
+  const { getTemplateComponent } = await import('@/components/resume-templates/registry');
+  const { createElement } = await import('react');
+  const { renderToStaticMarkup } = await (Function(
+    'return import("react-dom/server")'
+  )() as Promise<typeof import('react-dom/server')>);
+
+  const Template = await getTemplateComponent(registryKey);
+  if (!Template) throw new Error(`Template not found: ${registryKey}`);
+
+  const markup = renderToStaticMarkup(createElement(Template, { data }));
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800&display=swap');
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    @page { margin: 0; }
+  </style>
+</head>
+<body>${markup}</body>
+</html>`;
 }
 
 const DEFAULT_STYLE: ResumeStyle = {

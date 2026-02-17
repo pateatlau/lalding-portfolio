@@ -152,7 +152,7 @@ export default function DashboardContent({ stats }: { stats: AdminStats }) {
                     <TableCell className="hidden sm:table-cell">
                       {download.visitorCompany ?? '—'}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-muted-foreground" suppressHydrationWarning>
                       {timeAgo(download.downloadedAt)}
                     </TableCell>
                   </TableRow>

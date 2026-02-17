@@ -57,7 +57,7 @@ type StatusMessage = { type: 'success' | 'error'; message: string } | null;
 const EMPTY_FORM = {
   name: '',
   description: '',
-  template_id: '',
+  template_id: undefined as string | undefined,
 };
 
 export default function ConfigList({
@@ -87,7 +87,7 @@ export default function ConfigList({
     setFormData({
       name: config.name,
       description: config.description ?? '',
-      template_id: '', // We don't have template_id on list item, will keep current on save
+      template_id: undefined, // We don't have template_id on list item, will keep current on save
     });
     setIsDialogOpen(true);
   }
@@ -291,70 +291,72 @@ export default function ConfigList({
       )}
 
       {/* Create / Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{editingConfig ? 'Edit Config' : 'New Resume Config'}</DialogTitle>
-            <DialogDescription>
-              {editingConfig
-                ? 'Update the config name, description, or template.'
-                : 'Create a new resume configuration with default sections.'}
-            </DialogDescription>
-          </DialogHeader>
+      {isDialogOpen && (
+        <Dialog open onOpenChange={setIsDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{editingConfig ? 'Edit Config' : 'New Resume Config'}</DialogTitle>
+              <DialogDescription>
+                {editingConfig
+                  ? 'Update the config name, description, or template.'
+                  : 'Create a new resume configuration with default sections.'}
+              </DialogDescription>
+            </DialogHeader>
 
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="config-name">Name</Label>
-              <Input
-                id="config-name"
-                value={formData.name}
-                onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
-                placeholder="e.g., Frontend Focus"
-              />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="config-name">Name</Label>
+                <Input
+                  id="config-name"
+                  value={formData.name}
+                  onChange={(e) => setFormData((f) => ({ ...f, name: e.target.value }))}
+                  placeholder="e.g., Frontend Focus"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="config-description">Description</Label>
+                <Textarea
+                  id="config-description"
+                  value={formData.description}
+                  onChange={(e) => setFormData((f) => ({ ...f, description: e.target.value }))}
+                  placeholder="Optional description"
+                  rows={2}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="config-template">Template</Label>
+                <Select
+                  value={formData.template_id}
+                  onValueChange={(v) => setFormData((f) => ({ ...f, template_id: v }))}
+                >
+                  <SelectTrigger id="config-template">
+                    <SelectValue placeholder="Select a template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {templates.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>
+                        {t.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="config-description">Description</Label>
-              <Textarea
-                id="config-description"
-                value={formData.description}
-                onChange={(e) => setFormData((f) => ({ ...f, description: e.target.value }))}
-                placeholder="Optional description"
-                rows={2}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="config-template">Template</Label>
-              <Select
-                value={formData.template_id}
-                onValueChange={(v) => setFormData((f) => ({ ...f, template_id: v }))}
-              >
-                <SelectTrigger id="config-template">
-                  <SelectValue placeholder="Select a template" />
-                </SelectTrigger>
-                <SelectContent>
-                  {templates.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>
-                      {t.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isSaving}>
-              Cancel
-            </Button>
-            <Button onClick={handleSave} disabled={isSaving || !formData.name.trim()}>
-              {isSaving && <Loader2 className="mr-1 size-4 animate-spin" />}
-              {editingConfig ? 'Save' : 'Create'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isSaving}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave} disabled={isSaving || !formData.name.trim()}>
+                {isSaving && <Loader2 className="mr-1 size-4 animate-spin" />}
+                {editingConfig ? 'Save' : 'Create'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
