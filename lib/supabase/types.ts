@@ -36,6 +36,12 @@ export type Database = {
         Update: Partial<ExperienceInsert>;
         Relationships: [];
       };
+      educations: {
+        Row: Education;
+        Insert: EducationInsert;
+        Update: Partial<EducationInsert>;
+        Relationships: [];
+      };
       project_categories: {
         Row: ProjectCategory;
         Insert: ProjectCategoryInsert;
@@ -207,6 +213,19 @@ export type Experience = {
   sort_order: number;
 };
 
+export type Education = {
+  id: string;
+  institution: string;
+  degree: string;
+  field_of_study: string | null;
+  description: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  display_date: string | null;
+  institution_logo_url: string | null;
+  sort_order: number;
+};
+
 export type ProjectCategory = {
   id: string;
   name: string;
@@ -316,6 +335,19 @@ export type ExperienceInsert = {
   sort_order?: number;
 };
 
+export type EducationInsert = {
+  id?: string;
+  institution: string;
+  degree: string;
+  field_of_study?: string | null;
+  description?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  display_date?: string | null;
+  institution_logo_url?: string | null;
+  sort_order?: number;
+};
+
 export type ProjectCategoryInsert = {
   id?: string;
   name: string;
@@ -415,7 +447,7 @@ export type ResumeVersion = {
 // ---------- Resume Builder supporting types ----------
 
 export type ResumeSectionConfig = {
-  section: 'summary' | 'experience' | 'projects' | 'skills' | 'custom';
+  section: 'summary' | 'experience' | 'education' | 'projects' | 'skills' | 'custom';
   enabled: boolean;
   label: string;
   itemIds: string[] | null;

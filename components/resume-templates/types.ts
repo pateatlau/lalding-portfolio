@@ -21,7 +21,7 @@ export type ResumeData = {
 export type ResumeSection = {
   type: 'experience' | 'projects' | 'skills' | 'education' | 'custom';
   label: string;
-  items: ExperienceItem[] | ProjectItem[] | SkillGroupItem[] | CustomItem[];
+  items: ExperienceItem[] | ProjectItem[] | SkillGroupItem[] | EducationItem[] | CustomItem[];
 };
 
 export type ExperienceItem = {
@@ -42,6 +42,14 @@ export type ProjectItem = {
 export type SkillGroupItem = {
   category: string;
   skills: string[];
+};
+
+export type EducationItem = {
+  institution: string;
+  degree: string;
+  fieldOfStudy: string | null;
+  displayDate: string | null;
+  description: string | null;
 };
 
 export type CustomItem = {

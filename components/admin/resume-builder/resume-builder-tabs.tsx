@@ -8,7 +8,13 @@ import ResumePreview from './resume-preview';
 import TemplateManager from './template-manager';
 import VersionHistory from './version-history';
 import type { ResumeConfigListItem } from '@/actions/resume-builder';
-import type { Experience, Project, SkillGroupWithSkills, ResumeConfig } from '@/lib/supabase/types';
+import type {
+  Education,
+  Experience,
+  Project,
+  SkillGroupWithSkills,
+  ResumeConfig,
+} from '@/lib/supabase/types';
 
 type TemplateListItem = {
   id: string;
@@ -23,6 +29,7 @@ type TemplateListItem = {
 };
 
 type ResumeBuilderTabsProps = {
+  educations: Education[];
   experiences: Experience[];
   projects: Project[];
   skillGroups: SkillGroupWithSkills[];
@@ -31,6 +38,7 @@ type ResumeBuilderTabsProps = {
 };
 
 export default function ResumeBuilderTabs({
+  educations,
   experiences,
   projects,
   skillGroups,
@@ -106,6 +114,7 @@ export default function ResumeBuilderTabs({
             <ResumeComposer
               config={selectedConfig}
               templates={templateList}
+              educations={educations}
               experiences={experiences}
               projects={projects}
               skillGroups={skillGroups}

@@ -23,6 +23,10 @@ import {
   getAdminStats,
   updateProfile,
   updateProfileStats,
+  createEducation,
+  updateEducation,
+  deleteEducation,
+  reorderEducations,
   createExperience,
   updateExperience,
   deleteExperience,
@@ -412,6 +416,39 @@ function describeCrud({
     });
   });
 }
+
+// ─── Education CRUD ──────────────────────────────────────────
+
+describeCrud({
+  entityName: 'Education',
+  tableName: 'educations',
+  createFn: createEducation,
+  updateFn: updateEducation,
+  deleteFn: deleteEducation,
+  reorderFn: reorderEducations,
+  sampleInsert: {
+    institution: 'University of Example',
+    degree: 'B.Tech',
+    display_date: '2011 - 2015',
+    start_date: '2011-08-01',
+  },
+  sampleEntity: {
+    id: 'edu-1',
+    institution: 'University of Example',
+    degree: 'B.Tech',
+    field_of_study: 'Computer Science',
+    description: null,
+    start_date: '2011-08-01',
+    end_date: '2015-05-31',
+    display_date: '2011 - 2015',
+    institution_logo_url: null,
+    sort_order: 0,
+  },
+  createErrorMsg: 'Failed to create education',
+  updateErrorMsg: 'Failed to update education',
+  deleteErrorMsg: 'Failed to delete education',
+  reorderErrorMsg: 'Failed to reorder educations',
+});
 
 // ─── Experience CRUD ─────────────────────────────────────────
 

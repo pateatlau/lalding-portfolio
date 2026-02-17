@@ -4,6 +4,8 @@ import type {
   ResumeData,
   ResumeSection,
   ExperienceItem,
+  EducationItem,
+  ProjectItem,
   SkillGroupItem,
   CustomItem,
 } from './types';
@@ -156,7 +158,69 @@ function SkillsContent({ items }: { items: SkillGroupItem[] }) {
   );
 }
 
-// ── Custom Section (Education, etc.) ───────────────────────────────
+// ── Project Entry ───────────────────────────────────────────────
+
+function ProjectEntry({ item }: { item: ProjectItem }) {
+  return (
+    <div style={{ marginBottom: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <strong>{item.title}</strong>
+        {(item.liveSiteUrl || item.sourceCodeUrl) && (
+          <div style={{ fontSize: '9.5pt', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            {item.liveSiteUrl && <span>{item.liveSiteUrl}</span>}
+            {item.liveSiteUrl && item.sourceCodeUrl && '  |  '}
+            {item.sourceCodeUrl && <span>{item.sourceCodeUrl}</span>}
+          </div>
+        )}
+      </div>
+      <p style={{ margin: '2px 0 0 0' }}>{item.description}</p>
+      {item.tags.length > 0 && (
+        <p style={{ margin: '2px 0 0 0', fontSize: '9.5pt', color: '#555' }}>
+          {item.tags.join(', ')}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ── Education Entry ──────────────────────────────────────────────
+
+function EducationEntry({ item }: { item: EducationItem }) {
+  const bullets = (item.description ?? '')
+    .split('\n')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const subtitle = item.fieldOfStudy ? `${item.degree}, ${item.fieldOfStudy}` : item.degree;
+
+  return (
+    <div style={{ marginBottom: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+        <div>
+          <strong>{item.institution}</strong>
+          {'  |  '}
+          <span>{subtitle}</span>
+        </div>
+        {item.displayDate && (
+          <div style={{ fontSize: '9.5pt', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            {item.displayDate}
+          </div>
+        )}
+      </div>
+      {bullets.length > 0 && (
+        <ul style={{ margin: '4px 0 0 0', paddingLeft: '18px', listStyleType: 'disc' }}>
+          {bullets.map((bullet, i) => (
+            <li key={i} style={{ marginBottom: '2px' }}>
+              {bullet}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// ── Custom Section ────────────────────────────────────────────────
 
 function CustomContent({ items }: { items: CustomItem[] }) {
   return (
@@ -184,9 +248,24 @@ function SectionContent({ section }: { section: ResumeSection }) {
           ))}
         </>
       );
+    case 'projects':
+      return (
+        <>
+          {(section.items as ProjectItem[]).map((item, i) => (
+            <ProjectEntry key={i} item={item} />
+          ))}
+        </>
+      );
     case 'skills':
       return <SkillsContent items={section.items as SkillGroupItem[]} />;
     case 'education':
+      return (
+        <>
+          {(section.items as EducationItem[]).map((item, i) => (
+            <EducationEntry key={i} item={item} />
+          ))}
+        </>
+      );
     case 'custom':
       return <CustomContent items={section.items as CustomItem[]} />;
     default:

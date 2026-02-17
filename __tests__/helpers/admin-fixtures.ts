@@ -1,6 +1,7 @@
 import type {
   Profile,
   ProfileStat,
+  Education,
   Experience,
   Project,
   ProjectCategory,
@@ -62,6 +63,33 @@ export const mockExperiences: Experience[] = [
     end_date: '2019-12-31',
     display_date: 'Jan 2018 - Dec 2019',
     company_logo_url: '/companies/startup.webp',
+    sort_order: 1,
+  },
+];
+
+export const mockEducations: Education[] = [
+  {
+    id: 'edu-1',
+    institution: 'University of Example',
+    degree: 'Bachelor of Technology',
+    field_of_study: 'Computer Science',
+    description: 'Graduated with honors',
+    start_date: '2011-08-01',
+    end_date: '2015-05-31',
+    display_date: '2011 - 2015',
+    institution_logo_url: null,
+    sort_order: 0,
+  },
+  {
+    id: 'edu-2',
+    institution: 'Online Academy',
+    degree: 'Certificate',
+    field_of_study: null,
+    description: null,
+    start_date: '2016-01-01',
+    end_date: '2016-06-30',
+    display_date: '2016',
+    institution_logo_url: '/companies/academy.webp',
     sort_order: 1,
   },
 ];

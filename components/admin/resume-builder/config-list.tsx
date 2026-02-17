@@ -139,6 +139,13 @@ export default function ConfigList({
           itemIds: null,
           sort_order: 2,
         },
+        {
+          section: 'education',
+          enabled: true,
+          label: 'Education',
+          itemIds: null,
+          sort_order: 3,
+        },
       ];
       const result = await createResumeConfig(payload as Parameters<typeof createResumeConfig>[0]);
       if (result.error) {

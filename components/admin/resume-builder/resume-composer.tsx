@@ -11,6 +11,7 @@ import { updateResumeConfig } from '@/actions/resume-builder';
 import type {
   ResumeConfig,
   ResumeSectionConfig,
+  Education,
   Experience,
   Project,
   SkillGroupWithSkills,
@@ -24,6 +25,7 @@ type TemplateOption = {
 type ResumeComposerProps = {
   config: ResumeConfig;
   templates: TemplateOption[];
+  educations: Education[];
   experiences: Experience[];
   projects: Project[];
   skillGroups: SkillGroupWithSkills[];
@@ -35,14 +37,32 @@ type StatusMessage = { type: 'success' | 'error'; message: string } | null;
 export default function ResumeComposer({
   config,
   templates,
+  educations,
   experiences,
   projects,
   skillGroups,
   onSaved,
 }: ResumeComposerProps) {
-  const [sections, setSections] = useState<ResumeSectionConfig[]>(
-    config.sections as ResumeSectionConfig[]
-  );
+  const [sections, setSections] = useState<ResumeSectionConfig[]>(() => {
+    const existing = config.sections as ResumeSectionConfig[];
+    const knownTypes: Array<{ section: ResumeSectionConfig['section']; label: string }> = [
+      { section: 'experience', label: 'Work History' },
+      { section: 'education', label: 'Education' },
+      { section: 'skills', label: 'Skills' },
+      { section: 'projects', label: 'Projects' },
+    ];
+    const presentTypes = new Set(existing.map((s) => s.section));
+    const missing = knownTypes
+      .filter((k) => !presentTypes.has(k.section))
+      .map((k, i) => ({
+        section: k.section,
+        label: k.label,
+        enabled: true,
+        sort_order: existing.length + i,
+        itemIds: null,
+      }));
+    return [...existing, ...missing];
+  });
   const [customSummary, setCustomSummary] = useState(config.custom_summary ?? '');
   const [styleOverrides, setStyleOverrides] = useState<Record<string, string>>(() => {
     const ov = (config.style_overrides ?? {}) as Record<string, string>;
@@ -88,6 +108,11 @@ export default function ResumeComposer({
 
   function getItemsForSection(section: ResumeSectionConfig) {
     switch (section.section) {
+      case 'education':
+        return educations.map((e) => ({
+          id: e.id,
+          label: `${e.degree} — ${e.institution}`,
+        }));
       case 'experience':
         return experiences.map((e) => ({ id: e.id, label: `${e.title} — ${e.company}` }));
       case 'projects':

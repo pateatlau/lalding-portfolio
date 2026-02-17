@@ -9,6 +9,7 @@ import type {
   ResumeData,
   ResumeStyle,
   ExperienceItem,
+  EducationItem,
   ProjectItem,
   SkillGroupItem,
 } from '@/components/resume-templates/types';
@@ -182,6 +183,35 @@ export async function assembleResumeData(config: ResumeConfig): Promise<ResumeDa
         }));
 
         sections.push({ type: 'skills', label: sectionConfig.label, items });
+        break;
+      }
+      case 'education': {
+        const { data: educations } = await supabase
+          .from('educations')
+          .select('*')
+          .order('sort_order', { ascending: true });
+
+        let items: EducationItem[] = (educations ?? []).map((e) => ({
+          institution: e.institution,
+          degree: e.degree,
+          fieldOfStudy: e.field_of_study,
+          displayDate: e.display_date,
+          description: e.description,
+        }));
+
+        if (sectionConfig.itemIds && sectionConfig.itemIds.length > 0) {
+          const idSet = new Set(sectionConfig.itemIds);
+          const filtered = (educations ?? []).filter((e) => idSet.has(e.id));
+          items = filtered.map((e) => ({
+            institution: e.institution,
+            degree: e.degree,
+            fieldOfStudy: e.field_of_study,
+            displayDate: e.display_date,
+            description: e.description,
+          }));
+        }
+
+        sections.push({ type: 'education', label: sectionConfig.label, items });
         break;
       }
       case 'custom': {
