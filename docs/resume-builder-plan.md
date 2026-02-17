@@ -578,7 +578,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Verify HTML output is valid and contains print CSS
 - Verify inline styles use design tokens from `ResumeStyle`
 
-### 8B Status: PENDING
+### 8B Status: DONE
 
 ---
 
