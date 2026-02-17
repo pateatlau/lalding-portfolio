@@ -778,7 +778,7 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 - Project images → `project-images` bucket (public)
 - Company logos → `company-logos` bucket (public)
-- On upload, store the **storage path** in the respective table; derive public URLs at read time via `getPublicUrl()`
+- On upload, persist the **full public URL** (returned by `getPublicUrl()`) in the `image_url` / `logo_url` column so consumers can use it directly in `<Image src={...}>`. Storage cleanup uses `extractStoragePath()` to derive the path from the URL for `deleteStorageFile()`.
 - Support image preview before saving
 
 ### 5.3 Implementation Notes
@@ -798,8 +798,8 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 ### 5.4 Demo Video Uploads (Admin)
 
 - Optional short demo videos for projects → `project-videos` bucket (public)
-- On upload, store the **storage path** (e.g. `project-videos/demo.mp4`) in `projects.demo_video_url` — the public URL is derived at read time via `supabase.storage.from('project-videos').getPublicUrl(path)`. Storing the path (not the full URL) makes deletion straightforward and is resilient to CDN/URL changes.
-- Old video is deleted from storage on replacement (using the stored path)
+- On upload, persist the **full public URL** (returned by `getPublicUrl()`) in `projects.demo_video_url` — consistent with the image upload approach. Storage cleanup uses `extractStoragePath()` to derive the path from the URL for `deleteStorageFile()`.
+- Old video is deleted from storage on replacement (path derived from the stored URL)
 - Support video preview before saving
 - Visitors can view the demo video inline on the project card and download it
 - **Future**: YouTube embedding is planned but not in scope for this implementation; the `demo_video_url` field will initially store Supabase Storage paths only

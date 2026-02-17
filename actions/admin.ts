@@ -792,6 +792,14 @@ function escapeCsvField(value: string): string {
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_IMAGE_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+const ALLOWED_VIDEO_EXTS = ['mp4', 'webm'];
+
+function sanitizeExtension(filename: string, allowlist: string[], fallback: string): string {
+  const raw = filename.split('.').pop() ?? '';
+  const clean = raw.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+  return allowlist.includes(clean) ? clean : fallback;
+}
 
 export async function uploadProjectImage(
   formData: FormData
@@ -812,8 +820,7 @@ export async function uploadProjectImage(
 
   const supabase = await createClient();
 
-  // Generate a unique filename to avoid collisions
-  const ext = file.name.split('.').pop() ?? 'png';
+  const ext = sanitizeExtension(file.name, ALLOWED_IMAGE_EXTS, 'png');
   const storagePath = `${crypto.randomUUID()}.${ext}`;
 
   const { error: uploadError } = await supabase.storage
@@ -834,6 +841,7 @@ export async function uploadProjectImage(
 
 const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm'];
 const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50 MB
+const ALLOWED_STORAGE_BUCKETS = ['project-images', 'project-videos', 'company-logos', 'resume'];
 
 export async function uploadProjectVideo(
   formData: FormData
@@ -854,7 +862,7 @@ export async function uploadProjectVideo(
 
   const supabase = await createClient();
 
-  const ext = file.name.split('.').pop() ?? 'mp4';
+  const ext = sanitizeExtension(file.name, ALLOWED_VIDEO_EXTS, 'mp4');
   const storagePath = `${crypto.randomUUID()}.${ext}`;
 
   const { error: uploadError } = await supabase.storage
@@ -877,6 +885,10 @@ export async function deleteStorageFile(
   bucket: string,
   path: string
 ): Promise<{ data?: { success: true }; error?: string }> {
+  if (!ALLOWED_STORAGE_BUCKETS.includes(bucket)) {
+    return { error: 'Invalid bucket' };
+  }
+
   const adminResult = await requireAdmin();
   if (adminResult.error) return { error: adminResult.error };
 

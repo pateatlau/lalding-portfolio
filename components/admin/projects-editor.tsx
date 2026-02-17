@@ -400,11 +400,12 @@ export default function ProjectsEditor({
             <ImageUpload
               currentUrl={formData.image_url || null}
               onUploadComplete={(_path, publicUrl) => {
-                // Delete old image from storage if it was a Supabase upload
                 if (formData.image_url) {
                   const oldPath = extractStoragePath(formData.image_url, 'project-images');
                   if (oldPath) {
-                    deleteStorageFile('project-images', oldPath);
+                    deleteStorageFile('project-images', oldPath).catch((err) =>
+                      console.error('Failed to delete old image:', oldPath, err)
+                    );
                   }
                 }
                 setFormData((p) => ({ ...p, image_url: publicUrl }));
@@ -413,7 +414,9 @@ export default function ProjectsEditor({
                 if (formData.image_url) {
                   const oldPath = extractStoragePath(formData.image_url, 'project-images');
                   if (oldPath) {
-                    deleteStorageFile('project-images', oldPath);
+                    deleteStorageFile('project-images', oldPath).catch((err) =>
+                      console.error('Failed to delete image:', oldPath, err)
+                    );
                   }
                 }
                 setFormData((p) => ({ ...p, image_url: '' }));
@@ -426,7 +429,9 @@ export default function ProjectsEditor({
                 if (formData.demo_video_url) {
                   const oldPath = extractStoragePath(formData.demo_video_url, 'project-videos');
                   if (oldPath) {
-                    deleteStorageFile('project-videos', oldPath);
+                    deleteStorageFile('project-videos', oldPath).catch((err) =>
+                      console.error('Failed to delete old video:', oldPath, err)
+                    );
                   }
                 }
                 setFormData((p) => ({ ...p, demo_video_url: publicUrl }));
@@ -435,7 +440,9 @@ export default function ProjectsEditor({
                 if (formData.demo_video_url) {
                   const oldPath = extractStoragePath(formData.demo_video_url, 'project-videos');
                   if (oldPath) {
-                    deleteStorageFile('project-videos', oldPath);
+                    deleteStorageFile('project-videos', oldPath).catch((err) =>
+                      console.error('Failed to delete video:', oldPath, err)
+                    );
                   }
                 }
                 setFormData((p) => ({ ...p, demo_video_url: '' }));

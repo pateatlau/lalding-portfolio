@@ -57,6 +57,7 @@ export default function VideoUpload({
         setError(uploadError);
         setPreviewUrl(null);
       } else if (data) {
+        setPreviewUrl(null);
         onUploadComplete(data.path, data.publicUrl);
       }
     } catch (err) {
