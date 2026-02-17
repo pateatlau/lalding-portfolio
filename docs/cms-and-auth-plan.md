@@ -1265,7 +1265,7 @@ Before implementation can begin, complete these steps:
 
 ## Phase 8: Resume Builder
 
-Full architecture design, data model, template system, PDF generation pipeline, and implementation sub-tasks (8A–8H) are documented in a separate file:
+Full architecture design, data model, template system, PDF generation pipeline, JD optimization, and implementation sub-tasks (8A–8J) are documented in a separate file:
 
 **[`docs/resume-builder-plan.md`](./resume-builder-plan.md)**
 

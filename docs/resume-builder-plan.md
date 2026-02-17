@@ -91,6 +91,11 @@ CREATE TABLE resume_configs (
   style_overrides JSONB NOT NULL DEFAULT '{}'::jsonb,
   -- Summary/objective override (custom text for this resume variant)
   custom_summary TEXT,
+  -- JD Optimization (nullable — feature is optional, built in 8I/8J)
+  job_description TEXT,              -- pasted job description text
+  jd_keywords TEXT[],                -- extracted keywords from JD
+  jd_coverage_score REAL,            -- 0.0–1.0 keyword match percentage
+  jd_analysis JSONB,                 -- full analysis: { matchedKeywords, missingKeywords, suggestions }
   is_active BOOLEAN NOT NULL DEFAULT false,  -- the "active" resume used for visitor downloads
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
@@ -174,9 +179,25 @@ export type ResumeConfig = {
   sections: ResumeSectionConfig[];
   style_overrides: Record<string, unknown>;
   custom_summary: string | null;
+  job_description: string | null;
+  jd_keywords: string[] | null;
+  jd_coverage_score: number | null;
+  jd_analysis: JdAnalysisResult | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type JdAnalysisResult = {
+  matchedKeywords: string[];
+  missingKeywords: string[];
+  suggestions: JdSuggestion[];
+};
+
+export type JdSuggestion = {
+  type: 'include_experience' | 'include_project' | 'include_skill_group' | 'emphasize';
+  itemId: string;
+  reason: string;
 };
 
 export type ResumeSectionConfig = {
@@ -716,6 +737,74 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 
 ---
 
+### 8I: JD Analysis Engine
+
+**Scope:** Server-side module that accepts a job description, extracts keywords via LLM, scores coverage against CMS data, and returns suggestions for section emphasis.
+
+**Prerequisites:** Requires an LLM API key (Anthropic Claude or OpenAI). Adds `RESUME_BUILDER_LLM_API_KEY` env var. Optional feature — the resume builder works without it.
+
+**Tasks:**
+
+1. Create `lib/resume-builder/jd-analyzer.ts`:
+   - `extractKeywords(jobDescription: string)` — calls LLM to extract key skills, technologies, qualifications, and soft skills from the JD. Returns `string[]` of normalized keywords.
+   - `scoreCoverage(keywords: string[], cmsData: { experiences, projects, skillGroups })` — matches extracted keywords against CMS content (skill names, experience descriptions, project tags/descriptions). Returns `{ score: number, matchedKeywords: string[], missingKeywords: string[] }`.
+   - `generateSuggestions(keywords: string[], cmsData)` — recommends which experiences/projects/skill groups to include based on keyword relevance. Returns `JdSuggestion[]` with item IDs and reasons.
+2. Add server actions to `actions/resume-builder.ts`:
+   - `analyzeJobDescription(configId: string, jobDescription: string)` — orchestrates: extract keywords → score coverage → generate suggestions → update `resume_configs` row with results.
+   - `clearJdAnalysis(configId: string)` — clears JD fields on a config.
+3. LLM integration:
+   - Use Anthropic Claude API (Haiku model for cost efficiency, ~$0.01 per analysis)
+   - Structured prompt that returns JSON: `{ keywords: string[], categories: { technical: string[], soft: string[], qualifications: string[] } }`
+   - Guard: skip LLM call if `RESUME_BUILDER_LLM_API_KEY` is not set, return error
+   - Timeout: 15-second timeout on LLM call
+4. Keyword matching logic:
+   - Case-insensitive matching
+   - Fuzzy matching for common variations (e.g., "JS" ↔ "JavaScript", "React.js" ↔ "React")
+   - Match against: skill names, experience descriptions + titles, project descriptions + tags
+
+**Testing:**
+
+- Unit tests: mock LLM response, verify keyword extraction parsing
+- Unit tests: verify coverage scoring with known CMS data and keyword sets
+- Unit tests: verify suggestion generation picks relevant items
+- Test graceful degradation when LLM API key is not configured
+
+### 8I Status: PENDING
+
+---
+
+### 8J: JD Optimization UI
+
+**Scope:** Add JD optimization section to the Composer tab — paste JD, view keyword analysis, see coverage score, apply suggestions.
+
+**Tasks:**
+
+1. Add JD section to `components/admin/resume-builder/resume-composer.tsx` (or create a separate `jd-optimizer.tsx` component):
+   - Textarea to paste job description
+   - "Analyze" button that calls `analyzeJobDescription` server action
+   - Loading state during LLM analysis
+   - Results display:
+     - **Coverage score**: progress bar (0–100%) with color coding (red < 50%, amber 50–75%, green > 75%)
+     - **Matched keywords**: green chips/badges
+     - **Missing keywords**: amber chips/badges
+     - **Suggestions list**: each suggestion shows the recommended item (experience/project/skill group) with the reason. "Apply" button per suggestion that checks the item in the section picker.
+   - "Apply All Suggestions" button that batch-applies all recommendations to the config's sections
+   - "Clear Analysis" button to reset
+2. Persist JD and analysis results in the resume config (already saved via `analyzeJobDescription` server action)
+3. Show JD coverage score as a badge in the Config List tab (next to config name)
+4. Guard: hide the JD section entirely when `RESUME_BUILDER_LLM_API_KEY` is not configured (check via a server action or env var flag passed as prop)
+
+**Testing:**
+
+- Component tests: render JD optimizer with mock analysis results, verify keyword chips, score bar, suggestion cards
+- Component tests: verify "Apply" button updates section selections
+- Component tests: verify hidden state when LLM is not configured
+- Verify graceful UX when analysis fails (error message, retry button)
+
+### 8J Status: PENDING
+
+---
+
 ## Implementation Notes
 
 - **Playwright in production**: Playwright is currently a dev dependency used for E2E testing. For PDF generation in production (Vercel), it needs to be available at runtime. Options:
@@ -727,5 +816,6 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - **Storage path convention**: Generated PDFs stored at `generated/{configId}/{versionId}.pdf` in the `resume` bucket, separate from the manually uploaded `resume.pdf`.
 - **Active resume precedence**: `profile.resume_url` is the single source of truth for what visitors download. Both the manual upload and the "activate version" action update this same field.
 - **No data duplication**: The `config_snapshot` in `resume_versions` stores the _config_ (sections, itemIds, style) at generation time — not the CMS data itself. This allows understanding what was included in a version without duplicating experience/project/skill rows. If exact content reproduction is needed, a full data snapshot could be added later.
+- **JD Optimization LLM dependency (8I/8J)**: Uses Anthropic Claude API (Haiku model) for keyword extraction. The feature is fully optional — guarded by `RESUME_BUILDER_LLM_API_KEY` env var. When not configured, the JD section is hidden in the UI and the resume builder works as a manual composition tool. Cost: ~$0.01–0.05 per JD analysis. The LLM is only called on explicit user action ("Analyze" button), never automatically.
 
 ## Phase 8 Status: PENDING
