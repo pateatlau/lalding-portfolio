@@ -277,6 +277,26 @@ Deploy to Vercel (main branch only, gated behind all jobs)
 
 Fork contributors without Supabase secrets will see a warning — the build uses the static data fallback from `lib/data.ts`.
 
+## Architectural Decisions
+
+**ISR over SSR** — Portfolio content changes infrequently (profile updates, new projects). ISR with `revalidate = 3600` serves static pages at CDN speed while admin edits trigger on-demand revalidation via `revalidatePath('/')` for instant updates. SSR would add unnecessary per-request latency for content that rarely changes.
+
+**Supabase over self-hosted Postgres** — Supabase provides Postgres, auth, file storage, and RLS in a single managed service. This eliminates the need to self-host a database, build an auth system, and manage file uploads separately. The generous free tier covers a portfolio site's usage, and the JS client integrates directly with Next.js server components.
+
+**Signed URLs for resume downloads** — The resume PDF lives in a private Supabase Storage bucket. Signed URLs (5-minute expiry) ensure only authenticated visitors can download it, without exposing permanent public links. The short TTL limits link sharing while accommodating slow connections.
+
+**OAuth gating for resume downloads** — Requiring social login before download serves two purposes: it captures visitor identity (name, email, company) for the site owner's analytics, and it adds a lightweight friction layer that filters casual downloads. The optional fields modal (company, role) is skippable to avoid blocking motivated visitors.
+
+**Static fallback mode** — When Supabase env vars are not configured, all query functions return `null` and the app renders from `lib/data.ts`. This lets fork contributors run the site locally without a Supabase project, keeps CI builds passing without secrets, and provides a safety net if the database is temporarily unreachable.
+
+## Roadmap
+
+- [ ] **Resume builder** — generate a resume PDF from admin CMS data (leveraging existing profile, experience, skills, and projects content)
+- [ ] **Sentry integration** — full error monitoring and performance tracking (previously implemented but removed due to issues; needs re-implementation)
+- [ ] **Contact form email** — fix broken email delivery in the contact section (Resend API integration)
+- [ ] **UI improvements** — misc UI polish and optimizations across public site and admin dashboard
+- [ ] **SEO optimizations** — structured data, Open Graph tags, sitemap, and meta tag improvements
+
 ## Documentation
 
 | Document                                                               | Description                                      |
