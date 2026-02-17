@@ -5,6 +5,9 @@ import type {
   Project,
   ProjectCategory,
   SkillGroupWithSkills,
+  ResumeTemplate,
+  ResumeConfig,
+  ResumeVersion,
 } from '@/lib/supabase/types';
 import type { ResumeDownloadEntry, VisitorEntry } from '@/actions/admin';
 
@@ -165,3 +168,61 @@ export const mockVisitors: VisitorEntry[] = [
     downloadCount: 1,
   },
 ];
+
+// ── Resume Builder fixtures ───────────────────────────────────
+
+export const mockResumeTemplate: ResumeTemplate = {
+  id: 'tmpl-1',
+  registry_key: 'professional',
+  name: 'Professional',
+  description: 'Clean professional template',
+  thumbnail_url: null,
+  is_builtin: true,
+  page_size: 'A4',
+  columns: 1,
+  style_config: {
+    primaryColor: '#1a1a1a',
+    accentColor: '#2bbcb3',
+    fontFamily: 'Open Sans, sans-serif',
+    fontSize: '10pt',
+    lineHeight: '1.4',
+    margins: { top: '0.75in', right: '0.75in', bottom: '0.75in', left: '0.75in' },
+  },
+  sort_order: 0,
+  created_at: '2025-01-01T00:00:00Z',
+  updated_at: '2025-01-01T00:00:00Z',
+};
+
+export const mockResumeConfig: ResumeConfig = {
+  id: 'cfg-1',
+  name: 'Default Resume',
+  description: 'Main resume config',
+  template_id: 'tmpl-1',
+  sections: [
+    { section: 'experience', label: 'Experience', enabled: true, sort_order: 0, itemIds: [] },
+    { section: 'skills', label: 'Skills', enabled: true, sort_order: 1, itemIds: [] },
+    { section: 'projects', label: 'Projects', enabled: false, sort_order: 2, itemIds: [] },
+  ],
+  style_overrides: {},
+  custom_summary: 'Experienced engineer',
+  job_description: null,
+  jd_keywords: null,
+  jd_coverage_score: null,
+  jd_analysis: null,
+  is_active: true,
+  created_at: '2025-01-01T00:00:00Z',
+  updated_at: '2025-01-01T00:00:00Z',
+};
+
+export const mockResumeVersion: ResumeVersion = {
+  id: 'ver-1',
+  config_id: 'cfg-1',
+  template_id: 'tmpl-1',
+  config_snapshot: {},
+  pdf_storage_path: 'generated/cfg-1/ver-1.pdf',
+  pdf_file_size: 102400,
+  page_count: 1,
+  generation_time_ms: 2500,
+  is_active: true,
+  created_at: '2025-01-15T12:00:00Z',
+};

@@ -1,5 +1,6 @@
 'use server';
 
+import * as Sentry from '@sentry/nextjs';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { requireAdmin } from '@/actions/admin';
@@ -234,80 +235,109 @@ export async function previewResumeHtml(
 export async function generateResumePdf(
   configId: string
 ): Promise<{ data?: { versionId: string; path: string }; error?: string }> {
-  const adminResult = await requireAdmin();
-  if (adminResult.error) return { error: adminResult.error };
+  return Sentry.withServerActionInstrumentation('generateResumePdf', {}, async () => {
+    const adminResult = await requireAdmin();
+    if (adminResult.error) return { error: adminResult.error };
 
-  const supabase = await createClient();
+    const supabase = await createClient();
 
-  // 1. Fetch config
-  const { data: config, error: configError } = await supabase
-    .from('resume_configs')
-    .select('*')
-    .eq('id', configId)
-    .single();
-
-  if (configError || !config) {
-    console.error('generateResumePdf: config fetch failed:', configError?.message);
-    return { error: 'Resume config not found' };
-  }
-
-  // 2. Fetch template registry key
-  let registryKey = 'professional'; // default
-  if (config.template_id) {
-    const { data: template } = await supabase
-      .from('resume_templates')
-      .select('registry_key')
-      .eq('id', config.template_id)
+    // 1. Fetch config
+    Sentry.addBreadcrumb({
+      category: 'resume-pdf',
+      message: 'Fetching config',
+      data: { configId },
+    });
+    const { data: config, error: configError } = await supabase
+      .from('resume_configs')
+      .select('*')
+      .eq('id', configId)
       .single();
-    if (template) registryKey = template.registry_key;
-  }
 
-  // 3. Assemble data
-  const resumeData = await assembleResumeData(config as ResumeConfig);
+    if (configError || !config) {
+      console.error('generateResumePdf: config fetch failed:', configError?.message);
+      return { error: 'Resume config not found' };
+    }
 
-  // 4. Render to HTML
-  const html = await renderToHtml(registryKey, resumeData);
+    // 2. Fetch template registry key
+    let registryKey = 'professional'; // default
+    if (config.template_id) {
+      const { data: template } = await supabase
+        .from('resume_templates')
+        .select('registry_key')
+        .eq('id', config.template_id)
+        .single();
+      if (template) registryKey = template.registry_key;
+    }
 
-  // 5. Generate PDF
-  const { htmlToPdf } = await import('@/lib/resume-builder/render-to-pdf');
-  const startTime = Date.now();
-  const pdfBuffer = await htmlToPdf(html, {
-    pageSize: resumeData.pageSize,
-    margins: resumeData.style.margins,
+    // 3. Assemble data
+    Sentry.addBreadcrumb({
+      category: 'resume-pdf',
+      message: 'Assembling resume data',
+      data: { registryKey },
+    });
+    const resumeData = await assembleResumeData(config as ResumeConfig);
+
+    // 4. Render to HTML
+    Sentry.addBreadcrumb({ category: 'resume-pdf', message: 'Rendering HTML' });
+    const html = await renderToHtml(registryKey, resumeData);
+
+    // 5. Generate PDF
+    Sentry.addBreadcrumb({ category: 'resume-pdf', message: 'Generating PDF via Playwright' });
+    const { htmlToPdf, PdfGenerationError } = await import('@/lib/resume-builder/render-to-pdf');
+    const startTime = Date.now();
+    let pdfBuffer: Buffer;
+    try {
+      pdfBuffer = await htmlToPdf(html, {
+        pageSize: resumeData.pageSize,
+        margins: resumeData.style.margins,
+      });
+    } catch (err) {
+      if (err instanceof PdfGenerationError) {
+        Sentry.captureException(err);
+        console.error('generateResumePdf: PDF generation failed:', err.message);
+        return { error: err.message };
+      }
+      throw err;
+    }
+    const generationTimeMs = Date.now() - startTime;
+    Sentry.addBreadcrumb({
+      category: 'resume-pdf',
+      message: 'PDF generated',
+      data: { sizeBytes: pdfBuffer.length, timeMs: generationTimeMs },
+    });
+
+    // 6. Upload to storage
+    const versionId = crypto.randomUUID();
+    const storagePath = `generated/${configId}/${versionId}.pdf`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('resume')
+      .upload(storagePath, pdfBuffer, { contentType: 'application/pdf' });
+
+    if (uploadError) {
+      console.error('generateResumePdf: upload failed:', uploadError.message);
+      return { error: 'Failed to upload generated PDF' };
+    }
+
+    // 7. Insert version row
+    const { error: insertError } = await supabase.from('resume_versions').insert({
+      id: versionId,
+      config_id: configId,
+      template_id: config.template_id,
+      config_snapshot: resumeData as unknown as Record<string, unknown>,
+      pdf_storage_path: storagePath,
+      pdf_file_size: pdfBuffer.length,
+      generation_time_ms: generationTimeMs,
+      is_active: false,
+    });
+
+    if (insertError) {
+      console.error('generateResumePdf: version insert failed:', insertError.message);
+      return { error: 'PDF generated but failed to save version record' };
+    }
+
+    revalidatePath('/admin');
+
+    return { data: { versionId, path: storagePath } };
   });
-  const generationTimeMs = Date.now() - startTime;
-
-  // 6. Upload to storage
-  const versionId = crypto.randomUUID();
-  const storagePath = `generated/${configId}/${versionId}.pdf`;
-
-  const { error: uploadError } = await supabase.storage
-    .from('resume')
-    .upload(storagePath, pdfBuffer, { contentType: 'application/pdf' });
-
-  if (uploadError) {
-    console.error('generateResumePdf: upload failed:', uploadError.message);
-    return { error: 'Failed to upload generated PDF' };
-  }
-
-  // 7. Insert version row
-  const { error: insertError } = await supabase.from('resume_versions').insert({
-    id: versionId,
-    config_id: configId,
-    template_id: config.template_id,
-    config_snapshot: resumeData as unknown as Record<string, unknown>,
-    pdf_storage_path: storagePath,
-    pdf_file_size: pdfBuffer.length,
-    generation_time_ms: generationTimeMs,
-    is_active: false,
-  });
-
-  if (insertError) {
-    console.error('generateResumePdf: version insert failed:', insertError.message);
-    return { error: 'PDF generated but failed to save version record' };
-  }
-
-  revalidatePath('/admin');
-
-  return { data: { versionId, path: storagePath } };
 }

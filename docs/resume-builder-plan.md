@@ -743,7 +743,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Build succeeds
 - No regression in existing resume download flow
 
-### 8H Status: PENDING
+### 8H Status: DONE
 
 ---
 
