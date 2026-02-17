@@ -1,5 +1,6 @@
 'use server';
 
+import * as Sentry from '@sentry/nextjs';
 import { createClient } from '@/lib/supabase/server';
 import type { VisitorProfile } from '@/lib/supabase/types';
 
@@ -71,36 +72,38 @@ export async function updateVisitorOptionalFields(
 }
 
 export async function downloadResume(): Promise<{ url?: string; error?: string }> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
+  return Sentry.withServerActionInstrumentation('downloadResume', {}, async () => {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
-  if (authError || !user) {
-    return { error: 'Please sign in to download the resume' };
-  }
+    if (authError || !user) {
+      return { error: 'Please sign in to download the resume' };
+    }
 
-  // Get the resume storage path from profile
-  const { data: profile } = await supabase.from('profile').select('resume_url').single();
+    // Get the resume storage path from profile
+    const { data: profile } = await supabase.from('profile').select('resume_url').single();
 
-  if (!profile?.resume_url) {
-    return { error: 'Resume not available' };
-  }
+    if (!profile?.resume_url) {
+      return { error: 'Resume not available' };
+    }
 
-  // Generate signed URL (5-minute expiry)
-  const { data: signedUrlData, error: storageError } = await supabase.storage
-    .from('resume')
-    .createSignedUrl(profile.resume_url, 300);
+    // Generate signed URL (5-minute expiry)
+    const { data: signedUrlData, error: storageError } = await supabase.storage
+      .from('resume')
+      .createSignedUrl(profile.resume_url, 300);
 
-  if (storageError || !signedUrlData?.signedUrl) {
-    return { error: 'Failed to generate download link' };
-  }
+    if (storageError || !signedUrlData?.signedUrl) {
+      return { error: 'Failed to generate download link' };
+    }
 
-  // Log the download
-  await supabase.from('resume_downloads').insert({
-    visitor_id: user.id,
+    // Log the download
+    await supabase.from('resume_downloads').insert({
+      visitor_id: user.id,
+    });
+
+    return { url: signedUrlData.signedUrl };
   });
-
-  return { url: signedUrlData.signedUrl };
 }

@@ -15,6 +15,7 @@ Personal portfolio site for **Laldingliana Tlau Vantawl** — Full-stack Tech Le
 | Auth         | Supabase Auth (Google, GitHub, LinkedIn OAuth)                   |
 | File Storage | Supabase Storage (resume PDFs, project images/videos)            |
 | Forms/Email  | Resend API, React Email                                          |
+| Monitoring   | Sentry (error tracking, performance, user feedback)              |
 | Testing      | Vitest, Playwright, Testing Library                              |
 | CI/CD        | GitHub Actions (lint, build, test, E2E, Lighthouse CI) → Vercel  |
 
@@ -73,7 +74,10 @@ Copy `.env.example` to `.env.local` and fill in the values:
 | `NEXT_PUBLIC_SUPABASE_URL`      | No\*     | Supabase project URL                                                  |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No\*     | Supabase anonymous/public key                                         |
 | `SUPABASE_SERVICE_ROLE_KEY`     | No\*     | Supabase service role key (server-side only, for seeding/admin setup) |
-| `NEXT_PUBLIC_SENTRY_AUTH_TOKEN` | No       | Sentry auth token for error monitoring                                |
+| `NEXT_PUBLIC_SENTRY_DSN`        | No       | Sentry DSN (public ingest endpoint)                                   |
+| `SENTRY_AUTH_TOKEN`             | No       | Sentry auth token for source map uploads                              |
+| `SENTRY_ORG`                    | No       | Sentry organization slug                                              |
+| `SENTRY_PROJECT`                | No       | Sentry project slug                                                   |
 | `NEXT_TELEMETRY_DISABLED`       | No       | Set to `1` to disable Next.js telemetry                               |
 | `VERCEL_OIDC_TOKEN`             | No       | Vercel OIDC token (set automatically in Vercel deployments)           |
 | `E2E_ADMIN_EMAIL`               | No       | Admin email for E2E tests (tests skip without this)                   |
@@ -147,7 +151,8 @@ lalding-portfolio/
 │   │   ├── resume-manager.tsx    # Resume upload + log
 │   │   ├── visitors-table.tsx    # Visitors list + CSV export
 │   │   ├── image-upload.tsx      # Reusable image upload
-│   │   └── video-upload.tsx      # Reusable video upload
+│   │   ├── video-upload.tsx      # Reusable video upload
+│   │   └── sentry-feedback.tsx   # Sentry bug report widget
 │   ├── auth/                     # Auth UI components
 │   │   ├── login-modal.tsx       # Social login modal
 │   │   └── optional-fields-modal.tsx
@@ -223,6 +228,10 @@ lalding-portfolio/
 │   ├── images/                   # Project screenshots
 │   └── companies/                # Company logos
 ├── proxy.ts                      # Auth + route protection (Next.js 16)
+├── instrumentation.ts            # Sentry server/edge init hook
+├── instrumentation-client.ts     # Sentry client-side init
+├── sentry.server.config.ts       # Sentry server config
+├── sentry.edge.config.ts         # Sentry edge config
 ├── next.config.js
 ├── playwright.config.ts
 ├── vitest.config.ts
@@ -292,19 +301,19 @@ Fork contributors without Supabase secrets will see a warning — the build uses
 ## Roadmap
 
 - [ ] **Resume builder** — generate a resume PDF from admin CMS data (leveraging existing profile, experience, skills, and projects content)
-- [ ] **Sentry integration** — full error monitoring and performance tracking (previously implemented but removed due to issues; needs re-implementation)
+- [x] **Sentry integration** — error monitoring, performance tracking, source map uploads, and admin feedback widget
 - [x] **Contact form email** — fixed email delivery with verified custom domain (noreply@lalding.in)
 - [ ] **UI improvements** — misc UI polish and optimizations across public site and admin dashboard
 - [ ] **SEO optimizations** — structured data, Open Graph tags, sitemap, and meta tag improvements
 
 ## Documentation
 
-| Document                                                               | Description                                      |
-| ---------------------------------------------------------------------- | ------------------------------------------------ |
-| [CMS & Auth Plan](docs/cms-and-auth-plan.md)                           | Master plan for Supabase CMS + auth (Phases 1-6) |
-| [UI/UX Modernization Plan](docs/ui-ux-design.md)                       | Comprehensive 5-phase redesign plan (completed)  |
-| [Testing Infrastructure](docs/testing-infrastructure.md)               | Testing setup (Vitest, Playwright, coverage)     |
-| [CI/CD Pipeline](docs/CI-CD-OPTIMIZATIONS.md)                          | CI/CD pipeline architecture and optimizations    |
-| [Improvements & Optimizations](docs/improvements-and-optimizations.md) | Known issues and optimization recommendations    |
-| [Tailwind v4 Migration](docs/tailwind-v4-migration.md)                 | Tailwind CSS v3 → v4 migration notes             |
-| [Next.js 16 Migration](docs/next-16-migration.md)                      | Next.js 15 → 16 migration notes                  |
+| Document                                                               | Description                                               |
+| ---------------------------------------------------------------------- | --------------------------------------------------------- |
+| [CMS & Auth Plan](docs/cms-and-auth-plan.md)                           | Master plan for Supabase CMS + auth + Sentry (Phases 1-7) |
+| [UI/UX Modernization Plan](docs/ui-ux-design.md)                       | Comprehensive 5-phase redesign plan (completed)           |
+| [Testing Infrastructure](docs/testing-infrastructure.md)               | Testing setup (Vitest, Playwright, coverage)              |
+| [CI/CD Pipeline](docs/CI-CD-OPTIMIZATIONS.md)                          | CI/CD pipeline architecture and optimizations             |
+| [Improvements & Optimizations](docs/improvements-and-optimizations.md) | Known issues and optimization recommendations             |
+| [Tailwind v4 Migration](docs/tailwind-v4-migration.md)                 | Tailwind CSS v3 → v4 migration notes                      |
+| [Next.js 16 Migration](docs/next-16-migration.md)                      | Next.js 15 → 16 migration notes                           |
