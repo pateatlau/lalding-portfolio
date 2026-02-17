@@ -16,6 +16,7 @@ if (!RESEND_API_KEY) {
 const resend = new Resend(RESEND_API_KEY);
 
 export const sendEmail = async (formData: FormData) => {
+  const senderName = formData.get('senderName');
   const senderEmail = formData.get('senderEmail');
   const message = formData.get('message');
 
@@ -31,19 +32,31 @@ export const sendEmail = async (formData: FormData) => {
     };
   }
 
+  const name = validateString(senderName, 200) ? senderName : undefined;
+  const subject = name
+    ? `Message from ${name} via Lalding's Portfolio`
+    : "Message from Lalding's Portfolio Contact form";
+
   let data;
   try {
     data = await resend.emails.send({
       from: 'Laldings Portfolio Contact Form <onboarding@resend.dev>',
       to: 'laldingliana.tv@gmail.com',
-      subject: "Message from Lalding's Portfolio's Contact form",
+      subject,
       replyTo: senderEmail,
       react: React.createElement(ContactFormEmail, {
         message: message,
         senderEmail: senderEmail,
+        senderName: name,
       }),
     });
+
+    if (data.error) {
+      console.error('Resend API error:', data.error);
+      return { error: data.error.message };
+    }
   } catch (error: unknown) {
+    console.error('Email send failed:', error);
     return {
       error: getErrorMessage(error),
     };
