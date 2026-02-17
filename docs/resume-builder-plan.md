@@ -544,7 +544,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Verify SQL runs without errors in Supabase SQL Editor
 - Verify TypeScript types compile (`npm run build`)
 
-### 8A Status: PENDING
+### 8A Status: DONE
 
 ---
 

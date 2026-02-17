@@ -96,6 +96,47 @@ export type Database = {
           },
         ];
       };
+      resume_templates: {
+        Row: ResumeTemplate;
+        Insert: ResumeTemplateInsert;
+        Update: Partial<ResumeTemplateInsert>;
+        Relationships: [];
+      };
+      resume_configs: {
+        Row: ResumeConfig;
+        Insert: ResumeConfigInsert;
+        Update: Partial<ResumeConfigInsert>;
+        Relationships: [
+          {
+            foreignKeyName: 'resume_configs_template_id_fkey';
+            columns: ['template_id'];
+            referencedRelation: 'resume_templates';
+            referencedColumns: ['id'];
+            isOneToOne: false;
+          },
+        ];
+      };
+      resume_versions: {
+        Row: ResumeVersion;
+        Insert: ResumeVersionInsert;
+        Update: Partial<ResumeVersionInsert>;
+        Relationships: [
+          {
+            foreignKeyName: 'resume_versions_config_id_fkey';
+            columns: ['config_id'];
+            referencedRelation: 'resume_configs';
+            referencedColumns: ['id'];
+            isOneToOne: false;
+          },
+          {
+            foreignKeyName: 'resume_versions_template_id_fkey';
+            columns: ['template_id'];
+            referencedRelation: 'resume_templates';
+            referencedColumns: ['id'];
+            isOneToOne: false;
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -122,6 +163,7 @@ export type Profile = {
   linkedin_url: string | null;
   github_url: string | null;
   resume_url: string | null;
+  website_url: string | null;
   about_tech_stack: string | null;
   about_current_focus: string | null;
   about_beyond_code: string | null;
@@ -230,6 +272,7 @@ export type ProfileInsert = {
   linkedin_url?: string | null;
   github_url?: string | null;
   resume_url?: string | null;
+  website_url?: string | null;
   about_tech_stack?: string | null;
   about_current_focus?: string | null;
   about_beyond_code?: string | null;
@@ -320,6 +363,122 @@ export type ResumeDownloadInsert = {
   id?: string;
   visitor_id?: string | null;
   downloaded_at?: string;
+};
+
+// ---------- Resume Builder Row types ----------
+
+export type ResumeTemplate = {
+  id: string;
+  registry_key: string;
+  name: string;
+  description: string | null;
+  thumbnail_url: string | null;
+  is_builtin: boolean;
+  page_size: string;
+  columns: number;
+  style_config: Record<string, unknown>;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ResumeConfig = {
+  id: string;
+  name: string;
+  description: string | null;
+  template_id: string | null;
+  sections: ResumeSectionConfig[];
+  style_overrides: Record<string, unknown>;
+  custom_summary: string | null;
+  job_description: string | null;
+  jd_keywords: string[] | null;
+  jd_coverage_score: number | null;
+  jd_analysis: JdAnalysisResult | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ResumeVersion = {
+  id: string;
+  config_id: string;
+  template_id: string | null;
+  config_snapshot: Record<string, unknown>;
+  pdf_storage_path: string;
+  pdf_file_size: number | null;
+  page_count: number | null;
+  generation_time_ms: number | null;
+  is_active: boolean;
+  created_at: string;
+};
+
+// ---------- Resume Builder supporting types ----------
+
+export type ResumeSectionConfig = {
+  section: 'summary' | 'experience' | 'projects' | 'skills' | 'custom';
+  enabled: boolean;
+  label: string;
+  itemIds: string[] | null;
+  sort_order: number;
+};
+
+export type JdAnalysisResult = {
+  matchedKeywords: string[];
+  missingKeywords: string[];
+  suggestions: JdSuggestion[];
+};
+
+export type JdSuggestion = {
+  type: 'include_experience' | 'include_project' | 'include_skill_group' | 'emphasize';
+  itemId: string;
+  reason: string;
+};
+
+// ---------- Resume Builder Insert types ----------
+
+export type ResumeTemplateInsert = {
+  id?: string;
+  registry_key: string;
+  name: string;
+  description?: string | null;
+  thumbnail_url?: string | null;
+  is_builtin?: boolean;
+  page_size?: string;
+  columns?: number;
+  style_config?: Record<string, unknown>;
+  sort_order?: number;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type ResumeConfigInsert = {
+  id?: string;
+  name: string;
+  description?: string | null;
+  template_id?: string | null;
+  sections?: ResumeSectionConfig[];
+  style_overrides?: Record<string, unknown>;
+  custom_summary?: string | null;
+  job_description?: string | null;
+  jd_keywords?: string[] | null;
+  jd_coverage_score?: number | null;
+  jd_analysis?: JdAnalysisResult | null;
+  is_active?: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type ResumeVersionInsert = {
+  id?: string;
+  config_id: string;
+  template_id?: string | null;
+  config_snapshot: Record<string, unknown>;
+  pdf_storage_path: string;
+  pdf_file_size?: number | null;
+  page_count?: number | null;
+  generation_time_ms?: number | null;
+  is_active?: boolean;
+  created_at?: string;
 };
 
 // ---------- Convenience types for frontend ----------

@@ -22,6 +22,7 @@ export const mockProfile: Profile = {
   linkedin_url: 'https://linkedin.com/in/johndoe',
   github_url: 'https://github.com/johndoe',
   resume_url: 'resume.pdf',
+  website_url: null,
   about_tech_stack: 'React, TypeScript',
   about_current_focus: 'Next.js',
   about_beyond_code: 'Music',
