@@ -24,15 +24,26 @@ if (!url || !anonKey) {
 const supabase = createClient(url, anonKey);
 
 async function validate() {
-  const { error } = await supabase.from('profile').select('id').limit(1);
+  try {
+    const query = supabase.from('profile').select('id').limit(1);
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Connection timed out after 10s')), 10000)
+    );
 
-  if (error) {
-    console.error('❌ Supabase connection failed:', error.message);
+    const { error } = await Promise.race([query, timeout]);
+
+    if (error) {
+      console.error('❌ Supabase connection failed:', error.message);
+      process.exit(1);
+    }
+
+    console.log('✅ Supabase connection verified.');
+    process.exit(0);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('❌ Supabase unexpected error:', message);
     process.exit(1);
   }
-
-  console.log('✅ Supabase connection verified.');
-  process.exit(0);
 }
 
 validate();

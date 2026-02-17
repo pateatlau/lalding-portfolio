@@ -16,22 +16,26 @@ test.describe('Admin Edit → Public Site Verification', () => {
 
     // ── Step 2: Change the tagline to a unique test value ──
     const testTagline = `E2E sync test ${Date.now()}`;
-    await taglineInput.fill(testTagline);
-    await page.getByRole('button', { name: 'Save General Info' }).click();
 
-    // Wait for save confirmation
-    await expect(page.getByText(/saved/i)).toBeVisible({ timeout: 10000 });
+    try {
+      await taglineInput.fill(testTagline);
+      await page.getByRole('button', { name: 'Save General Info' }).click();
 
-    // ── Step 3: Navigate to public homepage and verify the change ──
-    await page.goto('/');
-    await expect(page.getByText(testTagline)).toBeVisible({ timeout: 10000 });
+      // Wait for save confirmation
+      await expect(page.getByText(/saved/i)).toBeVisible({ timeout: 10000 });
 
-    // ── Step 4: Revert the tagline to its original value ──
-    await page.goto('/admin/profile');
-    await expect(taglineInput).toBeVisible();
-    await taglineInput.fill(originalTagline);
-    await page.getByRole('button', { name: 'Save General Info' }).click();
-    await expect(page.getByText(/saved/i)).toBeVisible({ timeout: 10000 });
+      // ── Step 3: Navigate to public homepage and verify the change ──
+      await page.goto('/');
+      await expect(page.getByText(testTagline)).toBeVisible({ timeout: 10000 });
+    } finally {
+      // ── Step 4: Always revert the tagline to its original value ──
+      await page.goto('/admin/profile');
+      const input = page.locator('#tagline');
+      await expect(input).toBeVisible();
+      await input.fill(originalTagline);
+      await page.getByRole('button', { name: 'Save General Info' }).click();
+      await expect(page.getByText(/saved/i)).toBeVisible({ timeout: 10000 });
+    }
 
     // ── Step 5: Verify the public homepage shows the original value ──
     await page.goto('/');

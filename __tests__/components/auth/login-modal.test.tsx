@@ -49,12 +49,10 @@ describe('LoginModal', () => {
   it('calls onClose when backdrop is clicked', async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
-    const { container } = render(<LoginModal isOpen={true} onClose={onClose} />);
+    render(<LoginModal isOpen={true} onClose={onClose} />);
 
-    // The backdrop is the first child div (fixed inset-0)
-    const backdrop = container.querySelector('[class*="fixed inset-0"]');
-    expect(backdrop).not.toBeNull();
-    await user.click(backdrop!);
+    const backdrop = screen.getByTestId('backdrop');
+    await user.click(backdrop);
     expect(onClose).toHaveBeenCalledOnce();
   });
 

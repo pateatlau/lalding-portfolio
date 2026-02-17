@@ -33,6 +33,11 @@ let mockClient: MockSupabaseClient;
 // Save original env
 const originalEnv = { ...process.env };
 
+/** Spy on console.error, suppress output, and return the spy for assertions. */
+function suppressConsoleError() {
+  return vi.spyOn(console, 'error').mockImplementation(() => {});
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   mockClient = createMockSupabaseClient();
@@ -51,9 +56,16 @@ afterEach(() => {
 // ─── isSupabaseConfigured (tested indirectly) ────────────────
 
 describe('Supabase not configured', () => {
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
     delete process.env.NEXT_PUBLIC_SUPABASE_URL;
     delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
   });
 
   it('getProfile returns null when env vars are missing', async () => {
@@ -129,7 +141,7 @@ describe('getProfile', () => {
       data: null,
       error: { message: 'DB error' },
     });
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = suppressConsoleError();
     const result = await getProfile();
     expect(result).toBeNull();
     expect(consoleSpy).toHaveBeenCalledWith('getProfile error:', 'DB error');
@@ -152,7 +164,7 @@ describe('getProfileStats', () => {
       data: null,
       error: { message: 'Stats error' },
     });
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = suppressConsoleError();
     const result = await getProfileStats();
     expect(result).toBeNull();
     expect(consoleSpy).toHaveBeenCalledWith('getProfileStats error:', 'Stats error');
@@ -180,7 +192,7 @@ describe('getNavLinks', () => {
       data: null,
       error: { message: 'Nav error' },
     });
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = suppressConsoleError();
     const result = await getNavLinks();
     expect(result).toBeNull();
     expect(consoleSpy).toHaveBeenCalledWith('getNavLinks error:', 'Nav error');
@@ -208,7 +220,7 @@ describe('getCompanies', () => {
       data: null,
       error: { message: 'Companies error' },
     });
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = suppressConsoleError();
     const result = await getCompanies();
     expect(result).toBeNull();
     expect(consoleSpy).toHaveBeenCalledWith('getCompanies error:', 'Companies error');
@@ -231,7 +243,7 @@ describe('getExperiences', () => {
       data: null,
       error: { message: 'Experiences error' },
     });
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = suppressConsoleError();
     const result = await getExperiences();
     expect(result).toBeNull();
     expect(consoleSpy).toHaveBeenCalledWith('getExperiences error:', 'Experiences error');
@@ -254,7 +266,7 @@ describe('getProjectCategories', () => {
       data: null,
       error: { message: 'Categories error' },
     });
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = suppressConsoleError();
     const result = await getProjectCategories();
     expect(result).toBeNull();
     expect(consoleSpy).toHaveBeenCalledWith('getProjectCategories error:', 'Categories error');
@@ -277,7 +289,7 @@ describe('getProjects', () => {
       data: null,
       error: { message: 'Projects error' },
     });
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = suppressConsoleError();
     const result = await getProjects();
     expect(result).toBeNull();
     expect(consoleSpy).toHaveBeenCalledWith('getProjects error:', 'Projects error');
@@ -323,7 +335,7 @@ describe('getSkillGroups', () => {
       createChainMock({ data: null, error: { message: 'Groups error' } })
     );
 
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = suppressConsoleError();
     const result = await getSkillGroups();
     expect(result).toBeNull();
     expect(consoleSpy).toHaveBeenCalledWith('getSkillGroups error:', 'Groups error');
@@ -337,7 +349,7 @@ describe('getSkillGroups', () => {
         createChainMock({ data: null, error: { message: 'Skills fetch error' } })
       );
 
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = suppressConsoleError();
     const result = await getSkillGroups();
     expect(result).toBeNull();
     expect(consoleSpy).toHaveBeenCalledWith('getSkillGroups (skills) error:', 'Skills fetch error');
@@ -416,7 +428,7 @@ describe('getProfileData', () => {
       data: null,
       error: { message: 'Connection error' },
     });
-    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = suppressConsoleError();
     const result = await getProfileData();
 
     expect(result.fullName).toBe('Laldingliana Tlau Vantawl');
