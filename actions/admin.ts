@@ -787,3 +787,66 @@ function escapeCsvField(value: string): string {
   }
   return value;
 }
+
+// --- Image Upload Actions ---
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
+
+export async function uploadProjectImage(
+  formData: FormData
+): Promise<{ data?: { path: string; publicUrl: string }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const file = formData.get('file') as File | null;
+  if (!file) return { error: 'No file provided' };
+
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return { error: 'Only JPEG, PNG, WebP, and GIF images are allowed' };
+  }
+
+  if (file.size > MAX_IMAGE_SIZE) {
+    return { error: 'Image must be smaller than 5 MB' };
+  }
+
+  const supabase = await createClient();
+
+  // Generate a unique filename to avoid collisions
+  const ext = file.name.split('.').pop() ?? 'png';
+  const storagePath = `${crypto.randomUUID()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('project-images')
+    .upload(storagePath, file, { contentType: file.type });
+
+  if (uploadError) {
+    console.error('uploadProjectImage storage error:', uploadError.message);
+    return { error: 'Failed to upload image' };
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('project-images').getPublicUrl(storagePath);
+
+  return { data: { path: storagePath, publicUrl } };
+}
+
+export async function deleteStorageFile(
+  bucket: string,
+  path: string
+): Promise<{ data?: { success: true }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.storage.from(bucket).remove([path]);
+
+  if (error) {
+    console.error(`deleteStorageFile error (${bucket}/${path}):`, error.message);
+    return { error: 'Failed to delete file' };
+  }
+
+  return { data: { success: true } };
+}

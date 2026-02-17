@@ -781,7 +781,17 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 - On upload, store the **storage path** in the respective table; derive public URLs at read time via `getPublicUrl()`
 - Support image preview before saving
 
-### 5.3 Status: PENDING
+### 5.3 Implementation Notes
+
+- Created `components/admin/image-upload.tsx` — reusable image upload component with click-to-upload dashed placeholder, instant local preview via `URL.createObjectURL()`, image preview with "Replace Image" button, destructive remove button, client-side validation (JPEG/PNG/WebP/GIF, max 5 MB), loading spinner overlay, and error display.
+- Added `uploadProjectImage(formData)` server action to `actions/admin.ts` — validates file type and size, uploads to `project-images` bucket with UUID filename, returns both storage `path` and derived `publicUrl`.
+- Added `deleteStorageFile(bucket, path)` server action — generic helper to remove a file from any Supabase Storage bucket, reusable across project images, company logos, and videos.
+- Integrated `ImageUpload` into `components/admin/projects-editor.tsx`, replacing the plain "Image URL" text input. On upload, stores the full public URL in `image_url`; on replace/remove, cleans up old Supabase-hosted images via `deleteStorageFile`.
+- Added `extractStoragePath()` helper to derive storage path from Supabase public URLs for cleanup. Non-Supabase URLs (e.g. local `/images/...` paths) are left alone.
+- Stores full public URL (not storage path) in `image_url` column — matches existing code that uses `image_url` directly in `<Image src={...}>` without transformation.
+- Company logos upload deferred — the `ImageUpload` component is reusable and can be integrated into a company logos editor in a future phase.
+
+### 5.3 Status: COMPLETE
 
 ---
 
