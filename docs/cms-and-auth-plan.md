@@ -1107,6 +1107,164 @@ lib/data.ts                      # Kept as fallback initially, removed once Supa
 
 ---
 
+## Phase 7: Sentry Error Monitoring & Performance Tracking
+
+### Overview
+
+Integrate Sentry (`@sentry/nextjs`) for error monitoring and performance tracking. Sentry should be **optional** — the app works fine without Sentry env vars, matching the existing Supabase fallback pattern.
+
+### Prerequisites (User Action Required)
+
+Before implementation can begin, complete these steps:
+
+1. **Create a Sentry account** (or confirm existing one) at [sentry.io](https://sentry.io)
+2. **Create a Next.js project** in Sentry dashboard
+3. **Provide the following values:**
+   - **DSN** — the project's ingest endpoint (looks like `https://xxx@xxx.ingest.sentry.io/xxx`)
+   - **Organization slug** — from Sentry settings (e.g., `my-org`)
+   - **Project slug** — from Sentry settings (e.g., `lalding-portfolio`)
+4. **Generate an auth token** at [sentry.io/settings/auth-tokens/](https://sentry.io/settings/auth-tokens/) with scopes:
+   - `project:releases`
+   - `org:read`
+5. **Add environment variables to Vercel** (production + preview):
+   - `SENTRY_DSN`
+   - `SENTRY_AUTH_TOKEN`
+   - `SENTRY_ORG`
+   - `SENTRY_PROJECT`
+6. **Add GitHub Actions secrets** (for source map uploads in CI):
+   - `SENTRY_AUTH_TOKEN`
+   - `SENTRY_ORG`
+   - `SENTRY_PROJECT`
+   - `SENTRY_DSN`
+
+### Environment Variables
+
+| Variable                 | Public? | Where                    | Purpose                                     |
+| ------------------------ | ------- | ------------------------ | ------------------------------------------- |
+| `NEXT_PUBLIC_SENTRY_DSN` | Yes     | `.env.local`, Vercel, CI | Sentry project DSN (public ingest endpoint) |
+| `SENTRY_AUTH_TOKEN`      | No      | `.env.local`, Vercel, CI | Auth token for source map uploads           |
+| `SENTRY_ORG`             | No      | `.env.local`, Vercel, CI | Sentry organization slug                    |
+| `SENTRY_PROJECT`         | No      | `.env.local`, Vercel, CI | Sentry project slug                         |
+
+**Notes:**
+
+- DSN uses `NEXT_PUBLIC_` prefix because the client-side SDK (browser) needs access to it. DSNs are intentionally public — they're ingest endpoints, not secrets.
+- The existing `NEXT_PUBLIC_SENTRY_AUTH_TOKEN` in `.env.example` will be replaced with `SENTRY_AUTH_TOKEN` — auth tokens must not be public.
+
+---
+
+### 7A: Install SDK & Create Config Files
+
+**Scope:** Install `@sentry/nextjs`, create the four required config files, wrap `next.config.js` with `withSentryConfig`.
+
+**Tasks:**
+
+1. Install `@sentry/nextjs` (latest v10.x, compatible with Next.js 16)
+2. Create `instrumentation-client.ts` — client-side Sentry init with:
+   - DSN from `process.env.SENTRY_DSN`
+   - `tracesSampleRate: 0.1` (low to stay within free tier)
+   - `replaysSessionSampleRate: 0` (disabled — not needed for portfolio)
+   - `replaysOnErrorSampleRate: 1.0` (capture replay on errors)
+   - Guard: skip init if `SENTRY_DSN` is not set
+   - `onRouterTransitionStart` export for App Router navigation tracking
+3. Create `sentry.server.config.ts` — server-side Sentry init with:
+   - DSN from `process.env.SENTRY_DSN`
+   - `tracesSampleRate: 0.1`
+   - Guard: skip init if `SENTRY_DSN` is not set
+4. Create `sentry.edge.config.ts` — edge runtime Sentry init with:
+   - Same config as server, used by `proxy.ts` edge runtime
+   - Guard: skip init if `SENTRY_DSN` is not set
+5. Create `instrumentation.ts` — Next.js instrumentation hook:
+   - Import `sentry.server.config` when `NEXT_RUNTIME === 'nodejs'`
+   - Import `sentry.edge.config` when `NEXT_RUNTIME === 'edge'`
+   - Export `onRequestError` from `@sentry/nextjs` for server error capture
+6. Update `next.config.js` — wrap with `withSentryConfig()`:
+   - Pass `org`, `project`, `authToken` from env vars
+   - `silent: !process.env.CI` (suppress logs outside CI)
+   - `widenClientFileUpload: true` (better stack traces)
+   - `tunnelRoute: '/monitoring'` (route events through server to avoid ad blockers)
+   - Conditionally apply wrapper — if Sentry env vars are missing, export plain config
+
+**Files created:** `instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, `instrumentation.ts`
+**Files modified:** `next.config.js`
+
+### 7A Status: COMPLETE
+
+---
+
+### 7B: Error Boundary & Server Action Instrumentation
+
+**Scope:** Integrate Sentry with `global-error.tsx`, add error capture to server actions.
+
+**Tasks:**
+
+1. Update `app/global-error.tsx`:
+   - Import `@sentry/nextjs`
+   - Call `Sentry.captureException(error)` in a `useEffect` on mount
+   - Keep existing UI (NextError fallback)
+   - Guard: only call Sentry if it's initialized (check `SENTRY_DSN`)
+2. Optionally instrument critical server actions:
+   - `actions/sendEmail.ts` — wrap with `Sentry.withServerActionInstrumentation()` for contact form error tracking
+   - `actions/resume.ts` — wrap `downloadResume()` for resume download error tracking
+   - Skip admin actions (admin dashboard errors are less critical for monitoring)
+3. Update `proxy.ts` — if `tunnelRoute` is set to `/monitoring`, exclude it from the Supabase session refresh and admin auth checks
+
+**Files modified:** `app/global-error.tsx`, `actions/sendEmail.ts`, `actions/resume.ts`, `proxy.ts`
+
+### 7B Status: PENDING
+
+---
+
+### 7C: Environment Variables & CI/CD
+
+**Scope:** Update `.env.example`, add Sentry env vars to CI pipeline, configure source map uploads.
+
+**Tasks:**
+
+1. Update `.env.example`:
+   - Replace `NEXT_PUBLIC_SENTRY_AUTH_TOKEN=sntrys_xxx` with the four Sentry env vars
+   - Add comments explaining each variable and that they're optional
+2. Update `.github/workflows/ci.yml`:
+   - **Build job**: Add `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, `SENTRY_PROJECT`, `SENTRY_DSN` from secrets to the build step (enables source map upload during CI builds)
+   - Source maps are uploaded automatically by `withSentryConfig` during `next build` when auth token is present
+3. Verify source maps are **not** uploaded during dev (`next dev`) — only during production builds
+
+**Files modified:** `.env.example`, `.github/workflows/ci.yml`
+
+### 7C Status: PENDING
+
+---
+
+### 7D: Testing & Verification
+
+**Scope:** Verify Sentry integration works correctly, test fallback behavior, update existing tests.
+
+**Tasks:**
+
+1. Verify build succeeds **without** Sentry env vars (fallback/optional behavior)
+2. Verify build succeeds **with** Sentry env vars (full integration)
+3. Verify `global-error.tsx` captures exceptions to Sentry
+4. Update any existing tests that mock or test `global-error.tsx`
+5. Run full test suite (`npm run test:run`, `npm run lint`, `npm run build`, `npm run format:check`)
+6. Verify no bundle size regression beyond expected Sentry SDK addition
+
+**Files modified:** Tests as needed
+
+### 7D Status: PENDING
+
+---
+
+### Implementation Notes
+
+- **SDK version**: `@sentry/nextjs` v10.x (latest, tested with Next.js 16)
+- **Optional pattern**: All Sentry config files guard on `SENTRY_DSN` being set — matches the existing Supabase fallback pattern where the app gracefully degrades without external services
+- **Performance budget**: `tracesSampleRate: 0.1` (10% of requests) keeps within Sentry's free tier (~50K transactions/month). Can be adjusted once baseline traffic is known.
+- **Tunnel route**: `/monitoring` proxies Sentry events through the Next.js server, avoiding ad blocker interference. The `proxy.ts` file must be updated to skip this path.
+- **Source maps**: Uploaded automatically during `next build` when `SENTRY_AUTH_TOKEN` is present. The `withSentryConfig` wrapper handles this — no separate upload step needed.
+- **No `sentry.properties` file**: Org/project/auth token are configured via environment variables, not a properties file. This avoids committing secrets and keeps config in the same place as other env vars.
+
+---
+
 ## Resolved Questions
 
 1. **Admin seeding**: Setup/invite flow — build an admin setup flow rather than manual Supabase dashboard creation.
