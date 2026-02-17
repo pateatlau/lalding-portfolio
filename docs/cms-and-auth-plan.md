@@ -822,34 +822,137 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 
 ## Phase 6: Testing & Deployment
 
-### 6.1 Testing
+Phase 6 is split into sub-tasks 6A–6E, implemented sequentially with manual verification between each.
 
-| Test Type | What to Test                                                                                                             |
-| --------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Unit      | Data fetching functions, auth utilities, admin server actions                                                            |
-| Component | LoginModal, OptionalFieldsModal, admin form components                                                                   |
-| E2E       | Resume download flow (login → optional fields → download)                                                                |
-| E2E       | Admin login → edit content → verify on frontend                                                                          |
-| RLS       | Verify admin policies reject non-admin users, visitors can only access own data, public content is readable without auth |
+### Already completed in earlier phases
 
-### 6.2 Environment Variables
+The following tests were built alongside their respective features:
 
-Add to Vercel and local `.env.local`:
+**Unit / component tests** (Vitest + Testing Library):
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
-```
+- `__tests__/actions/admin.test.ts` — server actions: requireAdmin, getAdminStats, CRUD for Experience/Project/SkillGroup/Skill, uploadResume, getResumeDownloads, getVisitors, getVisitorsCsvData
+- `__tests__/components/admin/` — profile-form, experience-editor, projects-editor, skills-editor, resume-manager, visitors-table
+- `__tests__/components/` — section-heading, submit-btn, theme-switch
+- `__tests__/context/` — active-section-context, theme-context
+- `__tests__/unit/lib/` — hooks, utils
 
-Update `.env.example` and CI pipeline if needed.
+**E2E tests** (Playwright):
 
-### 6.3 CI/CD Updates
+- `e2e/navigation.spec.ts`, `e2e/theme.spec.ts`, `e2e/contact-form.spec.ts`, `e2e/accessibility.spec.ts`
+- `e2e/admin-auth.spec.ts`, `e2e/admin-dashboard.spec.ts`, `e2e/admin-profile.spec.ts`, `e2e/admin-experience.spec.ts`, `e2e/admin-projects.spec.ts`, `e2e/admin-skills.spec.ts`, `e2e/admin-resume.spec.ts`
 
-- Add Supabase env vars to GitHub Actions secrets (use a test/staging Supabase project)
-- CI builds use real Supabase connection — if queries fail, the build fails (fail-fast strategy)
-- Add a `validate-supabase` script that tests the connection before build
-- For fork contributors without Supabase access: document that `NEXT_PUBLIC_SUPABASE_URL` must be set, and builds will use the static data fallback with a logged warning
+---
+
+### 6A: Unit Tests — Data Fetching Functions
+
+**Scope:** Unit tests for all query functions in `lib/supabase/queries.ts` using the existing Supabase mock.
+
+**Tests to write (`__tests__/unit/lib/queries.test.ts`):**
+
+- All 9 query functions: `getProfile`, `getProfileStats`, `getNavLinks`, `getCompanies`, `getExperiences`, `getProjectCategories`, `getProjects`, `getSkillGroups`, `getProfileData`
+- Supabase not configured (env vars missing) → returns `null` and logs warning
+- Supabase query error → returns `null` and logs error
+- Successful query → returns correctly typed data
+- `getSkillGroups` → nests skills under their parent groups
+- `getProfileData` → maps DB snake_case columns to camelCase `ProfileData`; falls back to static profile when Supabase is not configured
+
+**Follows:** existing patterns in `__tests__/helpers/supabase-mock.ts` and `__tests__/actions/admin.test.ts`.
+
+### 6A Implementation Notes
+
+- Created `__tests__/unit/lib/queries.test.ts` with 30 tests covering all 9 query functions.
+- **Supabase not configured** (9 tests): Verifies each function returns `null` (or static fallback for `getProfileData`) when `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` are missing, and that `createClient` is never called.
+- **Successful queries** (9 tests): Each function returns correctly typed data from the mock Supabase client. Verifies the correct table is queried via `mockClient.from`.
+- **Error handling** (8 tests): Each function returns `null` and logs an error via `console.error` when the Supabase query fails. `getSkillGroups` has separate error tests for the groups fetch and the skills fetch.
+- **getSkillGroups nesting** (2 tests): Verifies skills are correctly nested under their parent group by `group_id`, and that a group with no matching skills gets an empty `skills` array.
+- **getProfileData mapping** (3 tests): Verifies DB snake_case columns are mapped to camelCase `ProfileData`, nullable fields default to empty strings/arrays, `resume_url` defaults to `'/lalding.pdf'`, and falls back to static profile on DB error.
+- Uses `process.env` manipulation with `beforeEach`/`afterEach` to test the `isSupabaseConfigured()` guard. Uses `vi.spyOn(console, 'error')` to verify error logging without polluting test output.
+- Mocks `@/lib/supabase/server` (`createClient`) following the same pattern as `admin.test.ts`. Uses `createChainMock` with `mockReturnValueOnce` for `getSkillGroups` since it calls `from()` twice.
+- All 235 tests pass (30 new + 205 existing). Lint, format, and build all pass.
+
+### 6A Status: COMPLETE
+
+---
+
+### 6B: Component Tests — Auth Components
+
+**Scope:** Component tests for `LoginModal` and `OptionalFieldsModal` using Testing Library.
+
+**Tests to write:**
+
+- `__tests__/components/auth/login-modal.test.tsx`:
+  - Renders social login buttons (Google, GitHub, LinkedIn)
+  - Calls `onClose` when backdrop/close button is clicked
+  - Calls `signInWithProvider` with correct provider on button click
+  - Does not render when `isOpen` is false
+
+- `__tests__/components/auth/optional-fields-modal.test.tsx`:
+  - Renders company and role inputs
+  - Calls `onSubmit` with field values on Continue
+  - Calls `onSkip` when Skip is clicked
+  - Does not render when `isOpen` is false
+
+**Follows:** existing component test patterns in `__tests__/components/admin/`.
+
+### 6B Status: PENDING
+
+---
+
+### 6C: E2E Test — Resume Download Flow
+
+**Scope:** Playwright E2E test covering the full auth-gated resume download flow.
+
+**Test to write (`e2e/resume-download.spec.ts`):**
+
+- Visitor clicks "Download Resume" → LoginModal appears
+- After social login → OptionalFieldsModal appears (first login)
+- After completing/skipping optional fields → download triggers
+- Already-authenticated visitor → download triggers immediately (no modals)
+
+**Note:** Requires `E2E_VISITOR_EMAIL` / `E2E_VISITOR_PASSWORD` env vars or mocked auth state. May need a test visitor account in Supabase.
+
+### 6C Status: PENDING
+
+---
+
+### 6D: E2E Test — Admin Edit → Public Site Verification
+
+**Scope:** Playwright E2E test verifying that admin edits are reflected on the public homepage.
+
+**Test to write (`e2e/admin-public-sync.spec.ts`):**
+
+- Admin logs in, edits a field (e.g., profile tagline or a project title)
+- Navigate to public homepage
+- Verify the edited content appears on the public page
+- Revert the change to leave the DB clean
+
+**Depends on:** admin auth setup (`e2e/auth.setup.ts`), saved auth state.
+
+### 6D Status: PENDING
+
+---
+
+### 6E: Environment Variables & CI/CD Updates
+
+**Scope:** Update `.env.example`, add Supabase connection validation, update CI config, document fallback for contributors.
+
+**Tasks:**
+
+1. **Update `.env.example`** — add Supabase env vars with placeholder values:
+   - `NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...`
+   - `SUPABASE_SERVICE_ROLE_KEY=eyJ...`
+
+2. **Create `scripts/validate-supabase.ts`** — lightweight script that tests Supabase connection (attempts a simple query) and exits with code 0/1. Can be run as a pre-build check.
+
+3. **Update `.github/workflows/ci.yml`**:
+   - Add Supabase env vars from GitHub Actions secrets
+   - Optionally add `validate-supabase` step before build
+   - Document that builds without Supabase env vars use the static data fallback
+
+4. **Document contributor setup** — note in `.env.example` or README that fork contributors without Supabase access will see a logged warning and the build will use static data fallback.
+
+### 6E Status: PENDING
 
 ---
 
@@ -876,8 +979,11 @@ Update `.env.example` and CI pipeline if needed.
 | 17   | 4     | Admin skills CRUD                                 | Step 12      |
 | 18   | 5     | Admin resume upload + download log                | Step 12      |
 | 19   | 4     | Admin visitors page                               | Step 12      |
-| 20   | 6     | Tests (unit, component, E2E, RLS)                 | Steps 7-19   |
-| 21   | 6     | CI/CD updates + deployment                        | Step 20      |
+| 20   | 6A    | Unit tests — data fetching functions              | Steps 7-19   |
+| 21   | 6B    | Component tests — auth components                 | Steps 7-19   |
+| 22   | 6C    | E2E test — resume download flow                   | Steps 7-19   |
+| 23   | 6D    | E2E test — admin edit → public site verification  | Steps 7-19   |
+| 24   | 6E    | Environment variables & CI/CD updates             | Steps 20-23  |
 
 ---
 
