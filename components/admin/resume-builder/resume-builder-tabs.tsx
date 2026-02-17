@@ -5,6 +5,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import ConfigList from './config-list';
 import ResumeComposer from './resume-composer';
 import ResumePreview from './resume-preview';
+import TemplateManager from './template-manager';
+import VersionHistory from './version-history';
 import type { ResumeConfigListItem } from '@/actions/resume-builder';
 import type { Experience, Project, SkillGroupWithSkills, ResumeConfig } from '@/lib/supabase/types';
 
@@ -36,6 +38,7 @@ export default function ResumeBuilderTabs({
   templates,
 }: ResumeBuilderTabsProps) {
   const [configs, setConfigs] = useState(initialConfigs);
+  const [templateList, setTemplateList] = useState(templates);
   const [activeTab, setActiveTab] = useState('configs');
   const [selectedConfig, setSelectedConfig] = useState<ResumeConfig | null>(null);
 
@@ -83,10 +86,8 @@ export default function ResumeBuilderTabs({
           <TabsTrigger value="preview" disabled={!selectedConfig}>
             Preview
           </TabsTrigger>
-          <TabsTrigger value="templates" disabled>
-            Templates
-          </TabsTrigger>
-          <TabsTrigger value="history" disabled>
+          <TabsTrigger value="templates">Templates</TabsTrigger>
+          <TabsTrigger value="history" disabled={!selectedConfig}>
             History
           </TabsTrigger>
         </TabsList>
@@ -94,7 +95,7 @@ export default function ResumeBuilderTabs({
         <TabsContent value="configs">
           <ConfigList
             configs={configs}
-            templates={templates}
+            templates={templateList}
             onSelectConfig={handleSelectConfig}
             onConfigsChanged={handleConfigsChanged}
           />
@@ -104,7 +105,7 @@ export default function ResumeBuilderTabs({
           {selectedConfig && (
             <ResumeComposer
               config={selectedConfig}
-              templates={templates}
+              templates={templateList}
               experiences={experiences}
               projects={projects}
               skillGroups={skillGroups}
@@ -118,11 +119,13 @@ export default function ResumeBuilderTabs({
         </TabsContent>
 
         <TabsContent value="templates">
-          <p className="text-muted-foreground py-12 text-center">Coming in 8G.</p>
+          <TemplateManager templates={templateList} onTemplatesChanged={setTemplateList} />
         </TabsContent>
 
         <TabsContent value="history">
-          <p className="text-muted-foreground py-12 text-center">Coming in 8G.</p>
+          {selectedConfig && (
+            <VersionHistory configId={selectedConfig.id} configName={selectedConfig.name} />
+          )}
         </TabsContent>
       </Tabs>
     </div>

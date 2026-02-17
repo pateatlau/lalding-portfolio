@@ -714,7 +714,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Component tests: render TemplateManager with mock templates, verify style editing
 - Component tests: render VersionHistory with mock versions, verify activate/download/delete actions
 
-### 8G Status: PENDING
+### 8G Status: DONE
 
 ---
 
