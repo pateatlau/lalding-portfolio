@@ -38,6 +38,7 @@ import {
   deleteStorageFile,
 } from '@/actions/admin';
 import ImageUpload from '@/components/admin/image-upload';
+import VideoUpload from '@/components/admin/video-upload';
 import type { Project, ProjectCategory } from '@/lib/supabase/types';
 
 type StatusMessage = { type: 'success' | 'error'; message: string } | null;
@@ -419,15 +420,27 @@ export default function ProjectsEditor({
               }}
             />
 
-            <div className="space-y-2">
-              <Label htmlFor="proj-video">Demo Video URL</Label>
-              <Input
-                id="proj-video"
-                value={formData.demo_video_url}
-                onChange={(e) => setFormData((p) => ({ ...p, demo_video_url: e.target.value }))}
-                placeholder="Optional video URL"
-              />
-            </div>
+            <VideoUpload
+              currentUrl={formData.demo_video_url || null}
+              onUploadComplete={(_path, publicUrl) => {
+                if (formData.demo_video_url) {
+                  const oldPath = extractStoragePath(formData.demo_video_url, 'project-videos');
+                  if (oldPath) {
+                    deleteStorageFile('project-videos', oldPath);
+                  }
+                }
+                setFormData((p) => ({ ...p, demo_video_url: publicUrl }));
+              }}
+              onRemove={() => {
+                if (formData.demo_video_url) {
+                  const oldPath = extractStoragePath(formData.demo_video_url, 'project-videos');
+                  if (oldPath) {
+                    deleteStorageFile('project-videos', oldPath);
+                  }
+                }
+                setFormData((p) => ({ ...p, demo_video_url: '' }));
+              }}
+            />
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">

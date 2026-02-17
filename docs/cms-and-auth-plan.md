@@ -804,7 +804,19 @@ Installed: `button`, `badge`, `card`, `tooltip` (pre-existing) + `table`, `dialo
 - Visitors can view the demo video inline on the project card and download it
 - **Future**: YouTube embedding is planned but not in scope for this implementation; the `demo_video_url` field will initially store Supabase Storage paths only
 
-### 5.4 Status: PENDING
+### 5.4 Implementation Notes
+
+- Added `uploadProjectVideo(formData)` server action to `actions/admin.ts` — validates file type (MP4/WebM) and size (max 50 MB), uploads to `project-videos` bucket with UUID filename, returns storage `path` and `publicUrl`.
+- Created `components/admin/video-upload.tsx` — reusable video upload component following the same pattern as `ImageUpload`: click-to-upload placeholder with `Film` icon, `<video>` preview with controls, replace/remove buttons, client-side validation, loading overlay, error display.
+- Integrated `VideoUpload` into `components/admin/projects-editor.tsx`, replacing the plain "Demo Video URL" text input. On replace/remove, cleans up old Supabase-hosted videos via `deleteStorageFile`.
+- Updated `components/project.tsx` (public project card) to support inline video playback:
+  - Destructures `demoVideoUrl` from `ProjectData` props.
+  - Desktop: when `demoVideoUrl` is present, renders a `<video>` element (with controls) in place of the static `<Image>`, using the same absolute positioning and hover animations.
+  - Mobile: renders a full-width `<video>` element below the project description (since desktop media is hidden on mobile).
+  - When no video is present, falls back to the existing `<Image>` behavior.
+- Stores full public URL (not storage path) in `demo_video_url` column — consistent with `image_url` approach from Phase 5.3.
+
+### 5.4 Status: COMPLETE
 
 ---
 

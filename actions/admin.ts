@@ -832,6 +832,47 @@ export async function uploadProjectImage(
   return { data: { path: storagePath, publicUrl } };
 }
 
+const ALLOWED_VIDEO_TYPES = ['video/mp4', 'video/webm'];
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // 50 MB
+
+export async function uploadProjectVideo(
+  formData: FormData
+): Promise<{ data?: { path: string; publicUrl: string }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const file = formData.get('file') as File | null;
+  if (!file) return { error: 'No file provided' };
+
+  if (!ALLOWED_VIDEO_TYPES.includes(file.type)) {
+    return { error: 'Only MP4 and WebM videos are allowed' };
+  }
+
+  if (file.size > MAX_VIDEO_SIZE) {
+    return { error: 'Video must be smaller than 50 MB' };
+  }
+
+  const supabase = await createClient();
+
+  const ext = file.name.split('.').pop() ?? 'mp4';
+  const storagePath = `${crypto.randomUUID()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('project-videos')
+    .upload(storagePath, file, { contentType: file.type });
+
+  if (uploadError) {
+    console.error('uploadProjectVideo storage error:', uploadError.message);
+    return { error: 'Failed to upload video' };
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('project-videos').getPublicUrl(storagePath);
+
+  return { data: { path: storagePath, publicUrl } };
+}
+
 export async function deleteStorageFile(
   bucket: string,
   path: string
