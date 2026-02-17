@@ -605,7 +605,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Unit tests: verify `renderTemplateToHtml` produces valid HTML with expected content
 - Integration test (optional): generate an actual PDF with Playwright in a test, verify buffer is non-empty and > 1 KB
 
-### 8C Status: PENDING
+### 8C Status: DONE
 
 ---
 
