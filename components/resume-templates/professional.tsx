@@ -1,3 +1,7 @@
+// This template uses inline styles intentionally — it is rendered to static HTML
+// by Playwright for PDF generation, where the compiled Tailwind stylesheet is
+// not available. Inline styles guarantee visual fidelity in the headless context.
+
 import PageWrapper from './shared/page-wrapper';
 import SectionHeading from './shared/section-heading';
 import type {
@@ -76,7 +80,14 @@ function ContactLine({ profile }: { profile: ResumeData['profile'] }) {
           {links.map((link, i) => (
             <span key={link.label}>
               {i > 0 && '  |  '}
-              <strong>{link.label}:</strong> <span style={{ color: '#333' }}>{link.url}</span>
+              <strong>{link.label}:</strong>{' '}
+              <a
+                href={link.url}
+                rel="noopener noreferrer"
+                style={{ color: '#333', textDecoration: 'none' }}
+              >
+                {link.url}
+              </a>
             </span>
           ))}
         </>
@@ -175,9 +186,25 @@ function ProjectEntry({ item }: { item: ProjectItem }) {
         <strong>{item.title}</strong>
         {(item.liveSiteUrl || item.sourceCodeUrl) && (
           <div style={{ fontSize: '9.5pt', whiteSpace: 'nowrap', flexShrink: 0 }}>
-            {item.liveSiteUrl && <span>{item.liveSiteUrl}</span>}
+            {item.liveSiteUrl && (
+              <a
+                href={item.liveSiteUrl}
+                rel="noopener noreferrer"
+                style={{ color: 'inherit', textDecoration: 'none' }}
+              >
+                {item.liveSiteUrl}
+              </a>
+            )}
             {item.liveSiteUrl && item.sourceCodeUrl && '  |  '}
-            {item.sourceCodeUrl && <span>{item.sourceCodeUrl}</span>}
+            {item.sourceCodeUrl && (
+              <a
+                href={item.sourceCodeUrl}
+                rel="noopener noreferrer"
+                style={{ color: 'inherit', textDecoration: 'none' }}
+              >
+                {item.sourceCodeUrl}
+              </a>
+            )}
           </div>
         )}
       </div>
@@ -313,6 +340,20 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
           >
             {profile.fullName}
           </h1>
+          {profile.jobTitle && (
+            <div
+              style={{
+                fontFamily: style.headingFontFamily,
+                fontSize: '13pt',
+                fontWeight: 600,
+                lineHeight: '1.3',
+                color: style.accentColor,
+                marginTop: '2px',
+              }}
+            >
+              {profile.jobTitle}
+            </div>
+          )}
         </div>
       </div>
 

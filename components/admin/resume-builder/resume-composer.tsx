@@ -37,7 +37,10 @@ export default function ResumeComposer({
   onSaved,
 }: ResumeComposerProps) {
   const [sections, setSections] = useState<ResumeSectionConfig[]>(() => {
-    const existing = config.sections as ResumeSectionConfig[];
+    // Filter out 'summary' — it's managed separately via customSummary
+    const existing = (config.sections as ResumeSectionConfig[]).filter(
+      (s) => s.section !== 'summary'
+    );
     const knownTypes: Array<{ section: ResumeSectionConfig['section']; label: string }> = [
       { section: 'experience', label: 'Work History' },
       { section: 'education', label: 'Education' },

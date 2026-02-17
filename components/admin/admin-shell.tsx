@@ -102,7 +102,9 @@ export default function AdminShell({ adminUser, children }: AdminShellProps) {
       <Separator className="mb-4" />
       {navItems.map((item) => {
         const isActive =
-          item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
+          item.href === '/admin'
+            ? pathname === '/admin'
+            : pathname === item.href || pathname.startsWith(item.href + '/');
         return (
           <Link
             key={item.href}

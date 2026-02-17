@@ -117,9 +117,13 @@ export default function EducationEditor({
           setIsDialogOpen(false);
         }
       } else {
+        const nextSortOrder =
+          educations.length > 0
+            ? Math.max(...educations.map((e) => Number(e.sort_order ?? 0))) + 1
+            : 0;
         const { data, error } = await createEducation({
           ...payload,
-          sort_order: educations.length,
+          sort_order: nextSortOrder,
         });
         if (error) {
           setStatus({ type: 'error', message: error });

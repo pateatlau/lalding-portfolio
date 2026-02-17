@@ -118,24 +118,17 @@ export async function assembleResumeData(config: ResumeConfig): Promise<ResumeDa
           .select('*')
           .order('sort_order', { ascending: true });
 
-        let items: ExperienceItem[] = (experiences ?? []).map((e) => ({
+        let raw = experiences ?? [];
+        if (sectionConfig.itemIds && sectionConfig.itemIds.length > 0) {
+          const idSet = new Set(sectionConfig.itemIds);
+          raw = raw.filter((e) => idSet.has(e.id));
+        }
+        const items: ExperienceItem[] = raw.map((e) => ({
           title: e.title,
-          company: `${e.company}`,
+          company: e.company,
           displayDate: e.display_date,
           description: e.description,
         }));
-
-        // Filter by itemIds if specified
-        if (sectionConfig.itemIds && sectionConfig.itemIds.length > 0) {
-          const idSet = new Set(sectionConfig.itemIds);
-          const filtered = (experiences ?? []).filter((e) => idSet.has(e.id));
-          items = filtered.map((e) => ({
-            title: e.title,
-            company: `${e.company}`,
-            displayDate: e.display_date,
-            description: e.description,
-          }));
-        }
 
         sections.push({ type: 'experience', label: sectionConfig.label, items });
         break;
@@ -146,25 +139,18 @@ export async function assembleResumeData(config: ResumeConfig): Promise<ResumeDa
           .select('*')
           .order('sort_order', { ascending: true });
 
-        let items: ProjectItem[] = (projects ?? []).map((p) => ({
+        let raw = projects ?? [];
+        if (sectionConfig.itemIds && sectionConfig.itemIds.length > 0) {
+          const idSet = new Set(sectionConfig.itemIds);
+          raw = raw.filter((p) => idSet.has(p.id));
+        }
+        const items: ProjectItem[] = raw.map((p) => ({
           title: p.title,
           description: p.description,
           tags: p.tags,
           sourceCodeUrl: p.source_code_url,
           liveSiteUrl: p.live_site_url,
         }));
-
-        if (sectionConfig.itemIds && sectionConfig.itemIds.length > 0) {
-          const idSet = new Set(sectionConfig.itemIds);
-          const filtered = (projects ?? []).filter((p) => idSet.has(p.id));
-          items = filtered.map((p) => ({
-            title: p.title,
-            description: p.description,
-            tags: p.tags,
-            sourceCodeUrl: p.source_code_url,
-            liveSiteUrl: p.live_site_url,
-          }));
-        }
 
         sections.push({ type: 'projects', label: sectionConfig.label, items });
         break;
@@ -199,25 +185,18 @@ export async function assembleResumeData(config: ResumeConfig): Promise<ResumeDa
           .select('*')
           .order('sort_order', { ascending: true });
 
-        let items: EducationItem[] = (educations ?? []).map((e) => ({
+        let raw = educations ?? [];
+        if (sectionConfig.itemIds && sectionConfig.itemIds.length > 0) {
+          const idSet = new Set(sectionConfig.itemIds);
+          raw = raw.filter((e) => idSet.has(e.id));
+        }
+        const items: EducationItem[] = raw.map((e) => ({
           institution: e.institution,
           degree: e.degree,
           fieldOfStudy: e.field_of_study,
           displayDate: e.display_date,
           description: e.description,
         }));
-
-        if (sectionConfig.itemIds && sectionConfig.itemIds.length > 0) {
-          const idSet = new Set(sectionConfig.itemIds);
-          const filtered = (educations ?? []).filter((e) => idSet.has(e.id));
-          items = filtered.map((e) => ({
-            institution: e.institution,
-            degree: e.degree,
-            fieldOfStudy: e.field_of_study,
-            displayDate: e.display_date,
-            description: e.description,
-          }));
-        }
 
         sections.push({ type: 'education', label: sectionConfig.label, items });
         break;
