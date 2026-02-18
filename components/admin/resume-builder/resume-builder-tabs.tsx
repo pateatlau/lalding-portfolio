@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import ConfigList from './config-list';
 import ResumeComposer from './resume-composer';
 import ResumePreview from './resume-preview';
+import AtsCheckerPanel from './ats-checker-panel';
 import TemplateManager from './template-manager';
 import VersionHistory from './version-history';
 import type { ResumeConfigListItem, TemplateListItem } from '@/actions/resume-builder';
@@ -84,6 +85,9 @@ export default function ResumeBuilderTabs({
           <TabsTrigger value="preview" disabled={!selectedConfig}>
             Preview
           </TabsTrigger>
+          <TabsTrigger value="ats-check" disabled={!selectedConfig}>
+            ATS Check
+          </TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="history" disabled={!selectedConfig}>
             History
@@ -115,6 +119,10 @@ export default function ResumeBuilderTabs({
 
         <TabsContent value="preview">
           {selectedConfig && <ResumePreview config={selectedConfig} />}
+        </TabsContent>
+
+        <TabsContent value="ats-check">
+          {selectedConfig && <AtsCheckerPanel config={selectedConfig} />}
         </TabsContent>
 
         <TabsContent value="templates">

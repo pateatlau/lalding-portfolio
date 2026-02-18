@@ -13,6 +13,8 @@ import type {
 } from '@/lib/supabase/types';
 import type { CmsDataForAnalysis } from '@/lib/resume-builder/jd-analyzer';
 import type { ResumeDownloadEntry, VisitorEntry } from '@/actions/admin';
+import type { ResumeData } from '@/components/resume-templates/types';
+import type { AtsCheckResult } from '@/lib/resume-builder/ats-checker';
 
 export const mockProfile: Profile = {
   id: 'profile-1',
@@ -325,4 +327,286 @@ export const mockJdAnalysisResult: JdAnalysisResult = {
       reason: 'Matches keyword "Docker" — consider including "DevOps"',
     },
   ],
+};
+
+// ── ATS Checker fixtures ──────────────────────────────────────
+
+/** ResumeData designed to trigger a mix of pass, warning, and fail statuses across ATS checks. */
+export const mockResumeDataForAtsCheck: ResumeData = {
+  profile: {
+    fullName: 'John Doe',
+    jobTitle: 'Software Engineer',
+    email: 'john@example.com',
+    phone: null, // P1: warning (missing phone)
+    location: 'New York, NY',
+    websiteUrl: null,
+    linkedinUrl: null,
+    githubUrl: null,
+  },
+  summary: 'Short summary.', // R6: warning (too short, < 100 chars); P5: pass
+  sections: [
+    {
+      type: 'experience',
+      label: 'Experience',
+      items: [
+        {
+          title: 'Senior Engineer',
+          company: 'TechCorp',
+          displayDate: 'Jan 2020 \u2013 Present',
+          description:
+            'Led development of microservices architecture serving 1M+ users\nWas responsible for code reviews and team coordination\nImplemented CI/CD pipeline reducing deployment time by 60%',
+        },
+        {
+          title: 'Software Developer',
+          company: 'StartupCo',
+          displayDate: 'Mar 2017 \u2013 Dec 2019',
+          description:
+            'Developed RESTful APIs handling 50K requests per day\nWorked on frontend features using React and TypeScript\nOptimized database queries improving response time by 40%',
+        },
+      ],
+    },
+    {
+      type: 'skills',
+      label: 'Technical Skills',
+      items: [
+        {
+          category: 'Frontend',
+          skills: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'HTML'],
+        },
+        { category: 'Backend', skills: ['Node.js', 'Python', 'PostgreSQL'] },
+      ],
+    },
+    {
+      type: 'education',
+      label: 'Education',
+      items: [
+        {
+          institution: 'University of Technology',
+          degree: 'Bachelor of Science',
+          fieldOfStudy: 'Computer Science',
+          displayDate: 'Aug 2013 \u2013 May 2017',
+          description: null,
+        },
+      ],
+    },
+  ],
+  style: {
+    primaryColor: '#1a1a1a',
+    accentColor: '#2bbcb3',
+    fontFamily: 'Open Sans, sans-serif',
+    headingFontFamily: 'Open Sans, sans-serif',
+    fontSize: '10pt',
+    lineHeight: '1.4',
+    margins: { top: '0.75in', right: '0.75in', bottom: '0.75in', left: '0.75in' },
+  },
+  pageSize: 'A4',
+};
+
+/** Complete AtsCheckResult with a mix of pass, warning, and fail statuses. */
+export const mockAtsCheckResult: AtsCheckResult = {
+  score: 69,
+  categories: [
+    {
+      category: 'parsability',
+      label: 'Parsability',
+      passed: 4,
+      warned: 2,
+      failed: 1,
+      total: 7,
+      checks: [
+        {
+          id: 'P1',
+          category: 'parsability',
+          name: 'Contact info present',
+          status: 'warning',
+          message: 'Email found. Missing: phone.',
+        },
+        {
+          id: 'P2',
+          category: 'parsability',
+          name: 'Standard section headings',
+          status: 'pass',
+          message: 'All section headings are ATS-recognized.',
+        },
+        {
+          id: 'P3',
+          category: 'parsability',
+          name: 'Date format consistency',
+          status: 'pass',
+          message: 'All dates use a consistent, recognized format.',
+        },
+        {
+          id: 'P4',
+          category: 'parsability',
+          name: 'No empty sections',
+          status: 'pass',
+          message: 'All sections contain at least one item.',
+        },
+        {
+          id: 'P5',
+          category: 'parsability',
+          name: 'Summary present',
+          status: 'pass',
+          message: 'Summary section is present.',
+        },
+        {
+          id: 'P6',
+          category: 'parsability',
+          name: 'Template ATS safety',
+          status: 'fail',
+          message: 'HTML contains ATS-unfriendly elements: <table>.',
+          details: ['<table> may cause parsing issues in ATS systems'],
+        },
+        {
+          id: 'P7',
+          category: 'parsability',
+          name: 'No header/footer content',
+          status: 'warning',
+          message: 'Fixed or absolutely positioned elements detected.',
+          details: [
+            'Found position: absolute outside small container \u2014 content may shift in ATS parsing',
+          ],
+        },
+      ],
+    },
+    {
+      category: 'keywords',
+      label: 'Keyword Optimization',
+      passed: 1,
+      warned: 2,
+      failed: 0,
+      total: 3,
+      checks: [
+        {
+          id: 'K1',
+          category: 'keywords',
+          name: 'JD keyword coverage',
+          status: 'pass',
+          message: 'Keyword coverage is 75% \u2014 strong match with the job description.',
+        },
+        {
+          id: 'K2',
+          category: 'keywords',
+          name: 'Missing keywords',
+          status: 'warning',
+          message: '3 keyword(s) from the job description are missing.',
+          details: ['Go', 'Redis', 'Terraform'],
+        },
+        {
+          id: 'K3',
+          category: 'keywords',
+          name: 'Keywords in summary',
+          status: 'warning',
+          message: 'Only 0 matched keyword(s) in the summary. Aim for at least 3.',
+          details: ['No matched keywords found in summary'],
+        },
+      ],
+    },
+    {
+      category: 'readability',
+      label: 'Readability & Structure',
+      passed: 4,
+      warned: 3,
+      failed: 0,
+      total: 7,
+      checks: [
+        {
+          id: 'R1',
+          category: 'readability',
+          name: 'Bullet point length',
+          status: 'pass',
+          message: 'All bullet points are within the ideal 30\u2013200 character range.',
+        },
+        {
+          id: 'R2',
+          category: 'readability',
+          name: 'Quantified achievements',
+          status: 'pass',
+          message: '50% of bullets contain quantified metrics (3/6).',
+        },
+        {
+          id: 'R3',
+          category: 'readability',
+          name: 'Section count',
+          status: 'pass',
+          message: 'Resume has 3 sections.',
+        },
+        {
+          id: 'R4',
+          category: 'readability',
+          name: 'Experience section position',
+          status: 'pass',
+          message: 'Experience section is at position 1 \u2014 prominently placed.',
+        },
+        {
+          id: 'R5',
+          category: 'readability',
+          name: 'Skills density',
+          status: 'warning',
+          message: 'Only 8 skill(s) listed. Consider adding more to improve keyword matching.',
+        },
+        {
+          id: 'R6',
+          category: 'readability',
+          name: 'Summary length',
+          status: 'warning',
+          message: 'Summary is 16 characters \u2014 too short. Aim for 100\u2013400 characters.',
+        },
+        {
+          id: 'R7',
+          category: 'readability',
+          name: 'Action verbs in bullets',
+          status: 'warning',
+          message: 'Only 50% of bullets start with action verbs (3/6). Aim for at least 60%.',
+          details: [
+            '"Was responsible for code reviews and team coordination" \u2014 Senior Engineer',
+            '"Worked on frontend features using React and TypeScript" \u2014 Software Developer',
+          ],
+        },
+      ],
+    },
+    {
+      category: 'format',
+      label: 'Format Compliance',
+      passed: 4,
+      warned: 0,
+      failed: 0,
+      total: 4,
+      checks: [
+        {
+          id: 'F1',
+          category: 'format',
+          name: 'Font is web-safe/embeddable',
+          status: 'pass',
+          message: '"Open Sans" is a safe, widely supported font.',
+        },
+        {
+          id: 'F2',
+          category: 'format',
+          name: 'Font size readable',
+          status: 'pass',
+          message: 'Font size 10pt is within the ideal 9\u201312pt range.',
+        },
+        {
+          id: 'F3',
+          category: 'format',
+          name: 'Page length estimate',
+          status: 'pass',
+          message: 'Content length (~1200 chars) should fit within a standard resume length.',
+        },
+        {
+          id: 'F4',
+          category: 'format',
+          name: 'Special characters',
+          status: 'pass',
+          message: 'No problematic special characters found.',
+        },
+      ],
+    },
+  ],
+  totalPassed: 13,
+  totalWarned: 7,
+  totalFailed: 1,
+  totalChecks: 21,
+  checkedAt: '2025-06-15T12:00:00.000Z',
 };

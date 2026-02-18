@@ -947,7 +947,7 @@ _Format Compliance_ (always available — analyzes HTML + `ResumeStyle`):
 - Test edge cases: empty sections, missing summary, no JD analysis, empty descriptions
 - Add mock fixtures to `__tests__/helpers/admin-fixtures.ts`
 
-### 8K Status: PENDING
+### 8K Status: DONE
 
 ---
 
@@ -987,7 +987,7 @@ _Format Compliance_ (always available — analyzes HTML + `ResumeStyle`):
 - `__tests__/actions/resume-builder-ats.test.ts` — mock Supabase and `assembleResumeData`, verify the server action orchestrates correctly
 - Follow the testing pattern from `__tests__/actions/resume-builder-jd.test.ts`
 
-### 8L Status: PENDING
+### 8L Status: DONE
 
 ---
 
@@ -1055,7 +1055,7 @@ Layout:
 - `__tests__/components/admin/ats-checker-panel.test.tsx` — render with mock `AtsCheckResult`, verify category cards, check items, button interactions, keyword notice state
 - Follow the testing pattern from `__tests__/components/admin/jd-optimizer.test.tsx`
 
-### 8M Status: PENDING
+### 8M Status: DONE
 
 ---
 
@@ -1079,7 +1079,7 @@ Layout:
 4. Run full CI pipeline: `npx prettier --write .`, `npm run lint`, `npm run build`, `npm run test:run`
 5. Update this plan doc with final status markers
 
-### 8N Status: PENDING
+### 8N Status: DONE
 
 ---
 
