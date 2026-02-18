@@ -874,11 +874,10 @@ type AtsCheckResult = {
 type AtsCheckInput = {
   resumeData: ResumeData;
   html: string;
-  jdAnalysis?: {
+  jdAnalysis: {
     coverageScore: number;
     matchedKeywords: string[];
     missingKeywords: string[];
-    technicalKeywords?: string[]; // from ExtractedKeywords.categories.technical
   } | null;
 };
 ```
@@ -899,23 +898,23 @@ _Parsability_ (always available — analyzes `ResumeData` + HTML):
 
 _Keyword Optimization_ (requires prior JD analysis from 8I/8J — gracefully skipped if `jdAnalysis` is null):
 
-| ID  | Name                      | Logic                                                                                                                                                                                      | Result         |
-| --- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- |
-| K1  | JD keyword coverage       | Coverage score: pass ≥0.70, warn ≥0.50, fail <0.50                                                                                                                                         | pass/warn/fail |
-| K2  | Missing critical keywords | Flag `missingKeywords` that are in the `technicalKeywords` array (highest-impact gaps)                                                                                                     | pass/warn      |
-| K3  | Keywords in summary       | Summary text contains ≥3 matched keywords (case-insensitive substring match)                                                                                                               | pass/warn      |
-| K4  | Action verbs in bullets   | ≥60% of experience bullets start with strong action verbs from curated list (~50 verbs: "Led", "Developed", "Implemented", "Designed", "Managed", "Built", "Optimized", "Delivered", etc.) | pass/warn      |
+| ID  | Name                | Logic                                                                                                                                             | Result         |
+| --- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| K1  | JD keyword coverage | Coverage score: pass ≥0.70, warn ≥0.50, fail <0.50                                                                                                | pass/warn/fail |
+| K2  | Missing keywords    | Flag all `missingKeywords` from the JD analysis (see 8L decision note on why all missing keywords are surfaced rather than filtering by category) | pass/warn      |
+| K3  | Keywords in summary | Summary text contains ≥3 matched keywords (case-insensitive substring match)                                                                      | pass/warn      |
 
 _Readability/Structure_ (always available — analyzes `ResumeData`):
 
-| ID  | Name                        | Logic                                                                                           | Result    |
-| --- | --------------------------- | ----------------------------------------------------------------------------------------------- | --------- | ---------- | ---------------- | ------- | ---- | -------- | ---- | -------- | -------- | ------- | ------- | ------------ | --------- |
-| R1  | Bullet point length         | Warn if any experience bullet >200 chars or <30 chars; report specific offenders in `details[]` | pass/warn |
-| R2  | Quantified achievements     | ≥20% of experience bullets contain numbers/percentages/metrics (regex: `/\d+%                   | \$\d      | [0-9]+[xX] | [0-9]+\s\*(users | clients | team | projects | apps | increase | decrease | revenue | savings | improve)/i`) | pass/warn |
-| R3  | Section count               | Resume has ≥3 sections                                                                          | pass/warn |
-| R4  | Experience section position | Experience section is within the first 2 sections by sort order                                 | pass/warn |
-| R5  | Skills density              | Total skill count: warn if <8 (too few) or >40 (keyword stuffing concern)                       | pass/warn |
-| R6  | Summary length              | Summary 100–400 characters (~2–4 sentences); warn if outside range                              | pass/warn |
+| ID  | Name                        | Logic                                                                                                                                                                                      | Result    |
+| --- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
+| R1  | Bullet point length         | Warn if any experience bullet >200 chars or <30 chars; report specific offenders in `details[]`                                                                                            | pass/warn |
+| R2  | Quantified achievements     | ≥20% of experience bullets contain numbers/percentages/metrics (see `QUANTIFIED_PATTERN` constant below)                                                                                   | pass/warn |
+| R3  | Section count               | Resume has ≥3 sections                                                                                                                                                                     | pass/warn |
+| R4  | Experience section position | Experience section is within the first 2 sections by sort order                                                                                                                            | pass/warn |
+| R5  | Skills density              | Total skill count: warn if <8 (too few) or >40 (keyword stuffing concern)                                                                                                                  | pass/warn |
+| R6  | Summary length              | Summary 100–400 characters (~2–4 sentences); warn if outside range                                                                                                                         | pass/warn |
+| R7  | Action verbs in bullets     | ≥60% of experience bullets start with strong action verbs from curated list (~50 verbs: "Led", "Developed", "Implemented", "Designed", "Managed", "Built", "Optimized", "Delivered", etc.) | pass/warn |
 
 _Format Compliance_ (always available — analyzes HTML + `ResumeStyle`):
 
@@ -931,7 +930,7 @@ _Format Compliance_ (always available — analyzes HTML + `ResumeStyle`):
 - `STANDARD_SECTION_HEADINGS` — ATS-recognized heading variants
 - `ACTION_VERBS` — curated list of ~50 strong action verbs
 - `SAFE_FONTS` — known embeddable/web-safe font families
-- `QUANTIFIED_PATTERN` — regex for detecting metrics in bullets
+- `QUANTIFIED_PATTERN` — regex for detecting metrics in bullets: `/\d+%|\$\d|[0-9]+[xX]|[0-9]+\s*(users|clients|team|projects|apps|increase|decrease|revenue|savings|improve)/i`
 - `COMMON_DATE_PATTERNS` — regexes for recognized date formats
 
 **Implementation:**
@@ -940,7 +939,7 @@ _Format Compliance_ (always available — analyzes HTML + `ResumeStyle`):
 - `runChecks(input: AtsCheckInput): AtsCheckResult` orchestrates all checks and assembles the result
 - Reuses `distance` from `fastest-levenshtein` (already installed) for P2 fuzzy matching
 - No new npm dependencies
-- When `jdAnalysis` is null, keyword checks (K1–K3) are skipped entirely (not failed)
+- When `jdAnalysis` is null, keyword checks (K1–K3) are skipped entirely (not failed). K4 (action verbs) was moved to the Readability category since it does not depend on JD analysis.
 
 **Testing:**
 
@@ -981,7 +980,7 @@ _Format Compliance_ (always available — analyzes HTML + `ResumeStyle`):
 
 **Return type:** Follows existing `{ data?: T; error?: string }` pattern used throughout `actions/resume-builder.ts`.
 
-**Note on `jdAnalysis.technicalKeywords`:** The `ExtractedKeywords.categories.technical` array is not currently persisted in the DB — only `jd_keywords` (flat list) and `jd_analysis` (matched/missing/suggestions) are stored. For K2, the server action will need to either: (a) approximate by checking which `missingKeywords` are NOT in the `categories.soft` or `categories.qualifications` buckets (unavailable), or (b) skip the `technicalKeywords` filter and treat all missing keywords as potentially critical, or (c) extend the DB schema to persist `categories`. **Decision: use option (b)** — all missing keywords are surfaced by K2 as a flat list. This avoids a schema change for a minor optimization. The check name is adjusted to "Missing keywords" rather than "Missing critical keywords".
+**Note on K2 (`Missing keywords`):** The `ExtractedKeywords.categories.technical` array from the LLM is not persisted in the DB — only `jd_keywords` (flat list) and `jd_analysis` (matched/missing/suggestions) are stored. Rather than adding a schema change to persist keyword categories, K2 surfaces all `missingKeywords` as a flat list. This is sufficient since the admin can see which keywords are missing and decide which are relevant. The `AtsCheckInput.jdAnalysis` type therefore omits `technicalKeywords` — it only needs `coverageScore`, `matchedKeywords`, and `missingKeywords`.
 
 **Testing:**
 
@@ -1006,7 +1005,7 @@ _Format Compliance_ (always available — analyzes HTML + `ResumeStyle`):
 
 **Tab position in `resume-builder-tabs.tsx`:**
 
-```
+```text
 Configs | Composer | Preview | ATS Check | Templates | History
 ```
 

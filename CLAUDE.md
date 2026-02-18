@@ -32,7 +32,7 @@ Features a Supabase-backed CMS with an admin dashboard, a resume builder that ge
 
 ## Project Structure
 
-```
+```text
 lalding-portfolio/
 ├── .github/workflows/
 │   └── ci.yml                    # CI/CD pipeline
@@ -181,6 +181,10 @@ npm run validate-supabase # Test Supabase connection
 | `SENTRY_ORG`                    | No       | Sentry organization slug                                                    |
 | `SENTRY_PROJECT`                | No       | Sentry project slug                                                         |
 | `RESUME_BUILDER_LLM_API_KEY`    | No       | Anthropic API key for JD keyword analysis (resume builder works without it) |
+| `NEXT_TELEMETRY_DISABLED`       | No       | Set to `1` to disable Next.js telemetry                                     |
+| `VERCEL_OIDC_TOKEN`             | No       | Vercel OIDC token (set automatically in Vercel deployments)                 |
+| `E2E_ADMIN_EMAIL`               | No       | Admin email for E2E tests (tests skip without this)                         |
+| `E2E_ADMIN_PASSWORD`            | No       | Admin password for E2E tests                                                |
 
 \* Without Supabase env vars, the app falls back to static data from `lib/data.ts`. All CMS, auth, and admin features require Supabase.
 
