@@ -139,7 +139,9 @@ lalding-portfolio/
 │   ├── actions/                  # Server action tests
 │   ├── components/admin/         # Admin component tests
 │   ├── components/auth/          # Auth component tests
-│   ├── lib/                      # Library module tests
+│   ├── context/                  # Context tests
+│   ├── lib/                      # Library module tests (ATS checker, JD analyzer)
+│   ├── unit/lib/                 # Query, hook, util tests
 │   └── helpers/                  # Test fixtures + mocks
 ├── email/
 │   └── contact-form-email.tsx    # Resend email template
@@ -277,6 +279,13 @@ Framer Motion is used throughout for scroll-triggered animations and transitions
 - Keep dark mode support for all new components
 - Use semantic HTML where possible
 - shadcn/ui for admin dashboard UI components
+
+---
+
+## Future Ideas (Nice-to-Have)
+
+- **Resume Writing Coach** — LLM-powered qualitative feedback on bullet impact, summary relevance, keyword naturalness, and role-specific tailoring. Distinct from the rule-based ATS checker; would live in the JD Optimizer flow or as a separate tab.
+- **Accessibility Audit** — Comprehensive a11y pass across the public site and admin dashboard (ARIA labels, keyboard navigation, screen reader support, color contrast, focus management).
 
 ---
 

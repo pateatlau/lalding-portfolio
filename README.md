@@ -53,6 +53,7 @@ Personal portfolio site for **Laldingliana Tlau Vantawl** — Full-stack Tech Le
   - **Version management** — generate, download, and activate PDF versions as the visitor-facing resume
   - **Template customization** — style editor for colors, fonts, margins, and page size
   - **JD optimization** — paste a job description, extract keywords via LLM (Anthropic Claude), score keyword coverage against CMS data, and apply suggestions to the resume config
+  - **ATS checker** — rule-based ATS optimization with 21 checks across parsability, keyword coverage, readability, and format compliance; scores resume 0–100 with per-check pass/warning/fail feedback
 - **Education CRUD** — table view with add/edit/delete for education entries
 - **Visitors page** — searchable/sortable table with CSV export
 - **On-demand revalidation** — admin edits instantly reflect on the public site via ISR
@@ -171,6 +172,7 @@ lalding-portfolio/
 │   │   │   ├── resume-composer.tsx      # Section picker + reorder
 │   │   │   ├── resume-preview.tsx       # Live HTML preview + PDF gen
 │   │   │   ├── jd-optimizer.tsx         # JD analysis + suggestions
+│   │   │   ├── ats-checker-panel.tsx    # ATS optimization checker UI
 │   │   │   ├── template-manager.tsx     # Template style editor
 │   │   │   └── version-history.tsx      # Version list + activate
 │   │   ├── visitors-table.tsx    # Visitors list + CSV export
@@ -216,6 +218,7 @@ lalding-portfolio/
 │   ├── types.ts                  # Shared TypeScript types
 │   ├── utils.ts                  # Utility functions
 │   ├── resume-builder/
+│   │   ├── ats-checker.ts        # ATS check engine (21 checks + scoring)
 │   │   ├── jd-analyzer.ts        # JD keyword extraction + coverage scoring
 │   │   ├── render-to-html.ts     # Template → HTML rendering
 │   │   └── render-to-pdf.ts      # Playwright HTML → PDF conversion
@@ -256,10 +259,11 @@ lalding-portfolio/
 │   ├── admin-resume-builder.spec.ts
 │   └── admin-public-sync.spec.ts
 ├── __tests__/                    # Vitest unit/component tests
-│   ├── actions/admin.test.ts
+│   ├── actions/                  # Server action tests
 │   ├── components/admin/         # Admin component tests
 │   ├── components/auth/          # Auth component tests
 │   ├── context/                  # Context tests
+│   ├── lib/                      # Library module tests (ATS checker, JD analyzer)
 │   ├── unit/lib/                 # Query, hook, util tests
 │   └── helpers/                  # Test fixtures + mocks
 ├── email/
@@ -340,11 +344,16 @@ Fork contributors without Supabase secrets will see a warning — the build uses
 
 ## Roadmap
 
-- [ ] **Resume builder** — compose tailored resumes from CMS data, generate PDFs, optimize for ATS (core builder complete, ATS checker in progress)
+- [x] **Resume builder** — compose tailored resumes from CMS data, generate PDFs, JD optimization via LLM, and rule-based ATS checker (21 checks across parsability, keywords, readability, and format)
 - [x] **Sentry integration** — error monitoring, performance tracking, source map uploads, and admin feedback widget
 - [x] **Contact form email** — fixed email delivery with verified custom domain (noreply@lalding.in)
 - [ ] **UI improvements** — misc UI polish and optimizations across public site and admin dashboard
 - [ ] **SEO optimizations** — structured data, Open Graph tags, sitemap, and meta tag improvements
+
+### Nice-to-Have
+
+- [ ] **Resume writing coach** — LLM-powered qualitative feedback on bullet impact, summary relevance, keyword naturalness, and role-specific tailoring (distinct from the rule-based ATS checker)
+- [ ] **Accessibility audit** — comprehensive a11y pass across the public site and admin dashboard (ARIA labels, keyboard navigation, screen reader support, color contrast, focus management)
 
 ## Documentation
 
