@@ -1055,7 +1055,7 @@ Layout:
 - `__tests__/components/admin/ats-checker-panel.test.tsx` — render with mock `AtsCheckResult`, verify category cards, check items, button interactions, keyword notice state
 - Follow the testing pattern from `__tests__/components/admin/jd-optimizer.test.tsx`
 
-### 8M Status: PENDING
+### 8M Status: DONE
 
 ---
 
