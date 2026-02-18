@@ -61,6 +61,7 @@ describe('getResumeConfigs', () => {
         name: 'Default Resume',
         description: 'Main config',
         template_id: 'tmpl-1',
+        jd_coverage_score: 0.73,
         is_active: true,
         updated_at: '2025-01-01T00:00:00Z',
       },
@@ -79,6 +80,7 @@ describe('getResumeConfigs', () => {
       description: 'Main config',
       template_id: 'tmpl-1',
       templateName: 'Professional',
+      jd_coverage_score: 0.73,
       is_active: true,
       updated_at: '2025-01-01T00:00:00Z',
     });

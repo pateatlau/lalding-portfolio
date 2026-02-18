@@ -256,7 +256,23 @@ export default function ConfigList({
               <TableRow key={config.id}>
                 <TableCell>
                   <div>
-                    <span className="font-medium">{config.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{config.name}</span>
+                      {config.jd_coverage_score !== null && (
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${
+                            config.jd_coverage_score >= 0.75
+                              ? 'border-green-300 text-green-700 dark:border-green-700 dark:text-green-300'
+                              : config.jd_coverage_score >= 0.5
+                                ? 'border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-300'
+                                : 'border-red-300 text-red-700 dark:border-red-700 dark:text-red-300'
+                          }`}
+                        >
+                          {Math.round(config.jd_coverage_score * 100)}% match
+                        </Badge>
+                      )}
+                    </div>
                     {config.description && (
                       <p className="text-muted-foreground text-xs">{config.description}</p>
                     )}

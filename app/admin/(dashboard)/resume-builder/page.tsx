@@ -21,6 +21,8 @@ export default async function ResumeBuilderPage() {
     );
   }
 
+  const llmConfigured = !!process.env.RESUME_BUILDER_LLM_API_KEY;
+
   return (
     <ResumeBuilderTabs
       educations={educations}
@@ -29,6 +31,7 @@ export default async function ResumeBuilderPage() {
       skillGroups={skillGroups}
       configs={configsResult.data ?? []}
       templates={templatesResult.data ?? []}
+      llmConfigured={llmConfigured}
     />
   );
 }

@@ -18,6 +18,7 @@ export type ResumeConfigListItem = {
   description: string | null;
   template_id: string | null;
   templateName: string | null;
+  jd_coverage_score: number | null;
   is_active: boolean;
   updated_at: string;
 };
@@ -33,7 +34,7 @@ export async function getResumeConfigs(): Promise<{
 
   const { data: configs, error } = await supabase
     .from('resume_configs')
-    .select('id, name, description, template_id, is_active, updated_at')
+    .select('id, name, description, template_id, jd_coverage_score, is_active, updated_at')
     .order('updated_at', { ascending: false });
 
   if (error) {
@@ -62,6 +63,7 @@ export async function getResumeConfigs(): Promise<{
       description: c.description,
       template_id: c.template_id ?? null,
       templateName: c.template_id ? (templateMap.get(c.template_id) ?? null) : null,
+      jd_coverage_score: c.jd_coverage_score ?? null,
       is_active: c.is_active,
       updated_at: c.updated_at,
     })),
