@@ -280,6 +280,13 @@ Framer Motion is used throughout for scroll-triggered animations and transitions
 
 ---
 
+## Future Ideas (Nice-to-Have)
+
+- **Resume Writing Coach** — LLM-powered qualitative feedback on bullet impact, summary relevance, keyword naturalness, and role-specific tailoring. Distinct from the rule-based ATS checker; would live in the JD Optimizer flow or as a separate tab.
+- **Accessibility Audit** — Comprehensive a11y pass across the public site and admin dashboard (ARIA labels, keyboard navigation, screen reader support, color contrast, focus management).
+
+---
+
 ## Development Notes
 
 - Dev server runs on port 1111 (not 3000)
