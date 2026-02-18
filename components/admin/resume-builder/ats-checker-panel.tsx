@@ -204,25 +204,25 @@ function CategoryCard({
 
   return (
     <Card>
-      <CardHeader
-        className="cursor-pointer select-none"
-        onClick={onToggle}
-        role="button"
-        aria-expanded={expanded}
-        aria-label={`${summary.label} category`}
-      >
-        <CardTitle className="flex items-center justify-between text-sm">
-          <span className="flex items-center gap-2">
+      <CardHeader className="p-0">
+        <button
+          type="button"
+          className="flex w-full cursor-pointer items-center justify-between p-6 text-left select-none"
+          onClick={onToggle}
+          aria-expanded={expanded}
+          aria-label={`${summary.label} category`}
+        >
+          <CardTitle className="flex items-center gap-2 text-sm">
             {statusIcon}
             {summary.label}
-          </span>
+          </CardTitle>
           <span className="flex items-center gap-2">
             <span className="text-muted-foreground text-xs font-normal">
               {summary.passed}/{summary.total} passed
             </span>
             {expanded ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
           </span>
-        </CardTitle>
+        </button>
       </CardHeader>
 
       {expanded && (
@@ -274,8 +274,10 @@ function CheckItem({ check }: { check: AtsCheck }) {
 
           {check.details && check.details.length > 0 && (
             <button
+              type="button"
               className="text-muted-foreground mt-1 text-xs underline hover:no-underline"
               onClick={() => setDetailsExpanded(!detailsExpanded)}
+              aria-expanded={detailsExpanded}
             >
               {detailsExpanded ? 'Hide details' : `Show details (${check.details.length})`}
             </button>

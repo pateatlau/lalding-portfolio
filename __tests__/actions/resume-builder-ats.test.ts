@@ -7,6 +7,7 @@ import {
 import type { MockSupabaseClient } from '../helpers/supabase-mock';
 import type { ResumeData } from '@/components/resume-templates/types';
 import type { AtsCheckResult } from '@/lib/resume-builder/ats-checker';
+import { ATS_CHECKS_WITHOUT_JD, ATS_TOTAL_CHECKS } from '@/lib/resume-builder/ats-checker';
 
 // Mock external dependencies before imports
 vi.mock('next/cache', () => ({
@@ -172,7 +173,7 @@ describe('runAtsCheck', () => {
     const data = result.data as AtsCheckResult;
     expect(data.score).toBeGreaterThanOrEqual(0);
     expect(data.score).toBeLessThanOrEqual(100);
-    expect(data.totalChecks).toBe(18); // No keyword checks without JD analysis
+    expect(data.totalChecks).toBe(ATS_CHECKS_WITHOUT_JD); // No keyword checks without JD analysis
     expect(data.categories.find((c) => c.category === 'keywords')).toBeUndefined();
     expect(data.checkedAt).toBeTruthy();
   });
@@ -203,7 +204,7 @@ describe('runAtsCheck', () => {
 
     expect(result.error).toBeUndefined();
     const data = result.data as AtsCheckResult;
-    expect(data.totalChecks).toBe(21); // All 21 checks including keywords
+    expect(data.totalChecks).toBe(ATS_TOTAL_CHECKS); // All checks including keywords
     expect(data.categories.find((c) => c.category === 'keywords')).toBeDefined();
   });
 
@@ -219,7 +220,7 @@ describe('runAtsCheck', () => {
 
     expect(result.error).toBeUndefined();
     expect(result.data).toBeDefined();
-    // assembleResumeData and renderTemplateToHtml should have been called
+    // assembleResumeData and renderToHtml should have been called
     expect(assembleResumeData).toHaveBeenCalled();
     expect(renderToHtml).toHaveBeenCalledWith('professional', mockResumeData);
   });

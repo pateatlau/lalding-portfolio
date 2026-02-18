@@ -323,6 +323,8 @@ export function checkNoEmptySections(input: AtsCheckInput): AtsCheck {
   const empty: string[] = [];
 
   for (const section of input.resumeData.sections) {
+    // Skip custom sections — assembleResumeData constructs them with items: [] by design
+    if (section.type === 'custom') continue;
     if (section.items.length === 0) {
       empty.push(section.label);
     }
@@ -412,15 +414,27 @@ export function checkNoHeaderFooterContent(input: AtsCheckInput): AtsCheck {
   const absoluteMatches = html.match(/position\s*:\s*absolute/gi);
   if (absoluteMatches) {
     // Allow position: absolute only inside elements with width ≤ 70px
-    // Simple heuristic: check if all absolute positioning is within contexts of small widths
-    const absoluteContexts = Array.from(
+    // Detect width on either side of position: absolute within the same rule block
+    const widthBeforeAbsolute = Array.from(
       html.matchAll(/width\s*:\s*(\d+)px[^}]*position\s*:\s*absolute/gi)
     );
-    const largeAbsolute = absoluteContexts.filter((m) => parseInt(m[1]) > 70);
+    const widthAfterAbsolute = Array.from(
+      html.matchAll(/position\s*:\s*absolute[^}]*width\s*:\s*(\d+)px/gi)
+    );
+    const largeAbsolute = [...widthBeforeAbsolute, ...widthAfterAbsolute].filter(
+      (m) => parseInt(m[1]) > 70
+    );
 
-    // Also check for absolute positioning without any width context nearby
-    const standaloneAbsolute = Array.from(
-      html.matchAll(/position\s*:\s*absolute(?![^}]*width\s*:\s*\d+px)/gi)
+    // Standalone: position: absolute with no width in the same rule block (either direction)
+    const standaloneAbsolute = Array.from(html.matchAll(/position\s*:\s*absolute/gi)).filter(
+      (m) => {
+        // Find the enclosing rule block boundaries
+        const start = html.lastIndexOf('{', m.index!);
+        const end = html.indexOf('}', m.index!);
+        if (start === -1 || end === -1) return true; // No block found — treat as standalone
+        const block = html.slice(start, end);
+        return !/width\s*:\s*\d+px/i.test(block);
+      }
     );
 
     if (largeAbsolute.length > 0 || standaloneAbsolute.length > 0) {
@@ -446,7 +460,7 @@ export function checkNoHeaderFooterContent(input: AtsCheckInput): AtsCheck {
     category: 'parsability',
     name: 'No header/footer content',
     status: 'pass',
-    message: 'No fixed-position elements found.',
+    message: 'No fixed or problematic absolute positioning found.',
   };
 }
 
@@ -1042,6 +1056,15 @@ export function checkSpecialCharacters(input: AtsCheckInput): AtsCheck {
 }
 
 // ── Orchestrator ──────────────────────────────────────────────────
+
+/** Total number of ATS checks (all categories including keywords). */
+export const ATS_TOTAL_CHECKS = 21;
+
+/** Number of keyword-specific checks (skipped when no JD analysis). */
+export const ATS_KEYWORD_CHECKS = 3;
+
+/** Total checks when no JD analysis is present (ATS_TOTAL_CHECKS - ATS_KEYWORD_CHECKS). */
+export const ATS_CHECKS_WITHOUT_JD = ATS_TOTAL_CHECKS - ATS_KEYWORD_CHECKS;
 
 const CATEGORY_LABELS: Record<AtsCheckCategory, string> = {
   parsability: 'Parsability',

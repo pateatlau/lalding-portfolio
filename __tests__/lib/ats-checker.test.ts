@@ -22,6 +22,8 @@ import {
   checkPageLength,
   checkSpecialCharacters,
   runChecks,
+  ATS_CHECKS_WITHOUT_JD,
+  ATS_TOTAL_CHECKS,
 } from '@/lib/resume-builder/ats-checker';
 import type { AtsCheckInput } from '@/lib/resume-builder/ats-checker';
 import type { ResumeData } from '@/components/resume-templates/types';
@@ -1008,8 +1010,7 @@ describe('F4: checkSpecialCharacters', () => {
 describe('runChecks', () => {
   it('returns all non-keyword checks when no JD analysis', () => {
     const result = runChecks(makeInput());
-    // 7 parsability + 7 readability + 4 format = 18 checks (no keywords)
-    expect(result.totalChecks).toBe(18);
+    expect(result.totalChecks).toBe(ATS_CHECKS_WITHOUT_JD);
     expect(result.categories).toHaveLength(3); // parsability, readability, format
     expect(result.categories.find((c) => c.category === 'keywords')).toBeUndefined();
   });
@@ -1024,8 +1025,7 @@ describe('runChecks', () => {
         },
       })
     );
-    // 7 + 3 + 7 + 4 = 21 checks
-    expect(result.totalChecks).toBe(21);
+    expect(result.totalChecks).toBe(ATS_TOTAL_CHECKS);
     expect(result.categories).toHaveLength(4);
     expect(result.categories.find((c) => c.category === 'keywords')).toBeDefined();
   });
@@ -1089,7 +1089,7 @@ describe('runChecks', () => {
         },
       })
     );
-    expect(result.totalChecks).toBe(21);
+    expect(result.totalChecks).toBe(ATS_TOTAL_CHECKS);
     // K3 should warn about no summary
     const k3 = result.categories
       .find((c) => c.category === 'keywords')

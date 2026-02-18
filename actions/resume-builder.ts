@@ -610,8 +610,8 @@ export async function runAtsCheck(configId: string): Promise<{
     if (template) registryKey = template.registry_key;
   }
 
-  // 3. Assemble resume data
-  const { assembleResumeData } = await import('@/actions/resume-pdf');
+  // 3. Assemble resume data and render to HTML
+  const { assembleResumeData, renderToHtml } = await import('@/actions/resume-pdf');
   let resumeData;
   try {
     resumeData = await assembleResumeData(config as ResumeConfig);
@@ -622,7 +622,6 @@ export async function runAtsCheck(configId: string): Promise<{
   }
 
   // 4. Render to HTML
-  const { renderToHtml } = await import('@/actions/resume-pdf');
   let html;
   try {
     html = await renderToHtml(registryKey, resumeData);
