@@ -139,7 +139,9 @@ lalding-portfolio/
 │   ├── actions/                  # Server action tests
 │   ├── components/admin/         # Admin component tests
 │   ├── components/auth/          # Auth component tests
-│   ├── lib/                      # Library module tests
+│   ├── context/                  # Context tests
+│   ├── lib/                      # Library module tests (ATS checker, JD analyzer)
+│   ├── unit/lib/                 # Query, hook, util tests
 │   └── helpers/                  # Test fixtures + mocks
 ├── email/
 │   └── contact-form-email.tsx    # Resend email template
