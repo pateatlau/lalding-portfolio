@@ -947,7 +947,7 @@ _Format Compliance_ (always available — analyzes HTML + `ResumeStyle`):
 - Test edge cases: empty sections, missing summary, no JD analysis, empty descriptions
 - Add mock fixtures to `__tests__/helpers/admin-fixtures.ts`
 
-### 8K Status: PENDING
+### 8K Status: DONE
 
 ---
 
