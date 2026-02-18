@@ -9,7 +9,9 @@ import type {
   ResumeTemplate,
   ResumeConfig,
   ResumeVersion,
+  JdAnalysisResult,
 } from '@/lib/supabase/types';
+import type { CmsDataForAnalysis } from '@/lib/resume-builder/jd-analyzer';
 import type { ResumeDownloadEntry, VisitorEntry } from '@/actions/admin';
 
 export const mockProfile: Profile = {
@@ -253,4 +255,74 @@ export const mockResumeVersion: ResumeVersion = {
   generation_time_ms: 2500,
   is_active: true,
   created_at: '2025-01-15T12:00:00Z',
+};
+
+// ── JD Analysis fixtures ──────────────────────────────────────
+
+export const mockCmsDataForAnalysis: CmsDataForAnalysis = {
+  experiences: [
+    {
+      id: 'exp-1',
+      title: 'Senior Frontend Engineer',
+      company: 'TechCorp',
+      description:
+        'Led React and TypeScript development. Built performant UI components with Next.js. Mentored junior developers.',
+    },
+    {
+      id: 'exp-2',
+      title: 'Full Stack Developer',
+      company: 'StartupCo',
+      description:
+        'Developed REST APIs with Node.js and PostgreSQL. Implemented CI/CD pipelines using GitHub Actions.',
+    },
+  ],
+  projects: [
+    {
+      id: 'proj-1',
+      title: 'E-commerce Platform',
+      description:
+        'Full-stack e-commerce solution with payment integration and real-time inventory.',
+      tags: ['React', 'Node.js', 'PostgreSQL', 'Stripe', 'Docker'],
+    },
+    {
+      id: 'proj-2',
+      title: 'Analytics Dashboard',
+      description: 'Data visualization dashboard with D3.js charts and WebSocket live updates.',
+      tags: ['TypeScript', 'D3.js', 'WebSocket', 'Python'],
+    },
+  ],
+  skillGroups: [
+    {
+      id: 'sg-1',
+      category: 'Frontend',
+      skills: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'HTML', 'CSS'],
+    },
+    {
+      id: 'sg-2',
+      category: 'Backend',
+      skills: ['Node.js', 'PostgreSQL', 'REST APIs', 'GraphQL'],
+    },
+    {
+      id: 'sg-3',
+      category: 'DevOps',
+      skills: ['Docker', 'Kubernetes', 'GitHub Actions', 'AWS'],
+    },
+  ],
+};
+
+export const mockJdAnalysisResult: JdAnalysisResult = {
+  matchedKeywords: ['React', 'TypeScript', 'Node.js', 'PostgreSQL'],
+  missingKeywords: ['Go', 'Redis', 'Terraform'],
+  suggestions: [
+    {
+      type: 'include_experience',
+      itemId: 'exp-1',
+      reason: 'Matches keyword "React" — consider including "Senior Frontend Engineer at TechCorp"',
+    },
+    {
+      type: 'include_skill_group',
+      itemId: 'sg-3',
+      reason: 'Matches keyword "Docker" — consider including "DevOps"',
+    },
+  ],
 };

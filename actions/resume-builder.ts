@@ -3,7 +3,12 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { requireAdmin, deleteStorageFile } from '@/actions/admin';
-import type { ResumeConfig, ResumeConfigInsert, ResumeTemplateInsert } from '@/lib/supabase/types';
+import type {
+  ResumeConfig,
+  ResumeConfigInsert,
+  ResumeTemplateInsert,
+  JdAnalysisResult,
+} from '@/lib/supabase/types';
 
 // ── Resume Config CRUD ─────────────────────────────────────────────
 
@@ -395,6 +400,177 @@ export async function updateResumeTemplate(
   if (error) {
     console.error('updateResumeTemplate error:', error.message);
     return { error: 'Failed to update resume template' };
+  }
+
+  revalidatePath('/admin');
+  return { data: { success: true } };
+}
+
+// ── JD Analysis Actions ───────────────────────────────────────────
+
+// In-memory rate limit store: adminId → array of timestamps (ms)
+const rateLimitStore = new Map<string, number[]>();
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW_MS = 60_000;
+
+function checkRateLimit(adminId: string): boolean {
+  const now = Date.now();
+  const timestamps = rateLimitStore.get(adminId) ?? [];
+  // Remove timestamps outside the window
+  const recent = timestamps.filter((ts) => now - ts < RATE_LIMIT_WINDOW_MS);
+  if (recent.length >= RATE_LIMIT_MAX) return false;
+  recent.push(now);
+  rateLimitStore.set(adminId, recent);
+  return true;
+}
+
+export async function analyzeJobDescription(
+  configId: string,
+  jobDescription: string
+): Promise<{
+  data?: { keywords: string[]; coverageScore: number; analysis: JdAnalysisResult };
+  error?: string;
+}> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  // Input validation
+  if (!jobDescription || jobDescription.trim().length === 0) {
+    return { error: 'Job description is required' };
+  }
+
+  // Check LLM API key
+  const apiKey = process.env.RESUME_BUILDER_LLM_API_KEY;
+  if (!apiKey) {
+    return { error: 'LLM not configured' };
+  }
+
+  // Rate limit
+  if (!checkRateLimit(adminResult.user!.id)) {
+    return { error: 'Rate limit exceeded. Please wait a minute before analyzing again.' };
+  }
+
+  const supabase = await createClient();
+
+  // Lazily import the JD analyzer to avoid module graph issues
+  const { sanitizeJobDescription, extractKeywords, scoreCoverage, generateSuggestions } =
+    await import('@/lib/resume-builder/jd-analyzer');
+
+  // Sanitize input
+  const sanitizedJd = sanitizeJobDescription(jobDescription);
+
+  // Fetch CMS data for coverage scoring
+  const { data: experiences } = await supabase
+    .from('experiences')
+    .select('id, title, company, description')
+    .order('sort_order', { ascending: true });
+
+  const { data: projects } = await supabase
+    .from('projects')
+    .select('id, title, description, tags')
+    .order('sort_order', { ascending: true });
+
+  const { data: skillGroups } = await supabase
+    .from('skill_groups')
+    .select('id, category')
+    .order('sort_order', { ascending: true });
+
+  const { data: skills } = await supabase
+    .from('skills')
+    .select('id, name, group_id')
+    .order('sort_order', { ascending: true });
+
+  const cmsData = {
+    experiences: (experiences ?? []).map((e) => ({
+      id: e.id,
+      title: e.title,
+      company: e.company,
+      description: e.description,
+    })),
+    projects: (projects ?? []).map((p) => ({
+      id: p.id,
+      title: p.title,
+      description: p.description,
+      tags: p.tags as string[],
+    })),
+    skillGroups: (skillGroups ?? []).map((g) => ({
+      id: g.id,
+      category: g.category,
+      skills: (skills ?? []).filter((s) => s.group_id === g.id).map((s) => s.name),
+    })),
+  };
+
+  // Extract keywords via LLM
+  let extracted;
+  try {
+    extracted = await extractKeywords(sanitizedJd, apiKey);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to extract keywords';
+    console.error('analyzeJobDescription: keyword extraction failed:', message);
+    return { error: message };
+  }
+
+  // Score coverage
+  const coverage = scoreCoverage(extracted.keywords, cmsData);
+
+  // Generate suggestions
+  const suggestions = generateSuggestions(coverage, cmsData);
+
+  const analysis: JdAnalysisResult = {
+    matchedKeywords: coverage.matchedKeywords,
+    missingKeywords: coverage.missingKeywords,
+    suggestions,
+  };
+
+  // Persist results to the config
+  const { error: updateError } = await supabase
+    .from('resume_configs')
+    .update({
+      job_description: sanitizedJd,
+      jd_keywords: extracted.keywords,
+      jd_coverage_score: coverage.score,
+      jd_analysis: analysis,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', configId);
+
+  if (updateError) {
+    console.error('analyzeJobDescription: DB update failed:', updateError.message);
+    return { error: 'Analysis completed but failed to save results' };
+  }
+
+  revalidatePath('/admin');
+  return {
+    data: {
+      keywords: extracted.keywords,
+      coverageScore: coverage.score,
+      analysis,
+    },
+  };
+}
+
+export async function clearJdAnalysis(
+  configId: string
+): Promise<{ data?: { success: true }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('resume_configs')
+    .update({
+      job_description: null,
+      jd_keywords: null,
+      jd_coverage_score: null,
+      jd_analysis: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', configId);
+
+  if (error) {
+    console.error('clearJdAnalysis error:', error.message);
+    return { error: 'Failed to clear JD analysis' };
   }
 
   revalidatePath('/admin');
