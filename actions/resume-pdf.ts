@@ -18,7 +18,7 @@ import type {
 // Lazily imports react-dom/server to avoid Turbopack tracing it into the
 // module graph (which would fail the build for 'use server' files).
 // The Function() constructor creates a scope Turbopack cannot statically analyze.
-async function renderToHtml(registryKey: string, data: ResumeData): Promise<string> {
+export async function renderToHtml(registryKey: string, data: ResumeData): Promise<string> {
   const { getTemplateComponent } = await import('@/components/resume-templates/registry');
   const { createElement } = await import('react');
   const { renderToStaticMarkup } = await (Function(

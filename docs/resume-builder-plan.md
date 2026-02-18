@@ -987,7 +987,7 @@ _Format Compliance_ (always available — analyzes HTML + `ResumeStyle`):
 - `__tests__/actions/resume-builder-ats.test.ts` — mock Supabase and `assembleResumeData`, verify the server action orchestrates correctly
 - Follow the testing pattern from `__tests__/actions/resume-builder-jd.test.ts`
 
-### 8L Status: PENDING
+### 8L Status: DONE
 
 ---
 

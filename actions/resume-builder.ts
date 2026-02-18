@@ -575,3 +575,75 @@ export async function clearJdAnalysis(
   revalidatePath('/admin');
   return { data: { success: true } };
 }
+
+// ── ATS Check Action ──────────────────────────────────────────────
+
+export async function runAtsCheck(configId: string): Promise<{
+  data?: import('@/lib/resume-builder/ats-checker').AtsCheckResult;
+  error?: string;
+}> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+
+  // 1. Fetch config
+  const { data: config, error: configError } = await supabase
+    .from('resume_configs')
+    .select('*')
+    .eq('id', configId)
+    .single();
+
+  if (configError || !config) {
+    console.error('runAtsCheck: config fetch failed:', configError?.message);
+    return { error: 'Resume config not found' };
+  }
+
+  // 2. Fetch template registry key
+  let registryKey = 'professional';
+  if (config.template_id) {
+    const { data: template } = await supabase
+      .from('resume_templates')
+      .select('registry_key')
+      .eq('id', config.template_id)
+      .single();
+    if (template) registryKey = template.registry_key;
+  }
+
+  // 3. Assemble resume data
+  const { assembleResumeData } = await import('@/actions/resume-pdf');
+  let resumeData;
+  try {
+    resumeData = await assembleResumeData(config as ResumeConfig);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to assemble resume data';
+    console.error('runAtsCheck: assembleResumeData failed:', message);
+    return { error: message };
+  }
+
+  // 4. Render to HTML
+  const { renderToHtml } = await import('@/actions/resume-pdf');
+  let html;
+  try {
+    html = await renderToHtml(registryKey, resumeData);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to render HTML';
+    console.error('runAtsCheck: renderToHtml failed:', message);
+    return { error: message };
+  }
+
+  // 5. Build ATS check input
+  const jdAnalysis = config.jd_analysis
+    ? {
+        coverageScore: (config.jd_coverage_score as number) ?? 0,
+        matchedKeywords: (config.jd_analysis as JdAnalysisResult).matchedKeywords ?? [],
+        missingKeywords: (config.jd_analysis as JdAnalysisResult).missingKeywords ?? [],
+      }
+    : null;
+
+  // 6. Run checks
+  const { runChecks } = await import('@/lib/resume-builder/ats-checker');
+  const result = runChecks({ resumeData, html, jdAnalysis });
+
+  return { data: result };
+}
