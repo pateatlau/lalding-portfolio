@@ -1079,7 +1079,7 @@ Layout:
 4. Run full CI pipeline: `npx prettier --write .`, `npm run lint`, `npm run build`, `npm run test:run`
 5. Update this plan doc with final status markers
 
-### 8N Status: PENDING
+### 8N Status: DONE
 
 ---
 
