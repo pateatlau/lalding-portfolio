@@ -71,6 +71,11 @@ describe('JdOptimizer', () => {
       expect(screen.getByText('67%')).toBeInTheDocument();
     });
 
+    expect(vi.mocked(analyzeJobDescription)).toHaveBeenCalledWith(
+      'cfg-1',
+      'Looking for a React developer'
+    );
+
     // Matched keywords shown as green badges
     expect(screen.getByText('React')).toBeInTheDocument();
     expect(screen.getByText('TypeScript')).toBeInTheDocument();
@@ -235,7 +240,7 @@ describe('JdOptimizer', () => {
       />
     );
     const greenScore = screen.getByText('80%');
-    expect(greenScore.className).toContain('text-green');
+    expect(greenScore).toHaveClass('text-green-600');
     cleanup();
 
     // Amber for >= 50%
@@ -248,7 +253,7 @@ describe('JdOptimizer', () => {
       />
     );
     const amberScore = screen.getByText('55%');
-    expect(amberScore.className).toContain('text-amber');
+    expect(amberScore).toHaveClass('text-amber-600');
     cleanup();
 
     // Red for < 50%
@@ -261,6 +266,6 @@ describe('JdOptimizer', () => {
       />
     );
     const redScore = screen.getByText('30%');
-    expect(redScore.className).toContain('text-red');
+    expect(redScore).toHaveClass('text-red-600');
   });
 });

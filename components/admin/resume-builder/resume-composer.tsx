@@ -195,9 +195,15 @@ export default function ResumeComposer({
           next[sectionIdx] = { ...section, enabled: true };
         }
 
-        // Add the item to the section's itemIds if not already included
+        // Add the item or move it to the front (for emphasize suggestions)
         const currentIds = next[sectionIdx].itemIds ?? [];
-        if (!currentIds.includes(suggestion.itemId)) {
+        if (currentIds.includes(suggestion.itemId)) {
+          // Move to front for emphasis
+          next[sectionIdx] = {
+            ...next[sectionIdx],
+            itemIds: [suggestion.itemId, ...currentIds.filter((id) => id !== suggestion.itemId)],
+          };
+        } else {
           next[sectionIdx] = {
             ...next[sectionIdx],
             itemIds: [...currentIds, suggestion.itemId],

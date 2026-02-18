@@ -410,7 +410,10 @@ export async function updateResumeTemplate(
 
 // ── JD Analysis Actions ───────────────────────────────────────────
 
-// In-memory rate limit store: adminId → array of timestamps (ms)
+// In-memory rate limit store: adminId → array of timestamps (ms).
+// NOTE: This does not persist across serverless cold starts, so limits are
+// best-effort. Acceptable for a low-risk, admin-only feature. For strict
+// enforcement, replace with a persistent store (e.g., Redis or a DB table).
 const rateLimitStore = new Map<string, number[]>();
 const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW_MS = 60_000;
@@ -462,25 +465,19 @@ export async function analyzeJobDescription(
   const sanitizedJd = sanitizeJobDescription(jobDescription);
 
   // Fetch CMS data for coverage scoring
-  const { data: experiences } = await supabase
-    .from('experiences')
-    .select('id, title, company, description')
-    .order('sort_order', { ascending: true });
-
-  const { data: projects } = await supabase
-    .from('projects')
-    .select('id, title, description, tags')
-    .order('sort_order', { ascending: true });
-
-  const { data: skillGroups } = await supabase
-    .from('skill_groups')
-    .select('id, category')
-    .order('sort_order', { ascending: true });
-
-  const { data: skills } = await supabase
-    .from('skills')
-    .select('id, name, group_id')
-    .order('sort_order', { ascending: true });
+  const [{ data: experiences }, { data: projects }, { data: skillGroups }, { data: skills }] =
+    await Promise.all([
+      supabase
+        .from('experiences')
+        .select('id, title, company, description')
+        .order('sort_order', { ascending: true }),
+      supabase
+        .from('projects')
+        .select('id, title, description, tags')
+        .order('sort_order', { ascending: true }),
+      supabase.from('skill_groups').select('id, category').order('sort_order', { ascending: true }),
+      supabase.from('skills').select('id, name, group_id').order('sort_order', { ascending: true }),
+    ]);
 
   const cmsData = {
     experiences: (experiences ?? []).map((e) => ({

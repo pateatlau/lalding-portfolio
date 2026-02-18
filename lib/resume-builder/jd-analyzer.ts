@@ -371,8 +371,8 @@ export function generateSuggestions(
   const seenItemIds = new Set<string>();
 
   // For missing keywords: find CMS items that contain them and recommend including
+  const corpus = buildCorpus(cmsData);
   for (const keyword of coverageResult.missingKeywords) {
-    const corpus = buildCorpus(cmsData);
     const matches = findKeywordMatches(keyword, corpus);
 
     for (const match of matches) {

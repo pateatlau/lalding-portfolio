@@ -41,21 +41,28 @@ export default function JdOptimizer({
     setIsAnalyzing(true);
     setStatus(null);
 
-    const result = await analyzeJobDescription(configId, jobDescription);
+    try {
+      const result = await analyzeJobDescription(configId, jobDescription);
 
-    setIsAnalyzing(false);
+      if (result.error) {
+        setStatus({ type: 'error', message: result.error });
+        return;
+      }
 
-    if (result.error) {
-      setStatus({ type: 'error', message: result.error });
-      return;
-    }
-
-    if (result.data) {
-      setKeywords(result.data.keywords);
-      setCoverageScore(result.data.coverageScore);
-      setAnalysis(result.data.analysis);
-      setAppliedSuggestionIds(new Set());
-      setStatus({ type: 'success', message: 'Analysis complete' });
+      if (result.data) {
+        setKeywords(result.data.keywords);
+        setCoverageScore(result.data.coverageScore);
+        setAnalysis(result.data.analysis);
+        setAppliedSuggestionIds(new Set());
+        setStatus({ type: 'success', message: 'Analysis complete' });
+      }
+    } catch (err) {
+      setStatus({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Analysis failed',
+      });
+    } finally {
+      setIsAnalyzing(false);
     }
   }
 
@@ -63,21 +70,28 @@ export default function JdOptimizer({
     setIsClearing(true);
     setStatus(null);
 
-    const result = await clearJdAnalysis(configId);
+    try {
+      const result = await clearJdAnalysis(configId);
 
-    setIsClearing(false);
+      if (result.error) {
+        setStatus({ type: 'error', message: result.error });
+        return;
+      }
 
-    if (result.error) {
-      setStatus({ type: 'error', message: result.error });
-      return;
+      setJobDescription('');
+      setKeywords(null);
+      setCoverageScore(null);
+      setAnalysis(null);
+      setAppliedSuggestionIds(new Set());
+      setStatus({ type: 'success', message: 'Analysis cleared' });
+    } catch (err) {
+      setStatus({
+        type: 'error',
+        message: err instanceof Error ? err.message : 'Failed to clear analysis',
+      });
+    } finally {
+      setIsClearing(false);
     }
-
-    setJobDescription('');
-    setKeywords(null);
-    setCoverageScore(null);
-    setAnalysis(null);
-    setAppliedSuggestionIds(new Set());
-    setStatus({ type: 'success', message: 'Analysis cleared' });
   }
 
   function handleApplySuggestion(suggestion: JdSuggestion) {

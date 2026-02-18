@@ -325,23 +325,57 @@ describe('scoreCoverage', () => {
 
 // ─── generateSuggestions ─────────────────────────────────────
 
+// NOTE: In the current production flow, scoreCoverage and generateSuggestions
+// receive the same full CMS data, so missingKeywords from scoreCoverage will
+// never contain keywords that exist in the CMS. These unit tests exercise
+// generateSuggestions in isolation with a separate, smaller CMS dataset to
+// validate the function's search-and-suggest logic independently.
+
+const suggestionCmsData: CmsDataForAnalysis = {
+  experiences: [
+    {
+      id: 'exp-s1',
+      title: 'Backend Engineer',
+      company: 'DataCorp',
+      description: 'Built data pipelines with Kafka and Spark.',
+    },
+  ],
+  projects: [
+    {
+      id: 'proj-s1',
+      title: 'ML Pipeline',
+      description: 'Machine learning pipeline for real-time predictions.',
+      tags: ['Python', 'Kafka', 'TensorFlow'],
+    },
+  ],
+  skillGroups: [
+    {
+      id: 'sg-s1',
+      category: 'Data Engineering',
+      skills: ['Kafka', 'Spark', 'Airflow'],
+    },
+  ],
+};
+
 describe('generateSuggestions', () => {
   it('recommends including items for missing keywords found in CMS', () => {
-    // Create a coverage result where "Docker" is missing but exists in CMS data
+    // "Kafka" is missing from the resume but exists in suggestionCmsData
     const coverage: CoverageResult = {
       score: 0.5,
       matchedKeywords: ['React'],
-      missingKeywords: ['Docker'],
+      missingKeywords: ['Kafka'],
       keywordItemMap: new Map([['React', [{ type: 'skill_group', itemId: 'sg-1' }]]]),
     };
 
-    const suggestions = generateSuggestions(coverage, mockCmsDataForAnalysis);
-    // Docker exists in project proj-1 tags and skill group sg-3
-    const dockerSuggestions = suggestions.filter((s) => s.reason.includes('Docker'));
-    expect(dockerSuggestions.length).toBeGreaterThan(0);
+    const suggestions = generateSuggestions(coverage, suggestionCmsData);
+    const kafkaSuggestions = suggestions.filter((s) => s.reason.includes('Kafka'));
+    expect(kafkaSuggestions.length).toBeGreaterThan(0);
     expect(
-      dockerSuggestions.some(
-        (s) => s.type === 'include_project' || s.type === 'include_skill_group'
+      kafkaSuggestions.some(
+        (s) =>
+          s.type === 'include_experience' ||
+          s.type === 'include_project' ||
+          s.type === 'include_skill_group'
       )
     ).toBe(true);
   });
@@ -350,12 +384,12 @@ describe('generateSuggestions', () => {
     const coverage: CoverageResult = {
       score: 0,
       matchedKeywords: [],
-      missingKeywords: ['PostgreSQL'],
+      missingKeywords: ['Kafka'],
       keywordItemMap: new Map(),
     };
 
-    const suggestions = generateSuggestions(coverage, mockCmsDataForAnalysis);
-    // PostgreSQL appears in exp-2 description, proj-1 tags, sg-2 skills
+    const suggestions = generateSuggestions(coverage, suggestionCmsData);
+    // Kafka appears in exp-s1 description, proj-s1 tags, sg-s1 skills
     for (const s of suggestions) {
       expect([
         'include_experience',
@@ -369,37 +403,37 @@ describe('generateSuggestions', () => {
   });
 
   it('recommends emphasize for items matching 3+ keywords', () => {
-    // sg-1 (Frontend) has React, TypeScript, Next.js — if all are matched keywords
+    // sg-s1 (Data Engineering) has Kafka, Spark, Airflow — if all are matched keywords
     const coverage: CoverageResult = {
       score: 1,
-      matchedKeywords: ['React', 'TypeScript', 'Next.js'],
+      matchedKeywords: ['Kafka', 'Spark', 'Airflow'],
       missingKeywords: [],
       keywordItemMap: new Map([
-        ['React', [{ type: 'skill_group', itemId: 'sg-1' }]],
-        ['TypeScript', [{ type: 'skill_group', itemId: 'sg-1' }]],
-        ['Next.js', [{ type: 'skill_group', itemId: 'sg-1' }]],
+        ['Kafka', [{ type: 'skill_group', itemId: 'sg-s1' }]],
+        ['Spark', [{ type: 'skill_group', itemId: 'sg-s1' }]],
+        ['Airflow', [{ type: 'skill_group', itemId: 'sg-s1' }]],
       ]),
     };
 
-    const suggestions = generateSuggestions(coverage, mockCmsDataForAnalysis);
+    const suggestions = generateSuggestions(coverage, suggestionCmsData);
     const emphasize = suggestions.filter((s) => s.type === 'emphasize');
     expect(emphasize.length).toBeGreaterThan(0);
-    expect(emphasize.some((s) => s.itemId === 'sg-1')).toBe(true);
+    expect(emphasize.some((s) => s.itemId === 'sg-s1')).toBe(true);
   });
 
   it('handles no suggestions when all keywords are matched', () => {
     // All keywords matched but each item has <3 matches — no emphasize suggestions
     const coverage: CoverageResult = {
       score: 1,
-      matchedKeywords: ['React', 'Docker'],
+      matchedKeywords: ['Kafka', 'TensorFlow'],
       missingKeywords: [],
       keywordItemMap: new Map([
-        ['React', [{ type: 'skill_group', itemId: 'sg-1' }]],
-        ['Docker', [{ type: 'skill_group', itemId: 'sg-3' }]],
+        ['Kafka', [{ type: 'skill_group', itemId: 'sg-s1' }]],
+        ['TensorFlow', [{ type: 'project', itemId: 'proj-s1' }]],
       ]),
     };
 
-    const suggestions = generateSuggestions(coverage, mockCmsDataForAnalysis);
+    const suggestions = generateSuggestions(coverage, suggestionCmsData);
     // With each item only matching 1 keyword (below 3), no emphasize suggestions
     expect(suggestions.filter((s) => s.type === 'emphasize')).toHaveLength(0);
   });
@@ -408,11 +442,11 @@ describe('generateSuggestions', () => {
     const coverage: CoverageResult = {
       score: 0,
       matchedKeywords: [],
-      missingKeywords: ['React', 'TypeScript', 'Next.js'],
+      missingKeywords: ['Kafka', 'Spark', 'Airflow'],
       keywordItemMap: new Map(),
     };
 
-    const suggestions = generateSuggestions(coverage, mockCmsDataForAnalysis);
+    const suggestions = generateSuggestions(coverage, suggestionCmsData);
     const itemIds = suggestions.map((s) => s.itemId);
     const uniqueIds = Array.from(new Set(itemIds));
     expect(itemIds.length).toBe(uniqueIds.length);
