@@ -788,7 +788,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Unit tests: verify suggestion generation picks relevant items
 - Test graceful degradation when LLM API key is not configured
 
-### 8I Status: PENDING
+### 8I Status: DONE
 
 ---
 
@@ -820,7 +820,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Component tests: verify hidden state when LLM is not configured
 - Verify graceful UX when analysis fails (error message, retry button)
 
-### 8J Status: PENDING
+### 8J Status: DONE
 
 ---
 

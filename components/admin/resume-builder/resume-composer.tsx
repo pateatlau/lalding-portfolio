@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChevronUp, ChevronDown, Loader2, Save } from 'lucide-react';
 import { updateResumeConfig } from '@/actions/resume-builder';
+import JdOptimizer from './jd-optimizer';
 import type {
   ResumeConfig,
   ResumeSectionConfig,
@@ -15,6 +16,7 @@ import type {
   Experience,
   Project,
   SkillGroupWithSkills,
+  JdSuggestion,
 } from '@/lib/supabase/types';
 
 type ResumeComposerProps = {
@@ -23,6 +25,7 @@ type ResumeComposerProps = {
   experiences: Experience[];
   projects: Project[];
   skillGroups: SkillGroupWithSkills[];
+  llmConfigured: boolean;
   onSaved: (updated: ResumeConfig) => void;
 };
 
@@ -34,6 +37,7 @@ export default function ResumeComposer({
   experiences,
   projects,
   skillGroups,
+  llmConfigured,
   onSaved,
 }: ResumeComposerProps) {
   const [sections, setSections] = useState<ResumeSectionConfig[]>(() => {
@@ -150,6 +154,64 @@ export default function ResumeComposer({
       onSaved(result.data);
       setStatus({ type: 'success', message: 'Config saved' });
     }
+  }
+
+  function handleSuggestionsApplied(suggestions: JdSuggestion[]) {
+    setSections((prev) => {
+      const next = [...prev];
+      for (const suggestion of suggestions) {
+        // Map suggestion type to section type
+        let sectionType: ResumeSectionConfig['section'] | null = null;
+        switch (suggestion.type) {
+          case 'include_experience':
+            sectionType = 'experience';
+            break;
+          case 'include_project':
+            sectionType = 'projects';
+            break;
+          case 'include_skill_group':
+            sectionType = 'skills';
+            break;
+          case 'emphasize':
+            // For emphasize, find which section has this item
+            for (const s of next) {
+              const items = getItemsForSection(s);
+              if (items.some((item) => item.id === suggestion.itemId)) {
+                sectionType = s.section;
+                break;
+              }
+            }
+            break;
+        }
+        if (!sectionType) continue;
+
+        const sectionIdx = next.findIndex((s) => s.section === sectionType);
+        if (sectionIdx === -1) continue;
+
+        const section = next[sectionIdx];
+
+        // Enable the section if it's disabled
+        if (!section.enabled) {
+          next[sectionIdx] = { ...section, enabled: true };
+        }
+
+        // Add the item or move it to the front (for emphasize suggestions)
+        const currentIds = next[sectionIdx].itemIds ?? [];
+        if (currentIds.includes(suggestion.itemId)) {
+          // Move to front for emphasis
+          next[sectionIdx] = {
+            ...next[sectionIdx],
+            itemIds: [suggestion.itemId, ...currentIds.filter((id) => id !== suggestion.itemId)],
+          };
+        } else {
+          next[sectionIdx] = {
+            ...next[sectionIdx],
+            itemIds: [...currentIds, suggestion.itemId],
+          };
+        }
+      }
+      return next;
+    });
   }
 
   return (
@@ -274,6 +336,18 @@ export default function ResumeComposer({
           );
         })}
       </div>
+
+      {/* JD Optimization */}
+      {llmConfigured && (
+        <JdOptimizer
+          configId={config.id}
+          initialJobDescription={config.job_description}
+          initialKeywords={config.jd_keywords}
+          initialCoverageScore={config.jd_coverage_score}
+          initialAnalysis={config.jd_analysis}
+          onSuggestionsApplied={handleSuggestionsApplied}
+        />
+      )}
 
       {/* Style Overrides */}
       <Card>

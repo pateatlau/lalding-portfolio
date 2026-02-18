@@ -23,6 +23,7 @@ type ResumeBuilderTabsProps = {
   skillGroups: SkillGroupWithSkills[];
   configs: ResumeConfigListItem[];
   templates: TemplateListItem[];
+  llmConfigured: boolean;
 };
 
 export default function ResumeBuilderTabs({
@@ -32,6 +33,7 @@ export default function ResumeBuilderTabs({
   skillGroups,
   configs: initialConfigs,
   templates,
+  llmConfigured,
 }: ResumeBuilderTabsProps) {
   const [configs, setConfigs] = useState(initialConfigs);
   const [templateList, setTemplateList] = useState(templates);
@@ -105,6 +107,7 @@ export default function ResumeBuilderTabs({
               experiences={experiences}
               projects={projects}
               skillGroups={skillGroups}
+              llmConfigured={llmConfigured}
               onSaved={handleComposerSaved}
             />
           )}
