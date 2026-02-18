@@ -824,6 +824,266 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 
 ---
 
+### 8K: ATS Check Engine — Types & Pure Analysis Functions
+
+**Scope:** Create a pure TypeScript module with all ATS check logic. No UI, no server actions, no side effects. The engine analyzes assembled `ResumeData` and rendered HTML to produce actionable pass/fail/warning checks — framed like a linter, with an aggregate percentage score as a secondary reference metric.
+
+**Design philosophy:** The primary output is the concrete pass/fail/warning checklist — specific, actionable feedback grouped by category. An aggregate percentage score is also computed as a secondary metric, useful for: (1) quick at-a-glance quality reference, (2) tracking improvement across iterations, and (3) comparing variance with third-party ATS tools. The score is derived transparently from the check results (not an opaque number), so the user always knows exactly what drives it.
+
+**Score computation:** Each check contributes equally to the score. `pass` = 1.0, `warning` = 0.5, `fail` = 0.0. The aggregate score is `sum(checkScores) / totalChecks`, expressed as a 0–100 percentage. When keyword checks are skipped (no JD analysis), they are excluded from both the numerator and denominator — the score reflects only the checks that actually ran.
+
+**Files to create:**
+
+- `lib/resume-builder/ats-checker.ts` — types, constants, check functions, orchestrator
+
+**Types:**
+
+```typescript
+type AtsCheckStatus = 'pass' | 'warning' | 'fail';
+type AtsCheckCategory = 'parsability' | 'keywords' | 'readability' | 'format';
+
+type AtsCheck = {
+  id: string; // 'P1', 'K2', 'R3', etc.
+  category: AtsCheckCategory;
+  name: string; // "Contact info present"
+  status: AtsCheckStatus;
+  message: string; // "Email found. Phone is missing."
+  details?: string[]; // optional specifics (offending bullets, etc.)
+};
+
+type AtsCategorySummary = {
+  category: AtsCheckCategory;
+  label: string; // "Parsability", "Keyword Optimization", etc.
+  passed: number;
+  warned: number;
+  failed: number;
+  total: number;
+  checks: AtsCheck[];
+};
+
+type AtsCheckResult = {
+  score: number; // 0–100 aggregate percentage (pass=1.0, warning=0.5, fail=0.0 per check)
+  categories: AtsCategorySummary[];
+  totalPassed: number;
+  totalWarned: number;
+  totalFailed: number;
+  totalChecks: number;
+  checkedAt: string; // ISO timestamp
+};
+
+type AtsCheckInput = {
+  resumeData: ResumeData;
+  html: string;
+  jdAnalysis?: {
+    coverageScore: number;
+    matchedKeywords: string[];
+    missingKeywords: string[];
+    technicalKeywords?: string[]; // from ExtractedKeywords.categories.technical
+  } | null;
+};
+```
+
+**Checks by category:**
+
+_Parsability_ (always available — analyzes `ResumeData` + HTML):
+
+| ID  | Name                      | Logic                                                                                                                                                                                                                                                                                                          | Result    |
+| --- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| P1  | Contact info present      | `profile.email` exists; warn if `phone` or `location` missing                                                                                                                                                                                                                                                  | pass/warn |
+| P2  | Standard section headings | Compare section labels (fuzzy match via `fastest-levenshtein` ≥0.85) against known ATS-safe headings: "Experience", "Work Experience", "Work History", "Professional Experience", "Education", "Skills", "Technical Skills", "Projects", "Summary", "Professional Summary", etc. Warn for non-standard labels. | pass/warn |
+| P3  | Date format consistency   | Check `displayDate` on experience + education items against common patterns ("Mon YYYY – Mon YYYY", "Mon YYYY – Present", "YYYY – YYYY"). Warn if inconsistent formats across items.                                                                                                                           | pass/warn |
+| P4  | No empty sections         | Each section in `ResumeData.sections` must have ≥1 item                                                                                                                                                                                                                                                        | pass/fail |
+| P5  | Summary present           | `ResumeData.summary` is non-null and non-empty                                                                                                                                                                                                                                                                 | pass/warn |
+| P6  | Template ATS safety       | HTML has no `<table>`, `<img>`, `<canvas>`, `<svg>` tags (the professional template uses `<div>` flex layout, so this should pass — but future templates might not)                                                                                                                                            | pass/fail |
+| P7  | No header/footer content  | HTML has no `position: fixed` elements. `position: absolute` is allowed only inside the monogram container (width ≤ 70px context).                                                                                                                                                                             | pass/warn |
+
+_Keyword Optimization_ (requires prior JD analysis from 8I/8J — gracefully skipped if `jdAnalysis` is null):
+
+| ID  | Name                      | Logic                                                                                                                                                                                      | Result         |
+| --- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- |
+| K1  | JD keyword coverage       | Coverage score: pass ≥0.70, warn ≥0.50, fail <0.50                                                                                                                                         | pass/warn/fail |
+| K2  | Missing critical keywords | Flag `missingKeywords` that are in the `technicalKeywords` array (highest-impact gaps)                                                                                                     | pass/warn      |
+| K3  | Keywords in summary       | Summary text contains ≥3 matched keywords (case-insensitive substring match)                                                                                                               | pass/warn      |
+| K4  | Action verbs in bullets   | ≥60% of experience bullets start with strong action verbs from curated list (~50 verbs: "Led", "Developed", "Implemented", "Designed", "Managed", "Built", "Optimized", "Delivered", etc.) | pass/warn      |
+
+_Readability/Structure_ (always available — analyzes `ResumeData`):
+
+| ID  | Name                        | Logic                                                                                           | Result    |
+| --- | --------------------------- | ----------------------------------------------------------------------------------------------- | --------- | ---------- | ---------------- | ------- | ---- | -------- | ---- | -------- | -------- | ------- | ------- | ------------ | --------- |
+| R1  | Bullet point length         | Warn if any experience bullet >200 chars or <30 chars; report specific offenders in `details[]` | pass/warn |
+| R2  | Quantified achievements     | ≥20% of experience bullets contain numbers/percentages/metrics (regex: `/\d+%                   | \$\d      | [0-9]+[xX] | [0-9]+\s\*(users | clients | team | projects | apps | increase | decrease | revenue | savings | improve)/i`) | pass/warn |
+| R3  | Section count               | Resume has ≥3 sections                                                                          | pass/warn |
+| R4  | Experience section position | Experience section is within the first 2 sections by sort order                                 | pass/warn |
+| R5  | Skills density              | Total skill count: warn if <8 (too few) or >40 (keyword stuffing concern)                       | pass/warn |
+| R6  | Summary length              | Summary 100–400 characters (~2–4 sentences); warn if outside range                              | pass/warn |
+
+_Format Compliance_ (always available — analyzes HTML + `ResumeStyle`):
+
+| ID  | Name                        | Logic                                                                                                                                                                                       | Result    |
+| --- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| F1  | Font is web-safe/embeddable | `style.fontFamily` primary font is in a known safe list (Open Sans, Roboto, Lato, Arial, Helvetica, Georgia, Times New Roman, Inter, Source Sans Pro, Montserrat, Nunito, PT Sans, Calibri) | pass/warn |
+| F2  | Font size readable          | Parse `style.fontSize`; warn if <9pt or >12pt                                                                                                                                               | pass/warn |
+| F3  | Page length estimate        | Heuristic: count total content items and approximate character length; warn if estimated content likely exceeds single page. Not pixel-perfect — informational only.                        | pass/warn |
+| F4  | Special characters          | Scan all text content for non-standard Unicode that may render as boxes in some ATS parsers (fancy quotes `""''`, em/en dashes `—–`, decorative symbols). Report specifics in `details[]`.  | pass/warn |
+
+**Constants to define:**
+
+- `STANDARD_SECTION_HEADINGS` — ATS-recognized heading variants
+- `ACTION_VERBS` — curated list of ~50 strong action verbs
+- `SAFE_FONTS` — known embeddable/web-safe font families
+- `QUANTIFIED_PATTERN` — regex for detecting metrics in bullets
+- `COMMON_DATE_PATTERNS` — regexes for recognized date formats
+
+**Implementation:**
+
+- Each check is a small pure function: `(input) => AtsCheck`
+- `runChecks(input: AtsCheckInput): AtsCheckResult` orchestrates all checks and assembles the result
+- Reuses `distance` from `fastest-levenshtein` (already installed) for P2 fuzzy matching
+- No new npm dependencies
+- When `jdAnalysis` is null, keyword checks (K1–K3) are skipped entirely (not failed)
+
+**Testing:**
+
+- `__tests__/lib/ats-checker.test.ts` — unit tests for each check function with mock `ResumeData` and HTML strings
+- Test edge cases: empty sections, missing summary, no JD analysis, empty descriptions
+- Add mock fixtures to `__tests__/helpers/admin-fixtures.ts`
+
+### 8K Status: PENDING
+
+---
+
+### 8L: ATS Check Server Action
+
+**Scope:** Create the server action that assembles resume data, renders HTML, and runs the ATS checker.
+
+**Files to modify:**
+
+- `actions/resume-builder.ts` — add `runAtsCheck(configId)` server action
+
+**Dependencies (import, no modification):**
+
+- `actions/resume-pdf.ts` — `assembleResumeData(config)` and the `renderToHtml` helper
+- `lib/resume-builder/ats-checker.ts` — `runChecks(input)`
+
+**Server action — `runAtsCheck(configId: string)`:**
+
+1. `requireAdmin()` guard
+2. Fetch `resume_configs` row from DB (includes `jd_analysis`, `jd_coverage_score`, `jd_keywords`)
+3. Fetch template `registry_key` (default `'professional'`)
+4. Call `assembleResumeData(config)` from `actions/resume-pdf.ts` → `ResumeData`
+5. Render to HTML using the private `renderToHtml` helper in `actions/resume-pdf.ts`. If cross-import between `'use server'` files causes module graph issues, extract the shared HTML-rendering helper into `lib/resume-builder/render-to-html.ts` (which already exists but may need the font-import logic from `actions/resume-pdf.ts`).
+6. Build `AtsCheckInput`:
+   - `resumeData` from step 4
+   - `html` from step 5
+   - `jdAnalysis` from config fields (null if no JD analysis has been performed)
+7. Call `runChecks(input)` from `lib/resume-builder/ats-checker.ts`
+8. Return `{ data: AtsCheckResult }` or `{ error: string }`
+
+**Return type:** Follows existing `{ data?: T; error?: string }` pattern used throughout `actions/resume-builder.ts`.
+
+**Note on `jdAnalysis.technicalKeywords`:** The `ExtractedKeywords.categories.technical` array is not currently persisted in the DB — only `jd_keywords` (flat list) and `jd_analysis` (matched/missing/suggestions) are stored. For K2, the server action will need to either: (a) approximate by checking which `missingKeywords` are NOT in the `categories.soft` or `categories.qualifications` buckets (unavailable), or (b) skip the `technicalKeywords` filter and treat all missing keywords as potentially critical, or (c) extend the DB schema to persist `categories`. **Decision: use option (b)** — all missing keywords are surfaced by K2 as a flat list. This avoids a schema change for a minor optimization. The check name is adjusted to "Missing keywords" rather than "Missing critical keywords".
+
+**Testing:**
+
+- `__tests__/actions/resume-builder-ats.test.ts` — mock Supabase and `assembleResumeData`, verify the server action orchestrates correctly
+- Follow the testing pattern from `__tests__/actions/resume-builder-jd.test.ts`
+
+### 8L Status: PENDING
+
+---
+
+### 8M: ATS Check UI Component
+
+**Scope:** Build the ATS Checker UI panel and integrate it as a new tab in the resume builder.
+
+**Files to create:**
+
+- `components/admin/resume-builder/ats-checker-panel.tsx` — main ATS check UI component
+
+**Files to modify:**
+
+- `components/admin/resume-builder/resume-builder-tabs.tsx` — add "ATS Check" tab
+
+**Tab position in `resume-builder-tabs.tsx`:**
+
+```
+Configs | Composer | Preview | ATS Check | Templates | History
+```
+
+Enabled when `selectedConfig` is set (same condition as Preview and History).
+
+**Component — `AtsCheckerPanel`:**
+
+Props:
+
+```typescript
+{
+  config: ResumeConfig;
+}
+```
+
+State: `result: AtsCheckResult | null`, `isChecking: boolean`, `error: string | null`
+
+Layout:
+
+1. **"Run ATS Check" button** — calls `runAtsCheck(config.id)` server action. Loading state with `Loader2` spinner.
+2. **Score + summary bar** — after results:
+   - **Aggregate score** displayed prominently (e.g., "78%") with color coding: green ≥80, amber ≥60, red <60. Shown as a large number or circular gauge — useful for quick reference and comparing with third-party tools.
+   - **Check summary** next to the score: "X passed, Y warnings, Z failed" with colored `Badge` components. The individual checks remain the primary actionable output.
+3. **4 category cards** — one per category, using `Card`/`CardHeader`/`CardContent`:
+   - Header: category label + summary indicator (green checkmark if all pass, amber if warnings only, red X if any fail)
+   - Body: list of individual check items, collapsible via state toggle
+4. **Check item row** — status icon + check name (bold) + message (muted) + expandable `details[]` list
+   - Icons: `CheckCircle2` (green/pass), `AlertTriangle` (amber/warning), `XCircle` (red/fail) from `lucide-react`
+5. **Keyword checks notice** — when `config.jd_analysis` is null, show muted info text: "Run JD analysis in the Composer tab to unlock keyword optimization checks."
+
+**UI patterns to follow:**
+
+- `'use client'` directive
+- State management pattern from `jd-optimizer.tsx` (`StatusMessage`, loading states)
+- Card layout pattern from `resume-composer.tsx`
+- Dark mode via Tailwind `dark:` variants
+- Existing shadcn components: `Card`, `Badge`, `Button`, `Loader2`
+
+**Tab integration in `resume-builder-tabs.tsx`:**
+
+- Import `AtsCheckerPanel`
+- Add `<TabsTrigger value="ats-check" disabled={!selectedConfig}>ATS Check</TabsTrigger>` after the Preview trigger
+- Add `<TabsContent value="ats-check">{selectedConfig && <AtsCheckerPanel config={selectedConfig} />}</TabsContent>`
+
+**Testing:**
+
+- `__tests__/components/admin/ats-checker-panel.test.tsx` — render with mock `AtsCheckResult`, verify category cards, check items, button interactions, keyword notice state
+- Follow the testing pattern from `__tests__/components/admin/jd-optimizer.test.tsx`
+
+### 8M Status: PENDING
+
+---
+
+### 8N: Testing & Polish
+
+**Scope:** Integration testing, edge case coverage, CI verification, and documentation.
+
+**Tasks:**
+
+1. Add mock fixtures to `__tests__/helpers/admin-fixtures.ts`:
+   - `mockAtsCheckResult` — complete `AtsCheckResult` with a mix of pass/warn/fail
+   - `mockResumeDataForAtsCheck` — `ResumeData` designed to trigger various check statuses
+2. Ensure all checks handle edge cases gracefully:
+   - Empty `sections` array
+   - Missing/null `summary`
+   - No JD analysis data (keyword checks skipped, not failed)
+   - Experience items with empty `description`
+   - Skills section with zero skills
+   - Config with no template (uses default)
+3. Light/dark mode verification of the ATS Check tab
+4. Run full CI pipeline: `npx prettier --write .`, `npm run lint`, `npm run build`, `npm run test:run`
+5. Update this plan doc with final status markers
+
+### 8N Status: PENDING
+
+---
+
 ## Implementation Notes
 
 - **Playwright in production**: Playwright is currently a dev dependency used for E2E testing. For PDF generation in production (Vercel), it needs to be available at runtime. Options:

@@ -1,6 +1,6 @@
 # Lalding's Portfolio
 
-Personal portfolio site for **Laldingliana Tlau Vantawl** — Full-stack Tech Lead with 15+ years of experience. Features a Supabase-backed CMS with an admin dashboard for managing all content, OAuth-gated resume downloads with visitor tracking, and a public-facing portfolio rendered via ISR with static data fallback.
+Personal portfolio site for **Laldingliana Tlau Vantawl** — Full-stack Tech Lead with 15+ years of experience. Features a Supabase-backed CMS with an admin dashboard for managing all content, a resume builder that generates tailored PDF resumes from CMS data with JD optimization, OAuth-gated resume downloads with visitor tracking, and a public-facing portfolio rendered via ISR with static data fallback.
 
 **Live**: [lalding.in](https://lalding.in/)
 
@@ -14,6 +14,8 @@ Personal portfolio site for **Laldingliana Tlau Vantawl** — Full-stack Tech Le
 | Database     | Supabase (Postgres) with Row-Level Security                      |
 | Auth         | Supabase Auth (Google, GitHub, LinkedIn OAuth)                   |
 | File Storage | Supabase Storage (resume PDFs, project images/videos)            |
+| PDF Gen      | Playwright (HTML → PDF via headless Chromium)                    |
+| AI/LLM       | Anthropic Claude API (optional — JD keyword analysis)            |
 | Forms/Email  | Resend API, React Email                                          |
 | Monitoring   | Sentry (error tracking, performance, user feedback)              |
 | Testing      | Vitest, Playwright, Testing Library                              |
@@ -45,6 +47,13 @@ Personal portfolio site for **Laldingliana Tlau Vantawl** — Full-stack Tech Le
 - **Projects CRUD** — table view with image/video uploads via Supabase Storage
 - **Skills CRUD** — grouped card view with inline editing and reorder
 - **Resume management** — upload/replace PDF, view download log with visitor info
+- **Resume builder** — compose tailored resumes from CMS data with a template engine:
+  - **Config system** — create multiple resume variants (e.g., "Frontend Focus", "Leadership Focus") with section selection, item picking, and reordering
+  - **Template engine** — React components rendered to HTML with inline CSS, converted to PDF via Playwright
+  - **Version management** — generate, download, and activate PDF versions as the visitor-facing resume
+  - **Template customization** — style editor for colors, fonts, margins, and page size
+  - **JD optimization** — paste a job description, extract keywords via LLM (Anthropic Claude), score keyword coverage against CMS data, and apply suggestions to the resume config
+- **Education CRUD** — table view with add/edit/delete for education entries
 - **Visitors page** — searchable/sortable table with CSV export
 - **On-demand revalidation** — admin edits instantly reflect on the public site via ISR
 
@@ -68,20 +77,21 @@ npm run dev      # http://localhost:1111
 
 Copy `.env.example` to `.env.local` and fill in the values:
 
-| Variable                        | Required | Description                                                           |
-| ------------------------------- | -------- | --------------------------------------------------------------------- |
-| `RESEND_API_KEY`                | Yes      | API key for Resend email service (contact form)                       |
-| `NEXT_PUBLIC_SUPABASE_URL`      | No\*     | Supabase project URL                                                  |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No\*     | Supabase anonymous/public key                                         |
-| `SUPABASE_SERVICE_ROLE_KEY`     | No\*     | Supabase service role key (server-side only, for seeding/admin setup) |
-| `NEXT_PUBLIC_SENTRY_DSN`        | No       | Sentry DSN (public ingest endpoint)                                   |
-| `SENTRY_AUTH_TOKEN`             | No       | Sentry auth token for source map uploads                              |
-| `SENTRY_ORG`                    | No       | Sentry organization slug                                              |
-| `SENTRY_PROJECT`                | No       | Sentry project slug                                                   |
-| `NEXT_TELEMETRY_DISABLED`       | No       | Set to `1` to disable Next.js telemetry                               |
-| `VERCEL_OIDC_TOKEN`             | No       | Vercel OIDC token (set automatically in Vercel deployments)           |
-| `E2E_ADMIN_EMAIL`               | No       | Admin email for E2E tests (tests skip without this)                   |
-| `E2E_ADMIN_PASSWORD`            | No       | Admin password for E2E tests                                          |
+| Variable                        | Required | Description                                                                 |
+| ------------------------------- | -------- | --------------------------------------------------------------------------- |
+| `RESEND_API_KEY`                | Yes      | API key for Resend email service (contact form)                             |
+| `NEXT_PUBLIC_SUPABASE_URL`      | No\*     | Supabase project URL                                                        |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No\*     | Supabase anonymous/public key                                               |
+| `SUPABASE_SERVICE_ROLE_KEY`     | No\*     | Supabase service role key (server-side only, for seeding/admin setup)       |
+| `NEXT_PUBLIC_SENTRY_DSN`        | No       | Sentry DSN (public ingest endpoint)                                         |
+| `SENTRY_AUTH_TOKEN`             | No       | Sentry auth token for source map uploads                                    |
+| `SENTRY_ORG`                    | No       | Sentry organization slug                                                    |
+| `SENTRY_PROJECT`                | No       | Sentry project slug                                                         |
+| `NEXT_TELEMETRY_DISABLED`       | No       | Set to `1` to disable Next.js telemetry                                     |
+| `VERCEL_OIDC_TOKEN`             | No       | Vercel OIDC token (set automatically in Vercel deployments)                 |
+| `RESUME_BUILDER_LLM_API_KEY`    | No       | Anthropic API key for JD keyword analysis (resume builder works without it) |
+| `E2E_ADMIN_EMAIL`               | No       | Admin email for E2E tests (tests skip without this)                         |
+| `E2E_ADMIN_PASSWORD`            | No       | Admin password for E2E tests                                                |
 
 \* Without Supabase env vars, the app falls back to static data from `lib/data.ts` and logs a warning. All CMS, auth, and admin features require Supabase.
 
@@ -94,6 +104,10 @@ Copy `.env.example` to `.env.local` and fill in the values:
    - `supabase/storage.sql` — storage buckets and access policies
    - `supabase/auth-schema.sql` — visitor profiles and resume downloads tables
    - `supabase/auth-rls.sql` — RLS policies for auth tables
+   - `supabase/education-schema.sql` — education table
+   - `supabase/resume-builder-schema.sql` — resume builder tables (configs, versions, templates)
+   - `supabase/resume-builder-rls.sql` — resume builder RLS policies
+   - `supabase/resume-builder-seed.sql` — seed built-in "Professional" template
 3. Configure OAuth providers (Google, GitHub, LinkedIn) in the Supabase dashboard
 4. Seed the database: `npm run seed`
 5. Create an admin user: `npm run setup-admin`
@@ -132,6 +146,8 @@ lalding-portfolio/
 │   │   │   ├── projects/         # Projects CRUD
 │   │   │   ├── skills/           # Skills CRUD
 │   │   │   ├── resume/           # Resume upload + download log
+│   │   │   ├── resume-builder/  # Resume builder (compose, preview, generate)
+│   │   │   ├── education/       # Education CRUD
 │   │   │   ├── visitors/         # Visitor profiles + export
 │   │   │   └── error.tsx         # Shared error boundary
 │   │   └── login/page.tsx        # Admin login (public)
@@ -149,6 +165,14 @@ lalding-portfolio/
 │   │   ├── projects-editor.tsx   # Projects table + dialogs
 │   │   ├── skills-editor.tsx     # Grouped skills editor
 │   │   ├── resume-manager.tsx    # Resume upload + log
+│   │   ├── resume-builder/      # Resume builder components
+│   │   │   ├── resume-builder-tabs.tsx  # Tabbed container
+│   │   │   ├── config-list.tsx          # Config CRUD list
+│   │   │   ├── resume-composer.tsx      # Section picker + reorder
+│   │   │   ├── resume-preview.tsx       # Live HTML preview + PDF gen
+│   │   │   ├── jd-optimizer.tsx         # JD analysis + suggestions
+│   │   │   ├── template-manager.tsx     # Template style editor
+│   │   │   └── version-history.tsx      # Version list + activate
 │   │   ├── visitors-table.tsx    # Visitors list + CSV export
 │   │   ├── image-upload.tsx      # Reusable image upload
 │   │   ├── video-upload.tsx      # Reusable video upload
@@ -156,6 +180,11 @@ lalding-portfolio/
 │   ├── auth/                     # Auth UI components
 │   │   ├── login-modal.tsx       # Social login modal
 │   │   └── optional-fields-modal.tsx
+│   ├── resume-templates/         # Resume PDF templates
+│   │   ├── types.ts              # ResumeData, ResumeSection, etc.
+│   │   ├── registry.ts           # Template ID → component mapping
+│   │   ├── professional.tsx      # Primary template (pixel-match of reference PDF)
+│   │   └── shared/               # Shared template components
 │   ├── ui/                       # shadcn/ui components
 │   ├── intro.tsx                 # Hero section
 │   ├── about.tsx                 # About section
@@ -174,6 +203,8 @@ lalding-portfolio/
 ├── actions/
 │   ├── admin.ts                  # Admin CRUD server actions
 │   ├── resume.ts                 # Resume download (signed URLs)
+│   ├── resume-builder.ts         # Resume builder CRUD + JD analysis
+│   ├── resume-pdf.ts             # PDF generation pipeline
 │   └── sendEmail.ts              # Contact form email
 ├── context/
 │   ├── active-section-context.tsx
@@ -184,6 +215,10 @@ lalding-portfolio/
 │   ├── hooks.ts                  # Custom hooks
 │   ├── types.ts                  # Shared TypeScript types
 │   ├── utils.ts                  # Utility functions
+│   ├── resume-builder/
+│   │   ├── jd-analyzer.ts        # JD keyword extraction + coverage scoring
+│   │   ├── render-to-html.ts     # Template → HTML rendering
+│   │   └── render-to-pdf.ts      # Playwright HTML → PDF conversion
 │   └── supabase/
 │       ├── client.ts             # Browser Supabase client
 │       ├── server.ts             # Server Supabase client
@@ -197,7 +232,11 @@ lalding-portfolio/
 │   ├── rls.sql                   # Content RLS policies
 │   ├── storage.sql               # Storage buckets
 │   ├── auth-schema.sql           # Auth/visitor tables
-│   └── auth-rls.sql              # Auth RLS policies
+│   ├── auth-rls.sql              # Auth RLS policies
+│   ├── education-schema.sql      # Education table
+│   ├── resume-builder-schema.sql # Resume builder tables
+│   ├── resume-builder-rls.sql    # Resume builder RLS policies
+│   └── resume-builder-seed.sql   # Built-in template seed data
 ├── scripts/
 │   └── validate-supabase.ts      # Connection validation
 ├── e2e/                          # Playwright E2E tests
@@ -214,6 +253,7 @@ lalding-portfolio/
 │   ├── admin-projects.spec.ts
 │   ├── admin-skills.spec.ts
 │   ├── admin-resume.spec.ts
+│   ├── admin-resume-builder.spec.ts
 │   └── admin-public-sync.spec.ts
 ├── __tests__/                    # Vitest unit/component tests
 │   ├── actions/admin.test.ts
@@ -300,7 +340,7 @@ Fork contributors without Supabase secrets will see a warning — the build uses
 
 ## Roadmap
 
-- [ ] **Resume builder** — generate a resume PDF from admin CMS data (leveraging existing profile, experience, skills, and projects content)
+- [ ] **Resume builder** — compose tailored resumes from CMS data, generate PDFs, optimize for ATS (core builder complete, ATS checker in progress)
 - [x] **Sentry integration** — error monitoring, performance tracking, source map uploads, and admin feedback widget
 - [x] **Contact form email** — fixed email delivery with verified custom domain (noreply@lalding.in)
 - [ ] **UI improvements** — misc UI polish and optimizations across public site and admin dashboard
@@ -311,6 +351,7 @@ Fork contributors without Supabase secrets will see a warning — the build uses
 | Document                                                               | Description                                               |
 | ---------------------------------------------------------------------- | --------------------------------------------------------- |
 | [CMS & Auth Plan](docs/cms-and-auth-plan.md)                           | Master plan for Supabase CMS + auth + Sentry (Phases 1-7) |
+| [Resume Builder Plan](docs/resume-builder-plan.md)                     | Resume builder feature plan (Phase 8)                     |
 | [UI/UX Modernization Plan](docs/ui-ux-design.md)                       | Comprehensive 5-phase redesign plan (completed)           |
 | [Testing Infrastructure](docs/testing-infrastructure.md)               | Testing setup (Vitest, Playwright, coverage)              |
 | [CI/CD Pipeline](docs/CI-CD-OPTIMIZATIONS.md)                          | CI/CD pipeline architecture and optimizations             |
