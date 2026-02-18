@@ -544,7 +544,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Verify SQL runs without errors in Supabase SQL Editor
 - Verify TypeScript types compile (`npm run build`)
 
-### 8A Status: PENDING
+### 8A Status: DONE
 
 ---
 
@@ -578,7 +578,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Verify HTML output is valid and contains print CSS
 - Verify inline styles use design tokens from `ResumeStyle`
 
-### 8B Status: PENDING
+### 8B Status: DONE
 
 ---
 
@@ -605,7 +605,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Unit tests: verify `renderTemplateToHtml` produces valid HTML with expected content
 - Integration test (optional): generate an actual PDF with Playwright in a test, verify buffer is non-empty and > 1 KB
 
-### 8C Status: PENDING
+### 8C Status: DONE
 
 ---
 
@@ -632,7 +632,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 
 - Unit tests following the existing `admin.test.ts` pattern: mock Supabase, verify CRUD operations, verify `revalidatePath` calls, verify `requireAdmin` is called
 
-### 8D Status: PENDING
+### 8D Status: DONE
 
 ---
 
@@ -663,7 +663,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Component tests: render ConfigList with mock data, verify CRUD interactions
 - Component tests: render ResumeComposer with mock config + CMS data, verify section toggling and item selection
 
-### 8E Status: PENDING
+### 8E Status: DONE
 
 ---
 
@@ -688,7 +688,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Component tests: render ResumePreview with mock HTML, verify iframe renders, verify generate button calls server action
 - Verify loading/success/error states
 
-### 8F Status: PENDING
+### 8F Status: DONE
 
 ---
 
@@ -714,7 +714,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Component tests: render TemplateManager with mock templates, verify style editing
 - Component tests: render VersionHistory with mock versions, verify activate/download/delete actions
 
-### 8G Status: PENDING
+### 8G Status: DONE
 
 ---
 
@@ -743,7 +743,7 @@ This sits between the existing "Resume" (upload/download management) and "Visito
 - Build succeeds
 - No regression in existing resume download flow
 
-### 8H Status: PENDING
+### 8H Status: DONE
 
 ---
 

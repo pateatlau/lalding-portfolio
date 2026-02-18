@@ -1,10 +1,14 @@
 import type {
   Profile,
   ProfileStat,
+  Education,
   Experience,
   Project,
   ProjectCategory,
   SkillGroupWithSkills,
+  ResumeTemplate,
+  ResumeConfig,
+  ResumeVersion,
 } from '@/lib/supabase/types';
 import type { ResumeDownloadEntry, VisitorEntry } from '@/actions/admin';
 
@@ -22,6 +26,7 @@ export const mockProfile: Profile = {
   linkedin_url: 'https://linkedin.com/in/johndoe',
   github_url: 'https://github.com/johndoe',
   resume_url: 'resume.pdf',
+  website_url: null,
   about_tech_stack: 'React, TypeScript',
   about_current_focus: 'Next.js',
   about_beyond_code: 'Music',
@@ -58,6 +63,33 @@ export const mockExperiences: Experience[] = [
     end_date: '2019-12-31',
     display_date: 'Jan 2018 - Dec 2019',
     company_logo_url: '/companies/startup.webp',
+    sort_order: 1,
+  },
+];
+
+export const mockEducations: Education[] = [
+  {
+    id: 'edu-1',
+    institution: 'University of Example',
+    degree: 'Bachelor of Technology',
+    field_of_study: 'Computer Science',
+    description: 'Graduated with honors',
+    start_date: '2011-08-01',
+    end_date: '2015-05-31',
+    display_date: '2011 - 2015',
+    institution_logo_url: null,
+    sort_order: 0,
+  },
+  {
+    id: 'edu-2',
+    institution: 'Online Academy',
+    degree: 'Certificate',
+    field_of_study: null,
+    description: null,
+    start_date: '2016-01-01',
+    end_date: '2016-06-30',
+    display_date: '2016',
+    institution_logo_url: '/companies/academy.webp',
     sort_order: 1,
   },
 ];
@@ -164,3 +196,61 @@ export const mockVisitors: VisitorEntry[] = [
     downloadCount: 1,
   },
 ];
+
+// ── Resume Builder fixtures ───────────────────────────────────
+
+export const mockResumeTemplate: ResumeTemplate = {
+  id: 'tmpl-1',
+  registry_key: 'professional',
+  name: 'Professional',
+  description: 'Clean professional template',
+  thumbnail_url: null,
+  is_builtin: true,
+  page_size: 'A4',
+  columns: 1,
+  style_config: {
+    primaryColor: '#1a1a1a',
+    accentColor: '#2bbcb3',
+    fontFamily: 'Open Sans, sans-serif',
+    fontSize: '10pt',
+    lineHeight: '1.4',
+    margins: { top: '0.75in', right: '0.75in', bottom: '0.75in', left: '0.75in' },
+  },
+  sort_order: 0,
+  created_at: '2025-01-01T00:00:00Z',
+  updated_at: '2025-01-01T00:00:00Z',
+};
+
+export const mockResumeConfig: ResumeConfig = {
+  id: 'cfg-1',
+  name: 'Default Resume',
+  description: 'Main resume config',
+  template_id: 'tmpl-1',
+  sections: [
+    { section: 'experience', label: 'Experience', enabled: true, sort_order: 0, itemIds: [] },
+    { section: 'skills', label: 'Skills', enabled: true, sort_order: 1, itemIds: [] },
+    { section: 'projects', label: 'Projects', enabled: false, sort_order: 2, itemIds: [] },
+  ],
+  style_overrides: {},
+  custom_summary: 'Experienced engineer',
+  job_description: null,
+  jd_keywords: null,
+  jd_coverage_score: null,
+  jd_analysis: null,
+  is_active: true,
+  created_at: '2025-01-01T00:00:00Z',
+  updated_at: '2025-01-01T00:00:00Z',
+};
+
+export const mockResumeVersion: ResumeVersion = {
+  id: 'ver-1',
+  config_id: 'cfg-1',
+  template_id: 'tmpl-1',
+  config_snapshot: {},
+  pdf_storage_path: 'generated/cfg-1/ver-1.pdf',
+  pdf_file_size: 102400,
+  page_count: 1,
+  generation_time_ms: 2500,
+  is_active: true,
+  created_at: '2025-01-15T12:00:00Z',
+};

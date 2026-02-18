@@ -5,6 +5,7 @@ import type {
   NavLink,
   Company,
   Experience,
+  Education,
   ProjectCategory,
   Project,
   SkillGroupWithSkills,
@@ -145,6 +146,20 @@ export async function getExperiences(): Promise<Experience[] | null> {
     .order('sort_order', { ascending: true });
   if (error) {
     console.error('getExperiences error:', error.message);
+    return null;
+  }
+  return data;
+}
+
+export async function getEducations(): Promise<Education[] | null> {
+  if (!isSupabaseConfigured()) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('educations')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) {
+    console.error('getEducations error:', error.message);
     return null;
   }
   return data;

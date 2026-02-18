@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -17,6 +17,8 @@ import {
   FolderOpen,
   Wrench,
   FileText,
+  FileCog,
+  GraduationCap,
   Users,
   LogOut,
   Menu,
@@ -37,9 +39,11 @@ const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/profile', label: 'Profile', icon: User },
   { href: '/admin/experience', label: 'Experience', icon: Briefcase },
+  { href: '/admin/education', label: 'Education', icon: GraduationCap },
   { href: '/admin/projects', label: 'Projects', icon: FolderOpen },
   { href: '/admin/skills', label: 'Skills', icon: Wrench },
   { href: '/admin/resume', label: 'Resume', icon: FileText },
+  { href: '/admin/resume-builder', label: 'Resume Builder', icon: FileCog },
   { href: '/admin/visitors', label: 'Visitors', icon: Users },
 ];
 
@@ -48,7 +52,10 @@ function Breadcrumbs({ pathname }: { pathname: string }) {
 
   const breadcrumbs = segments.map((segment, index) => {
     const href = '/' + segments.slice(0, index + 1).join('/');
-    const label = segment.charAt(0).toUpperCase() + segment.slice(1);
+    const label = segment
+      .split('-')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
     return { href, label };
   });
 
@@ -75,6 +82,11 @@ export default function AdminShell({ adminUser, children }: AdminShellProps) {
   const router = useRouter();
   const { signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   const handleSignOut = async () => {
     await signOut();
@@ -90,7 +102,9 @@ export default function AdminShell({ adminUser, children }: AdminShellProps) {
       <Separator className="mb-4" />
       {navItems.map((item) => {
         const isActive =
-          item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
+          item.href === '/admin'
+            ? pathname === '/admin'
+            : pathname === item.href || pathname.startsWith(item.href + '/');
         return (
           <Link
             key={item.href}
@@ -123,18 +137,20 @@ export default function AdminShell({ adminUser, children }: AdminShellProps) {
         {/* Top bar */}
         <header className="bg-card flex h-14 items-center justify-between border-b px-4">
           <div className="flex items-center gap-3">
-            {/* Mobile hamburger */}
-            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="size-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-60 p-0">
-                <SheetTitle className="sr-only">Navigation</SheetTitle>
-                {sidebarContent}
-              </SheetContent>
-            </Sheet>
+            {/* Mobile hamburger — rendered client-only to avoid Radix ID hydration mismatch */}
+            {mounted && (
+              <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="md:hidden">
+                    <Menu className="size-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-60 p-0">
+                  <SheetTitle className="sr-only">Navigation</SheetTitle>
+                  {sidebarContent}
+                </SheetContent>
+              </Sheet>
+            )}
             <Breadcrumbs pathname={pathname} />
           </div>
 

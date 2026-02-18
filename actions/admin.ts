@@ -8,6 +8,8 @@ import type {
   ProfileStatInsert,
   Experience,
   ExperienceInsert,
+  Education,
+  EducationInsert,
   Project,
   ProjectInsert,
   SkillGroup,
@@ -303,6 +305,91 @@ export async function reorderExperiences(
 
   revalidatePath('/');
 
+  return { data: { success: true } };
+}
+
+// --- Education Actions ---
+
+export async function createEducation(
+  data: EducationInsert
+): Promise<{ data?: Education; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+  const { data: created, error } = await supabase.from('educations').insert(data).select().single();
+
+  if (error) {
+    console.error('createEducation error:', error.message);
+    return { error: 'Failed to create education' };
+  }
+
+  revalidatePath('/');
+  return { data: created };
+}
+
+export async function updateEducation(
+  id: string,
+  data: Partial<EducationInsert>
+): Promise<{ data?: Education; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+  const { data: updated, error } = await supabase
+    .from('educations')
+    .update(data)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error('updateEducation error:', error.message);
+    return { error: 'Failed to update education' };
+  }
+
+  revalidatePath('/');
+  return { data: updated };
+}
+
+export async function deleteEducation(
+  id: string
+): Promise<{ data?: { success: true }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from('educations').delete().eq('id', id);
+
+  if (error) {
+    console.error('deleteEducation error:', error.message);
+    return { error: 'Failed to delete education' };
+  }
+
+  revalidatePath('/');
+  return { data: { success: true } };
+}
+
+export async function reorderEducations(
+  orderedIds: string[]
+): Promise<{ data?: { success: true }; error?: string }> {
+  const adminResult = await requireAdmin();
+  if (adminResult.error) return { error: adminResult.error };
+
+  const supabase = await createClient();
+  const updates = orderedIds.map((id, index) =>
+    supabase.from('educations').update({ sort_order: index }).eq('id', id)
+  );
+
+  const results = await Promise.all(updates);
+  const failed = results.find((r) => r.error);
+
+  if (failed?.error) {
+    console.error('reorderEducations error:', failed.error.message);
+    return { error: 'Failed to reorder educations' };
+  }
+
+  revalidatePath('/');
   return { data: { success: true } };
 }
 
