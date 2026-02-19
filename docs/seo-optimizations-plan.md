@@ -261,15 +261,15 @@ const personJsonLd = {
 
 ## Task Summary
 
-| #   | Task                     | Files                                                            | Priority | Complexity | Status |
-| --- | ------------------------ | ---------------------------------------------------------------- | -------- | ---------- | ------ |
-| 1   | `robots.txt`             | `app/robots.ts` (new)                                            | High     | Low        | Done   |
-| 2   | `sitemap.xml`            | `app/sitemap.ts` (new)                                           | High     | Low        | Done   |
-| 3   | Admin `noindex`          | `app/admin/layout.tsx` (new)                                     | High     | Low        | Done   |
-| 4   | OG image                 | `public/og-image.jpg` or `app/opengraph-image.tsx` + layout edit | Medium   | Medium     |        |
-| 5   | Metadata enhancements    | `app/layout.tsx` (edit)                                          | Low      | Low        |        |
-| 6   | Enrich JSON-LD           | `app/layout.tsx` (edit)                                          | Low      | Low        |        |
-| 7   | Dynamic JSON-LD from CMS | `app/layout.tsx` (edit)                                          | Low      | Medium     |        |
+| #   | Task                     | Files                                                     | Priority | Complexity | Status |
+| --- | ------------------------ | --------------------------------------------------------- | -------- | ---------- | ------ |
+| 1   | `robots.txt`             | `app/robots.ts` (new)                                     | High     | Low        | Done   |
+| 2   | `sitemap.xml`            | `app/sitemap.ts` (new)                                    | High     | Low        | Done   |
+| 3   | Admin `noindex`          | `app/admin/layout.tsx` (new)                              | High     | Low        | Done   |
+| 4   | OG image                 | `app/opengraph-image.tsx` (new) + `app/layout.tsx` (edit) | Medium   | Medium     | Done   |
+| 5   | Metadata enhancements    | `app/layout.tsx` (edit)                                   | Low      | Low        | Done   |
+| 6   | Enrich JSON-LD           | `app/layout.tsx` (edit)                                   | Low      | Low        | Done   |
+| 7   | Dynamic JSON-LD from CMS | `app/layout.tsx` (edit)                                   | Low      | Medium     | Done   |
 
 **Proposed order**: 1 → 2 → 3 → 5 → 6 → 4 → 7
 

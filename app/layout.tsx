@@ -33,6 +33,10 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'Laldingliana Tlau Vantawl' }],
   creator: 'Laldingliana Tlau Vantawl',
+  category: 'technology',
+  alternates: {
+    canonical: 'https://lalding.in',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -41,21 +45,12 @@ export const metadata: Metadata = {
     title: 'Lalding | Full-stack Tech Lead Portfolio',
     description:
       'Full-stack Tech Lead with 15+ years of experience building scalable web applications.',
-    images: [
-      {
-        url: '/lalding.jpg',
-        width: 192,
-        height: 192,
-        alt: 'Laldingliana Tlau Vantawl - Full-stack Tech Lead',
-      },
-    ],
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'Lalding | Full-stack Tech Lead Portfolio',
     description:
       'Full-stack Tech Lead with 15+ years of experience building scalable web applications.',
-    images: ['/lalding.jpg'],
   },
   robots: {
     index: true,
@@ -66,6 +61,46 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const profile = await getProfileData();
 
+  // Dynamic JSON-LD Person schema from CMS data
+  const personJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: profile?.fullName ?? 'Laldingliana Tlau Vantawl',
+    alternateName: profile?.shortName ?? 'Lalding',
+    url: 'https://lalding.in',
+    image: 'https://lalding.in/lalding.jpg',
+    jobTitle: profile?.jobTitle ?? 'Full-stack Tech Lead',
+    description:
+      profile?.tagline ??
+      'Full-stack Tech Lead with 15+ years of experience building scalable web applications.',
+    worksFor: {
+      '@type': 'Organization',
+      name: 'HDFC Bank Limited',
+    },
+    sameAs: [
+      profile?.linkedinUrl ?? 'https://www.linkedin.com/in/laldingliana-tv/',
+      profile?.githubUrl ?? 'https://github.com/pateatlau',
+    ].filter(Boolean),
+    knowsAbout: [
+      'React',
+      'Next.js',
+      'TypeScript',
+      'Node.js',
+      'Full-stack Development',
+      'Web Development',
+    ],
+  };
+
+  // WebSite schema
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Lalding Portfolio',
+    url: 'https://lalding.in',
+    description:
+      'Portfolio of Laldingliana Tlau Vantawl — Full-stack Tech Lead with 15+ years of experience.',
+  };
+
   return (
     <html lang="en" className="scroll-smooth!">
       <head>
@@ -73,31 +108,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Person',
-              name: 'Laldingliana Tlau Vantawl',
-              alternateName: 'Lalding',
-              url: 'https://lalding.in',
-              image: 'https://lalding.in/lalding.jpg',
-              jobTitle: 'Full-stack Tech Lead',
-              worksFor: {
-                '@type': 'Organization',
-                name: 'HDFC Bank Limited',
-              },
-              sameAs: [
-                'https://www.linkedin.com/in/laldingliana-tv/',
-                'https://github.com/pateatlau',
-              ],
-              knowsAbout: [
-                'React',
-                'Next.js',
-                'TypeScript',
-                'Node.js',
-                'Full-stack Development',
-                'Web Development',
-              ],
-            }),
+            __html: JSON.stringify(personJsonLd),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteJsonLd),
           }}
         />
       </head>
