@@ -404,6 +404,8 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
 
               {generalStatus && (
                 <p
+                  role="status"
+                  aria-live="polite"
                   className={
                     generalStatus.type === 'success'
                       ? 'text-success text-sm'
