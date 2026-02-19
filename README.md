@@ -34,9 +34,11 @@ Personal portfolio site for **Laldingliana Tlau Vantawl** — Full-stack Tech Le
 - **Glassmorphism timeline** for career experience
 - **Split contact layout** with info cards and contact form
 - **Mesh gradient background** (layered OKLCH radial gradients)
-- **Scroll progress indicator** in the header
+- **Scroll progress indicator** in the header with gradient background
 - **Dark mode** with system preference detection
-- **Responsive** with mobile-specific optimizations
+- **Responsive** with mobile-specific optimizations (grouped social icons, optimized button layout)
+- **Accessibility-first** — skip-to-content link, focus indicators, ARIA labels, keyboard navigation support
+- **SEO optimized** — dynamic OG image generation, JSON-LD structured data (Person + WebSite schemas), Twitter cards
 - **prefers-reduced-motion** support throughout
 
 ### CMS & Admin Dashboard
@@ -348,7 +350,7 @@ Fork contributors without Supabase secrets will see a warning — the build uses
 - [x] **Sentry integration** — error monitoring, performance tracking, source map uploads, and admin feedback widget
 - [x] **Contact form email** — fixed email delivery with verified custom domain (noreply@lalding.in)
 - [x] **SEO optimizations** — robots.txt, sitemap.xml, admin noindex, dynamic OG image (1200×630), canonical URLs, enriched JSON-LD (Person + WebSite schemas), Twitter large image cards
-- [ ] **UI improvements** — misc UI polish and optimizations across public site and admin dashboard
+- [x] **UI/UX improvements** — accessibility enhancements (focus indicators, ARIA labels, keyboard navigation, skip-to-content), contact form redesign (floating labels, character counter, acknowledgement email), project card enhancements (hover overlays, video support), command palette improvements, layout fixes (button spacing, mobile layout, overflow prevention), visual polish (skill badge sizing, scroll progress gradient, simplified footer)
 
 ### Nice-to-Have
 
@@ -357,14 +359,15 @@ Fork contributors without Supabase secrets will see a warning — the build uses
 
 ## Documentation
 
-| Document                                                               | Description                                               |
-| ---------------------------------------------------------------------- | --------------------------------------------------------- |
-| [CMS & Auth Plan](docs/cms-and-auth-plan.md)                           | Master plan for Supabase CMS + auth + Sentry (Phases 1-7) |
-| [Resume Builder Plan](docs/resume-builder-plan.md)                     | Resume builder feature plan (Phase 8)                     |
-| [SEO Optimizations Plan](docs/seo-optimizations-plan.md)               | SEO audit and implementation plan (all tasks completed)   |
-| [UI/UX Modernization Plan](docs/ui-ux-design.md)                       | Comprehensive 5-phase redesign plan (completed)           |
-| [Testing Infrastructure](docs/testing-infrastructure.md)               | Testing setup (Vitest, Playwright, coverage)              |
-| [CI/CD Pipeline](docs/CI-CD-OPTIMIZATIONS.md)                          | CI/CD pipeline architecture and optimizations             |
-| [Improvements & Optimizations](docs/improvements-and-optimizations.md) | Known issues and optimization recommendations             |
-| [Tailwind v4 Migration](docs/tailwind-v4-migration.md)                 | Tailwind CSS v3 → v4 migration notes                      |
-| [Next.js 16 Migration](docs/next-16-migration.md)                      | Next.js 15 → 16 migration notes                           |
+| Document                                                               | Description                                                    |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------- |
+| [CMS & Auth Plan](docs/cms-and-auth-plan.md)                           | Master plan for Supabase CMS + auth + Sentry (Phases 1-7)      |
+| [Resume Builder Plan](docs/resume-builder-plan.md)                     | Resume builder feature plan (Phase 8)                          |
+| [SEO Optimizations Plan](docs/seo-optimizations-plan.md)               | SEO audit and implementation plan (all tasks completed)        |
+| [UI/UX Modernization Plan](docs/ui-ux-design.md)                       | Comprehensive 5-phase redesign plan (completed)                |
+| [UI Improvements Audit](docs/ui-improvements-audit.md)                 | Comprehensive UI/UX audit with 35 improvements (30+ completed) |
+| [Testing Infrastructure](docs/testing-infrastructure.md)               | Testing setup (Vitest, Playwright, coverage)                   |
+| [CI/CD Pipeline](docs/CI-CD-OPTIMIZATIONS.md)                          | CI/CD pipeline architecture and optimizations                  |
+| [Improvements & Optimizations](docs/improvements-and-optimizations.md) | Known issues and optimization recommendations                  |
+| [Tailwind v4 Migration](docs/tailwind-v4-migration.md)                 | Tailwind CSS v3 → v4 migration notes                           |
+| [Next.js 16 Migration](docs/next-16-migration.md)                      | Next.js 15 → 16 migration notes                                |
