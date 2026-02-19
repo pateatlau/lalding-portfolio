@@ -44,7 +44,7 @@ This platform evolved from a simple hardcoded portfolio into a structured, exten
 
 The resume builder treats resume generation as a deterministic rendering pipeline:
 
-```
+```text
 Structured CMS Data
     ↓
 Filtered Configuration (section selection, item picking, reordering)
@@ -421,15 +421,15 @@ If deployed as a multi-tenant SaaS platform, the system would require:
 
 ## Documentation
 
-| Document                                                               | Description                                                    |
-| ---------------------------------------------------------------------- | -------------------------------------------------------------- |
-| [CMS & Auth Plan](docs/cms-and-auth-plan.md)                           | Master plan for Supabase CMS + auth + Sentry (Phases 1-7)      |
-| [Resume Builder Plan](docs/resume-builder-plan.md)                     | Resume builder feature plan (Phase 8)                          |
-| [SEO Optimizations Plan](docs/seo-optimizations-plan.md)               | SEO audit and implementation plan (all tasks completed)        |
-| [UI/UX Modernization Plan](docs/ui-ux-design.md)                       | Comprehensive 5-phase redesign plan (completed)                |
-| [UI Improvements Audit](docs/ui-improvements-audit.md)                 | Comprehensive UI/UX audit with 35 improvements (30+ completed) |
-| [Testing Infrastructure](docs/testing-infrastructure.md)               | Testing setup (Vitest, Playwright, coverage)                   |
-| [CI/CD Pipeline](docs/CI-CD-OPTIMIZATIONS.md)                          | CI/CD pipeline architecture and optimizations                  |
-| [Improvements & Optimizations](docs/improvements-and-optimizations.md) | Known issues and optimization recommendations                  |
-| [Tailwind v4 Migration](docs/tailwind-v4-migration.md)                 | Tailwind CSS v3 → v4 migration notes                           |
-| [Next.js 16 Migration](docs/next-16-migration.md)                      | Next.js 15 → 16 migration notes                                |
+| Document                                                               | Description                                                                                |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| [CMS & Auth Plan](docs/cms-and-auth-plan.md)                           | Master plan for Supabase CMS + auth + Sentry (Phases 1-7)                                  |
+| [Resume Builder Plan](docs/resume-builder-plan.md)                     | Resume builder feature plan (Phase 8)                                                      |
+| [SEO Optimizations Plan](docs/seo-optimizations-plan.md)               | SEO audit and implementation plan (all tasks completed)                                    |
+| [UI/UX Modernization Plan](docs/ui-ux-design.md)                       | Comprehensive 5-phase redesign plan (completed)                                            |
+| [UI Improvements Audit](docs/ui-improvements-audit.md)                 | Comprehensive UI/UX audit — 35 actionable improvements (30+ completed; 126 total findings) |
+| [Testing Infrastructure](docs/testing-infrastructure.md)               | Testing setup (Vitest, Playwright, coverage)                                               |
+| [CI/CD Pipeline](docs/CI-CD-OPTIMIZATIONS.md)                          | CI/CD pipeline architecture and optimizations                                              |
+| [Improvements & Optimizations](docs/improvements-and-optimizations.md) | Known issues and optimization recommendations                                              |
+| [Tailwind v4 Migration](docs/tailwind-v4-migration.md)                 | Tailwind CSS v3 → v4 migration notes                                                       |
+| [Next.js 16 Migration](docs/next-16-migration.md)                      | Next.js 15 → 16 migration notes                                                            |

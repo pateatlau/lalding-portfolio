@@ -261,23 +261,35 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="short_name">
-                      Short Name <span className="text-destructive">*</span>
+                      Short Name{' '}
+                      <span
+                        className="text-destructive"
+                        title="Required field"
+                        aria-label="required"
+                      >
+                        *
+                      </span>
                     </Label>
                     <Input
                       id="short_name"
                       value={formData.short_name}
                       onChange={(e) => updateField('short_name', e.target.value)}
+                      required
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="job_title">
-                    Job Title <span className="text-destructive">*</span>
+                    Job Title{' '}
+                    <span className="text-destructive" title="Required field" aria-label="required">
+                      *
+                    </span>
                   </Label>
                   <Input
                     id="job_title"
                     value={formData.job_title}
                     onChange={(e) => updateField('job_title', e.target.value)}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -338,13 +350,21 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="email">
-                      Email <span className="text-destructive">*</span>
+                      Email{' '}
+                      <span
+                        className="text-destructive"
+                        title="Required field"
+                        aria-label="required"
+                      >
+                        *
+                      </span>
                     </Label>
                     <Input
                       id="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => updateField('email', e.target.value)}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
