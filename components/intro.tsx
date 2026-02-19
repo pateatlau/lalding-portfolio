@@ -79,7 +79,7 @@ export default function Intro({ profile }: { profile: ProfileData }) {
       <section
         ref={ref}
         id="home"
-        className="mb-28 max-w-[50rem] scroll-mt-[100rem] text-center sm:mb-0"
+        className="mb-16 max-w-[50rem] scroll-mt-[100rem] text-center sm:mb-0"
       >
         <div className="flex items-center justify-center">
           <motion.div
@@ -138,7 +138,7 @@ export default function Intro({ profile }: { profile: ProfileData }) {
         >
           <Link
             href="#contact"
-            className="group flex items-center gap-2 rounded-full bg-gray-900 px-7 py-3 text-white outline-hidden transition hover:scale-110 hover:bg-gray-950 focus:scale-110 active:scale-105"
+            className="group focus:outline-accent-teal flex items-center gap-2 rounded-full bg-gray-900 px-7 py-3 text-white transition outline-none hover:scale-110 hover:bg-gray-950 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
             onClick={() => {
               setActiveSection('Contact');
               setTimeOfLastClick(Date.now());
@@ -149,7 +149,7 @@ export default function Intro({ profile }: { profile: ProfileData }) {
           </Link>
 
           <button
-            className="borderBlack group flex cursor-pointer items-center gap-2 rounded-full bg-white px-7 py-3 outline-hidden transition hover:scale-110 focus:scale-110 active:scale-105 disabled:opacity-50 dark:bg-white/10"
+            className="borderBlack group focus:outline-accent-teal flex cursor-pointer items-center gap-2 rounded-full bg-white px-7 py-3 transition outline-none hover:scale-110 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 disabled:opacity-50 dark:bg-white/10"
             onClick={handleResumeClick}
             disabled={isDownloading}
             title="Download my resume"
@@ -169,7 +169,7 @@ export default function Intro({ profile }: { profile: ProfileData }) {
 
           {profile.linkedinUrl && (
             <a
-              className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-gray-700 transition hover:scale-[1.15] hover:text-gray-950 focus:scale-[1.15] active:scale-105 dark:bg-white/10 dark:text-white/60"
+              className="borderBlack focus:outline-accent-teal flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-gray-700 transition outline-none hover:scale-[1.15] hover:text-gray-950 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 dark:bg-white/10 dark:text-white/60"
               href={profile.linkedinUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -182,7 +182,7 @@ export default function Intro({ profile }: { profile: ProfileData }) {
 
           {profile.githubUrl && (
             <a
-              className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-[1.35rem] text-gray-700 transition hover:scale-[1.15] hover:text-gray-950 focus:scale-[1.15] active:scale-105 dark:bg-white/10 dark:text-white/60"
+              className="borderBlack focus:outline-accent-teal flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-[1.35rem] text-gray-700 transition outline-none hover:scale-[1.15] hover:text-gray-950 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 dark:bg-white/10 dark:text-white/60"
               href={profile.githubUrl}
               target="_blank"
               rel="noopener noreferrer"

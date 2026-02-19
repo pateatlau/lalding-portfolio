@@ -273,6 +273,9 @@ export default function CommandPalette({ profile }: { profile: ProfileData }) {
 
             {/* Dialog */}
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="command-palette-title"
               className="fixed top-[20%] left-1/2 z-[9999] w-[min(90vw,32rem)] -translate-x-1/2 overflow-hidden rounded-xl border border-black/10 bg-white/95 shadow-2xl backdrop-blur-md dark:border-white/10 dark:bg-gray-900/95"
               initial={{ opacity: 0, scale: 0.95, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -281,14 +284,23 @@ export default function CommandPalette({ profile }: { profile: ProfileData }) {
             >
               {/* Search input */}
               <div className="flex items-center gap-3 border-b border-black/5 px-4 dark:border-white/5">
-                <BsSearch className="text-muted-foreground shrink-0" />
+                <BsSearch className="text-muted-foreground shrink-0" aria-hidden="true" />
                 <input
                   ref={inputRef}
+                  type="text"
+                  role="combobox"
+                  aria-expanded="true"
+                  aria-controls="command-palette-results"
+                  aria-autocomplete="list"
+                  aria-activedescendant={
+                    selectedIndex >= 0 ? `command-item-${selectedIndex}` : undefined
+                  }
                   className="h-12 w-full bg-transparent text-sm outline-none placeholder:text-gray-400 dark:text-white dark:placeholder:text-gray-500"
                   placeholder="Type a command or search..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={handleInputKeyDown}
+                  id="command-palette-title"
                 />
                 <kbd className="text-muted-foreground hidden shrink-0 rounded border border-black/10 px-1.5 py-0.5 text-[0.65rem] font-medium sm:inline-block dark:border-white/10">
                   ESC
@@ -296,7 +308,12 @@ export default function CommandPalette({ profile }: { profile: ProfileData }) {
               </div>
 
               {/* Results */}
-              <div ref={listRef} className="max-h-72 overflow-y-auto p-2">
+              <div
+                ref={listRef}
+                id="command-palette-results"
+                role="listbox"
+                className="max-h-72 overflow-y-auto p-2"
+              >
                 {filtered.length === 0 && (
                   <div className="text-muted-foreground py-8 text-center text-sm">
                     No results found
@@ -314,6 +331,9 @@ export default function CommandPalette({ profile }: { profile: ProfileData }) {
                       return (
                         <button
                           key={item.id}
+                          id={`command-item-${currentIndex}`}
+                          role="option"
+                          aria-selected={isSelected}
                           data-selected={isSelected}
                           className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${
                             isSelected
