@@ -28,7 +28,7 @@ export default function Experience({
   const { theme } = useTheme();
 
   return (
-    <section id="experience" ref={ref} className="mb-28 scroll-mt-28 sm:mb-40">
+    <section id="experience" ref={ref} className="mb-28 w-full scroll-mt-28 sm:mb-40">
       <SectionHeading>Career Journey</SectionHeading>
       <VerticalTimeline lineColor={theme === 'light' ? '#e5e7eb' : 'rgba(255,255,255,0.1)'}>
         {experiences.map((item) => (
