@@ -22,7 +22,7 @@ function TypewriterEffect({ titles }: { titles: string[] }) {
 
   useEffect(() => {
     const currentTitle = titles[titleIndex];
-    let innerTimeout: ReturnType<typeof setTimeout>;
+    let innerTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const timeout = setTimeout(
       () => {
@@ -30,12 +30,14 @@ function TypewriterEffect({ titles }: { titles: string[] }) {
           if (charIndex < currentTitle.length) {
             setCharIndex((prev) => prev + 1);
           } else {
+            // Pause at end before starting to delete
             innerTimeout = setTimeout(() => setIsDeleting(true), 2000);
           }
         } else {
           if (charIndex > 0) {
             setCharIndex((prev) => prev - 1);
           } else {
+            // Move to next title
             setIsDeleting(false);
             setTitleIndex((prev) => (prev + 1) % titles.length);
           }
@@ -46,7 +48,7 @@ function TypewriterEffect({ titles }: { titles: string[] }) {
 
     return () => {
       clearTimeout(timeout);
-      clearTimeout(innerTimeout);
+      if (innerTimeout) clearTimeout(innerTimeout);
     };
   }, [charIndex, isDeleting, titleIndex, titles]);
 
@@ -79,7 +81,7 @@ export default function Intro({ profile }: { profile: ProfileData }) {
       <section
         ref={ref}
         id="home"
-        className="mb-28 max-w-[50rem] scroll-mt-[100rem] text-center sm:mb-0"
+        className="mb-16 max-w-[50rem] scroll-mt-[100rem] text-center sm:mb-0"
       >
         <div className="flex items-center justify-center">
           <motion.div
@@ -129,7 +131,7 @@ export default function Intro({ profile }: { profile: ProfileData }) {
         </motion.p>
 
         <motion.div
-          className="flex flex-col items-center justify-center gap-2 px-4 text-lg font-medium sm:flex-row"
+          className="flex flex-col items-center justify-center gap-2 px-4 text-lg font-medium sm:flex-row sm:gap-3"
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
@@ -138,7 +140,7 @@ export default function Intro({ profile }: { profile: ProfileData }) {
         >
           <Link
             href="#contact"
-            className="group flex items-center gap-2 rounded-full bg-gray-900 px-7 py-3 text-white outline-hidden transition hover:scale-110 hover:bg-gray-950 focus:scale-110 active:scale-105"
+            className="group focus:outline-accent-teal flex items-center gap-2 rounded-full bg-gray-900 px-7 py-3 text-white transition outline-none hover:scale-110 hover:bg-gray-950 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100"
             onClick={() => {
               setActiveSection('Contact');
               setTimeOfLastClick(Date.now());
@@ -148,74 +150,84 @@ export default function Intro({ profile }: { profile: ProfileData }) {
             Contact me <BsArrowRight className="opacity-70 transition group-hover:translate-x-1" />
           </Link>
 
-          <button
-            className="borderBlack group flex cursor-pointer items-center gap-2 rounded-full bg-white px-7 py-3 outline-hidden transition hover:scale-110 focus:scale-110 active:scale-105 disabled:opacity-50 dark:bg-white/10"
-            onClick={handleResumeClick}
-            disabled={isDownloading}
-            title="Download my resume"
-          >
-            {isDownloading ? (
-              <>
-                Downloading...
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-gray-900 dark:border-gray-500 dark:border-t-white" />
-              </>
-            ) : (
-              <>
-                Download Resume
-                <HiDownload className="opacity-60 transition group-hover:translate-y-1" />
-              </>
-            )}
-          </button>
-
-          {profile.linkedinUrl && (
-            <a
-              className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-gray-700 transition hover:scale-[1.15] hover:text-gray-950 focus:scale-[1.15] active:scale-105 dark:bg-white/10 dark:text-white/60"
-              href={profile.linkedinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Visit my LinkedIn profile"
-              aria-label="LinkedIn profile"
-            >
-              <BsLinkedin />
-            </a>
-          )}
-
-          {profile.githubUrl && (
-            <a
-              className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-[1.35rem] text-gray-700 transition hover:scale-[1.15] hover:text-gray-950 focus:scale-[1.15] active:scale-105 dark:bg-white/10 dark:text-white/60"
-              href={profile.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Visit my Github profile"
-              aria-label="GitHub profile"
-            >
-              <FaGithubSquare />
-            </a>
-          )}
-
-          {user && (
+          <div className="relative">
             <button
-              className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-gray-700 transition hover:scale-105 hover:text-gray-950 dark:bg-white/10 dark:text-white/60 dark:hover:text-white"
-              onClick={() => signOut()}
-              title={`Signed in as ${visitorProfile?.full_name || visitorProfile?.email || 'user'} — click to sign out`}
-              aria-label="Sign out"
+              className="borderBlack group focus:outline-accent-teal flex cursor-pointer items-center gap-2 rounded-full bg-white px-7 py-3 transition outline-none hover:scale-110 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 disabled:opacity-50 dark:bg-white/10"
+              onClick={handleResumeClick}
+              disabled={isDownloading}
+              title={user ? 'Download my resume' : 'Login required to download resume'}
             >
-              {visitorProfile?.avatar_url ? (
-                <Image
-                  src={visitorProfile.avatar_url}
-                  alt=""
-                  width={24}
-                  height={24}
-                  className="h-6 w-6 rounded-full"
-                />
-              ) : null}
-              <BsBoxArrowRight className="opacity-60" />
+              {isDownloading ? (
+                <>
+                  Downloading...
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-gray-900 dark:border-gray-500 dark:border-t-white" />
+                </>
+              ) : (
+                <>
+                  Download Resume
+                  <HiDownload className="opacity-60 transition group-hover:translate-y-1" />
+                </>
+              )}
             </button>
-          )}
+            {!user && (
+              <span className="bg-accent-teal dark:bg-accent-teal-light absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-[0.6rem] font-medium text-white">
+                <span className="sr-only">Login required</span>
+                🔒
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {profile.linkedinUrl && (
+              <a
+                className="borderBlack focus:outline-accent-teal flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-gray-700 transition outline-none hover:scale-[1.15] hover:text-gray-950 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 dark:bg-white/10 dark:text-white/60"
+                href={profile.linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Visit my LinkedIn profile"
+                aria-label="LinkedIn profile"
+              >
+                <BsLinkedin />
+              </a>
+            )}
+
+            {profile.githubUrl && (
+              <a
+                className="borderBlack focus:outline-accent-teal flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-[1.35rem] text-gray-700 transition outline-none hover:scale-[1.15] hover:text-gray-950 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 dark:bg-white/10 dark:text-white/60"
+                href={profile.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Visit my Github profile"
+                aria-label="GitHub profile"
+              >
+                <FaGithubSquare />
+              </a>
+            )}
+
+            {user && (
+              <button
+                className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-gray-700 transition hover:scale-105 hover:text-gray-950 dark:bg-white/10 dark:text-white/60 dark:hover:text-white"
+                onClick={() => signOut()}
+                title={`Signed in as ${visitorProfile?.full_name || visitorProfile?.email || 'user'} — click to sign out`}
+                aria-label="Sign out"
+              >
+                {visitorProfile?.avatar_url ? (
+                  <Image
+                    src={visitorProfile.avatar_url}
+                    alt=""
+                    width={24}
+                    height={24}
+                    className="h-6 w-6 rounded-full"
+                  />
+                ) : null}
+                <BsBoxArrowRight className="opacity-60" />
+              </button>
+            )}
+          </div>
         </motion.div>
 
         <motion.div
-          className="mt-16 hidden sm:block"
+          className="mt-16 mb-16 hidden sm:block"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}

@@ -38,6 +38,8 @@ export default function Header() {
                   setTimeOfLastClick(Date.now());
                 }}
                 title={`Jump to ${link.name} section`}
+                aria-label={`Navigate to ${link.name} section`}
+                aria-current={activeSection === link.name ? 'page' : undefined}
               >
                 {link.name}
 

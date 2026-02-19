@@ -40,7 +40,7 @@ describe('ProfileForm', () => {
     await user.clear(fullNameInput);
     await user.type(fullNameInput, 'Jane Doe');
 
-    await user.click(screen.getByRole('button', { name: /save general info/i }));
+    await user.click(screen.getByRole('button', { name: /^save$/i }));
 
     await waitFor(() => {
       expect(updateProfile).toHaveBeenCalledTimes(1);
@@ -56,7 +56,7 @@ describe('ProfileForm', () => {
     const user = userEvent.setup();
     render(<ProfileForm profile={mockProfile} stats={mockStats} />);
 
-    await user.click(screen.getByRole('button', { name: /save general info/i }));
+    await user.click(screen.getByRole('button', { name: /^save$/i }));
 
     await waitFor(() => {
       expect(screen.getByText('Failed to update profile')).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe('ProfileForm', () => {
     render(<ProfileForm profile={mockProfile} stats={mockStats} />);
 
     await user.click(screen.getByRole('tab', { name: 'About' }));
-    await user.click(screen.getByRole('button', { name: /save about info/i }));
+    await user.click(screen.getByRole('button', { name: /^save$/i }));
 
     await waitFor(() => {
       expect(updateProfile).toHaveBeenCalledTimes(1);

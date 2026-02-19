@@ -122,7 +122,7 @@ describe('ExperienceEditor', () => {
     await user.clear(titleInput);
     await user.type(titleInput, 'Lead Dev');
 
-    await user.click(screen.getByRole('button', { name: /save changes/i }));
+    await user.click(screen.getByRole('button', { name: /^save$/i }));
 
     await waitFor(() => {
       expect(updateExperience).toHaveBeenCalledWith(

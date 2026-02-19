@@ -39,7 +39,7 @@ export default function Skills({ skillGroups }: { skillGroups: SkillGroupData[] 
             <h3 className="text-accent-teal dark:text-accent-teal-light mb-3 text-sm font-semibold tracking-wide uppercase">
               {group.category}
             </h3>
-            <ul className="flex flex-wrap justify-center gap-2 text-lg text-gray-800">
+            <ul className="flex flex-wrap justify-center gap-2 text-sm text-gray-800">
               {group.skills.map((skill) => {
                 const index = globalIndex++;
                 return (

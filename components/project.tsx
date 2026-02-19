@@ -33,7 +33,7 @@ export default function Project({
       }}
       className="group mb-3 last:mb-0 sm:mb-8"
     >
-      <section className="hover:border-accent-teal/20 dark:hover:border-accent-teal/15 relative max-w-2xl overflow-hidden rounded-lg border border-black/5 bg-gray-100 transition hover:bg-gray-200 sm:h-80 sm:pr-8 sm:group-even:pl-8 dark:bg-white/10 dark:text-white dark:hover:bg-white/20">
+      <section className="hover:border-accent-teal/20 dark:hover:border-accent-teal/15 relative w-full max-w-2xl overflow-hidden rounded-lg border border-black/5 bg-gray-100 transition hover:bg-gray-200 sm:h-80 sm:pr-8 sm:group-even:pl-8 dark:border-white/5 dark:bg-white/10 dark:text-white dark:hover:bg-white/20">
         <div className="flex h-full flex-col px-5 pt-4 pb-7 sm:max-w-[50%] sm:pt-10 sm:pr-2 sm:pl-10 sm:group-even:ml-72">
           <h3 className="text-2xl font-semibold">{title}</h3>
           <p className="mt-2 leading-relaxed text-gray-700 dark:text-white/70">{description}</p>
@@ -49,7 +49,7 @@ export default function Project({
           </ul>
           <div className="my-4 flex flex-row justify-between">
             <a
-              className="border-accent-teal/20 text-muted-foreground hover:text-foreground hover:border-accent-teal/40 w-30 rounded-md border p-2 text-center transition"
+              className="border-accent-teal/20 text-muted-foreground hover:text-foreground hover:border-accent-teal/40 focus:outline-accent-teal w-30 rounded-md border p-2 text-center transition outline-none focus:outline focus:outline-2 focus:outline-offset-2"
               href={sourceCode}
               target="_blank"
               rel="noopener noreferrer"
@@ -61,7 +61,7 @@ export default function Project({
               </span>
             </a>
             <a
-              className="border-accent-teal/20 text-muted-foreground hover:text-foreground hover:border-accent-teal/40 w-30 rounded-md border p-2 text-center transition"
+              className="border-accent-teal/20 text-muted-foreground hover:text-foreground hover:border-accent-teal/40 focus:outline-accent-teal w-30 rounded-md border p-2 text-center transition outline-none focus:outline focus:outline-2 focus:outline-offset-2"
               href={liveSite}
               target="_blank"
               rel="noopener noreferrer"
@@ -82,9 +82,9 @@ export default function Project({
                 controls
                 preload="metadata"
                 className="w-full rounded-lg"
-                aria-label={`Demo video for ${title} project`}
+                aria-label={`Silent demo video for ${title} project (no audio)`}
               >
-                <track kind="captions" />
+                <track kind="captions" label="No audio" srcLang="en" />
               </video>
             </div>
           )}
@@ -96,10 +96,10 @@ export default function Project({
             src={demoVideoUrl}
             controls
             preload="metadata"
-            aria-label={`Demo video for ${title} project`}
+            aria-label={`Silent demo video for ${title} project (no audio)`}
             className="absolute top-8 -right-40 hidden w-[28.25rem] rounded-t-lg shadow-2xl transition group-even:right-[initial] group-even:-left-40 group-hover:-translate-x-3 group-hover:translate-y-3 group-hover:scale-[1.04] group-hover:-rotate-2 group-hover:group-even:translate-x-3 group-hover:group-even:translate-y-3 group-hover:group-even:rotate-2 sm:block"
           >
-            <track kind="captions" />
+            <track kind="captions" label="No audio" srcLang="en" />
           </video>
         ) : (
           <Image

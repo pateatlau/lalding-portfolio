@@ -243,33 +243,53 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="full_name">
-                      Full Name <span className="text-destructive">*</span>
+                      Full Name{' '}
+                      <span
+                        className="text-destructive"
+                        title="Required field"
+                        aria-label="required"
+                      >
+                        *
+                      </span>
                     </Label>
                     <Input
                       id="full_name"
                       value={formData.full_name}
                       onChange={(e) => updateField('full_name', e.target.value)}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="short_name">
-                      Short Name <span className="text-destructive">*</span>
+                      Short Name{' '}
+                      <span
+                        className="text-destructive"
+                        title="Required field"
+                        aria-label="required"
+                      >
+                        *
+                      </span>
                     </Label>
                     <Input
                       id="short_name"
                       value={formData.short_name}
                       onChange={(e) => updateField('short_name', e.target.value)}
+                      required
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="job_title">
-                    Job Title <span className="text-destructive">*</span>
+                    Job Title{' '}
+                    <span className="text-destructive" title="Required field" aria-label="required">
+                      *
+                    </span>
                   </Label>
                   <Input
                     id="job_title"
                     value={formData.job_title}
                     onChange={(e) => updateField('job_title', e.target.value)}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -330,13 +350,21 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="email">
-                      Email <span className="text-destructive">*</span>
+                      Email{' '}
+                      <span
+                        className="text-destructive"
+                        title="Required field"
+                        aria-label="required"
+                      >
+                        *
+                      </span>
                     </Label>
                     <Input
                       id="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => updateField('email', e.target.value)}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -404,6 +432,8 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
 
               {generalStatus && (
                 <p
+                  role="status"
+                  aria-live="polite"
                   className={
                     generalStatus.type === 'success'
                       ? 'text-success text-sm'
@@ -416,7 +446,7 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
 
               <Button onClick={handleSaveGeneral} disabled={isSavingGeneral}>
                 {isSavingGeneral && <Loader2 className="mr-2 size-4 animate-spin" />}
-                {isSavingGeneral ? 'Saving...' : 'Save General Info'}
+                {isSavingGeneral ? 'Saving...' : 'Save'}
               </Button>
             </CardContent>
           </Card>
@@ -501,6 +531,8 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
 
               {aboutStatus && (
                 <p
+                  role="status"
+                  aria-live="polite"
                   className={
                     aboutStatus.type === 'success'
                       ? 'text-success text-sm'
@@ -513,7 +545,7 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
 
               <Button onClick={handleSaveAbout} disabled={isSavingAbout}>
                 {isSavingAbout && <Loader2 className="mr-2 size-4 animate-spin" />}
-                {isSavingAbout ? 'Saving...' : 'Save About Info'}
+                {isSavingAbout ? 'Saving...' : 'Save'}
               </Button>
             </CardContent>
           </Card>
@@ -659,6 +691,8 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
 
               {statsStatus && (
                 <p
+                  role="status"
+                  aria-live="polite"
                   className={
                     statsStatus.type === 'success'
                       ? 'text-success text-sm'

@@ -219,6 +219,9 @@ describe('SkillsEditor', () => {
   it('deletes a skill', async () => {
     vi.mocked(deleteSkill).mockResolvedValue({ data: { success: true } });
 
+    // Mock window.confirm to return true
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+
     const user = userEvent.setup();
     render(<SkillsEditor groups={mockSkillGroups} />);
 

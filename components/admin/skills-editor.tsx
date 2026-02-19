@@ -204,6 +204,15 @@ export default function SkillsEditor({
   }
 
   async function handleDeleteSkill(skillId: string, groupId: string) {
+    // Confirmation dialog to prevent accidental deletions
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this skill? This action cannot be undone.'
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     setSavingSkillId(skillId);
     setStatus(null);
 
