@@ -227,7 +227,7 @@ export default function Intro({ profile }: { profile: ProfileData }) {
         </motion.div>
 
         <motion.div
-          className="mt-16 hidden sm:block"
+          className="mt-16 mb-16 hidden sm:block"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
