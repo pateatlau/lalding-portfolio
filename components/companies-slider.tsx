@@ -70,7 +70,7 @@ function CompaniesSlider({ companies }: { companies: CompanyData[] }) {
   };
 
   return (
-    <div className="container mx-auto mt-10 hidden max-w-full pt-2 pb-0 sm:block">
+    <div className="container mt-10 hidden pt-2 pb-0 sm:block">
       <Slider {...settings}>
         {companies.map((company) => (
           <div key={company.name}>
