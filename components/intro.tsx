@@ -131,7 +131,7 @@ export default function Intro({ profile }: { profile: ProfileData }) {
         </motion.p>
 
         <motion.div
-          className="flex flex-col items-center justify-center gap-2 px-4 text-lg font-medium sm:flex-row"
+          className="flex flex-col items-center justify-center gap-2 px-4 text-lg font-medium sm:flex-row sm:gap-3"
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{
@@ -177,51 +177,53 @@ export default function Intro({ profile }: { profile: ProfileData }) {
             )}
           </div>
 
-          {profile.linkedinUrl && (
-            <a
-              className="borderBlack focus:outline-accent-teal flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-gray-700 transition outline-none hover:scale-[1.15] hover:text-gray-950 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 dark:bg-white/10 dark:text-white/60"
-              href={profile.linkedinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Visit my LinkedIn profile"
-              aria-label="LinkedIn profile"
-            >
-              <BsLinkedin />
-            </a>
-          )}
+          <div className="flex items-center gap-2">
+            {profile.linkedinUrl && (
+              <a
+                className="borderBlack focus:outline-accent-teal flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-gray-700 transition outline-none hover:scale-[1.15] hover:text-gray-950 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 dark:bg-white/10 dark:text-white/60"
+                href={profile.linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Visit my LinkedIn profile"
+                aria-label="LinkedIn profile"
+              >
+                <BsLinkedin />
+              </a>
+            )}
 
-          {profile.githubUrl && (
-            <a
-              className="borderBlack focus:outline-accent-teal flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-[1.35rem] text-gray-700 transition outline-none hover:scale-[1.15] hover:text-gray-950 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 dark:bg-white/10 dark:text-white/60"
-              href={profile.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Visit my Github profile"
-              aria-label="GitHub profile"
-            >
-              <FaGithubSquare />
-            </a>
-          )}
+            {profile.githubUrl && (
+              <a
+                className="borderBlack focus:outline-accent-teal flex cursor-pointer items-center gap-2 rounded-full bg-white p-4 text-[1.35rem] text-gray-700 transition outline-none hover:scale-[1.15] hover:text-gray-950 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 dark:bg-white/10 dark:text-white/60"
+                href={profile.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Visit my Github profile"
+                aria-label="GitHub profile"
+              >
+                <FaGithubSquare />
+              </a>
+            )}
 
-          {user && (
-            <button
-              className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-gray-700 transition hover:scale-105 hover:text-gray-950 dark:bg-white/10 dark:text-white/60 dark:hover:text-white"
-              onClick={() => signOut()}
-              title={`Signed in as ${visitorProfile?.full_name || visitorProfile?.email || 'user'} — click to sign out`}
-              aria-label="Sign out"
-            >
-              {visitorProfile?.avatar_url ? (
-                <Image
-                  src={visitorProfile.avatar_url}
-                  alt=""
-                  width={24}
-                  height={24}
-                  className="h-6 w-6 rounded-full"
-                />
-              ) : null}
-              <BsBoxArrowRight className="opacity-60" />
-            </button>
-          )}
+            {user && (
+              <button
+                className="borderBlack flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-gray-700 transition hover:scale-105 hover:text-gray-950 dark:bg-white/10 dark:text-white/60 dark:hover:text-white"
+                onClick={() => signOut()}
+                title={`Signed in as ${visitorProfile?.full_name || visitorProfile?.email || 'user'} — click to sign out`}
+                aria-label="Sign out"
+              >
+                {visitorProfile?.avatar_url ? (
+                  <Image
+                    src={visitorProfile.avatar_url}
+                    alt=""
+                    width={24}
+                    height={24}
+                    className="h-6 w-6 rounded-full"
+                  />
+                ) : null}
+                <BsBoxArrowRight className="opacity-60" />
+              </button>
+            )}
+          </div>
         </motion.div>
 
         <motion.div
