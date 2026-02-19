@@ -1,8 +1,27 @@
-# Lalding's Portfolio
+# Lalding Portfolio Platform
 
-Personal portfolio site for **Laldingliana Tlau Vantawl** — Full-stack Tech Lead with 15+ years of experience. Features a Supabase-backed CMS with an admin dashboard for managing all content, a resume builder that generates tailored PDF resumes from CMS data with JD optimization, OAuth-gated resume downloads with visitor tracking, and a public-facing portfolio rendered via ISR with static data fallback.
+A production-grade, Supabase-backed content platform featuring:
+
+- **Headless CMS** with Row-Level Security enforcement
+- **Resume Composition Engine** — deterministic rendering pipeline for multi-version resume generation
+- **ATS Compatibility Analyzer** — rule-based scoring with 21 transparent checks across parsability, keywords, readability, and format compliance
+- **LLM-Powered JD Analysis** — optional keyword extraction (isolated from deterministic ATS checks)
+- **OAuth-Gated Distribution** — resume downloads with visitor tracking and analytics
+- **Deterministic PDF Rendering** — Playwright-based HTML → PDF conversion with pixel-perfect fidelity
+- **CI/CD Pipeline** — automated testing, E2E coverage, and Lighthouse auditing
 
 **Live**: [lalding.in](https://lalding.in/)
+
+## Why This Project Exists
+
+This platform evolved from a simple hardcoded portfolio into a structured, extensible system. The architectural goals were:
+
+- **Eliminate hardcoded content** in favor of structured CMS modeling with type-safe queries
+- **Treat resume generation** as a deterministic rendering pipeline with versioned artifacts
+- **Enable multi-version resumes** from canonical CMS data with section filtering and reordering
+- **Maintain strict data isolation** using Supabase Row-Level Security policies
+- **Integrate AI augmentation** without compromising deterministic core logic
+- **Design for modularity** — the resume builder is architected for potential extraction into a standalone, self-hostable platform (Open Resume Engine)
 
 ## Tech Stack
 
@@ -21,25 +40,50 @@ Personal portfolio site for **Laldingliana Tlau Vantawl** — Full-stack Tech Le
 | Testing      | Vitest, Playwright, Testing Library                              |
 | CI/CD        | GitHub Actions (lint, build, test, E2E, Lighthouse CI) → Vercel  |
 
+## Resume Composition Engine
+
+The resume builder treats resume generation as a deterministic rendering pipeline:
+
+```
+Structured CMS Data
+    ↓
+Filtered Configuration (section selection, item picking, reordering)
+    ↓
+Template Renderer (React components with inline CSS)
+    ↓
+HTML Output
+    ↓
+Deterministic PDF Generation (Playwright headless browser)
+    ↓
+Versioned Artifact Storage (Supabase Storage with metadata)
+```
+
+**Key architectural decisions:**
+
+- **Deterministic rendering** — same input always produces identical PDF output
+- **Template isolation** — uses inline CSS (no Tailwind) for PDF fidelity across environments
+- **Version snapshots** — each generated resume stores its complete configuration for reproducibility
+- **ATS scoring transparency** — the 0–100 score represents transparent rule coverage across deterministic heuristic checks; it does not attempt to replicate proprietary ATS systems
+- **LLM isolation** — JD keyword extraction is optional and completely isolated from deterministic ATS checks
+
+## System Boundaries & Governance
+
+- **Canonical CMS separation** — resume composition logic is decoupled from CMS content storage
+- **Configuration snapshots** — resume versions store complete config state for reproducibility
+- **LLM/deterministic isolation** — AI-based JD analysis never affects rule-based ATS scoring
+- **Service-role restrictions** — admin-only operations use service role; RLS enforces user-level access
+- **Strict data isolation** — RLS policies prevent cross-user data leakage in multi-tenant contexts
+
 ## Key Features
 
 ### Public Site
 
-- **Command palette** (Cmd+K / Ctrl+K) for keyboard-first navigation
-- **Typewriter hero** with animated role cycling
-- **Bento grid** about section with animated stat counters
-- **Project filtering** by category with smooth transitions
-- **Inline demo videos** on project cards (with fallback to static images)
-- **Grouped skills** organized by category
-- **Glassmorphism timeline** for career experience
-- **Split contact layout** with info cards and contact form
-- **Mesh gradient background** (layered OKLCH radial gradients)
-- **Scroll progress indicator** in the header with gradient background
-- **Dark mode** with system preference detection
-- **Responsive** with mobile-specific optimizations (grouped social icons, optimized button layout)
-- **Accessibility-first** — skip-to-content link, focus indicators, ARIA labels, keyboard navigation support
-- **SEO optimized** — dynamic OG image generation, JSON-LD structured data (Person + WebSite schemas), Twitter cards
-- **prefers-reduced-motion** support throughout
+- **ISR with on-demand revalidation** — static site generation with instant admin edit reflection
+- **Accessibility-first** — WCAG 2.1 AA compliant with skip-to-content, focus indicators, ARIA labels, keyboard navigation
+- **SEO optimized** — dynamic OG image generation (1200×630), JSON-LD structured data (Person + WebSite schemas), Twitter cards
+- **Command palette** — keyboard-first navigation (Cmd+K / Ctrl+K) with fuzzy search
+- **Responsive & performant** — mobile-optimized, dark mode support, prefers-reduced-motion compliance
+- **Component-driven UI** — modular architecture with Framer Motion animations, shadcn/ui components
 
 ### CMS & Admin Dashboard
 
@@ -343,6 +387,24 @@ Fork contributors without Supabase secrets will see a warning — the build uses
 **OAuth gating for resume downloads** — Requiring social login before download serves two purposes: it captures visitor identity (name, email, company) for the site owner's analytics, and it adds a lightweight friction layer that filters casual downloads. The optional fields modal (company, role) is skippable to avoid blocking motivated visitors.
 
 **Static fallback mode** — When Supabase env vars are not configured, all query functions return `null` and the app renders from `lib/data.ts`. This lets fork contributors run the site locally without a Supabase project, keeps CI builds passing without secrets, and provides a safety net if the database is temporarily unreachable.
+
+## Trade-Offs & Constraints
+
+- **Playwright for PDF generation** — Ensures pixel-perfect layout fidelity but increases server runtime cost (~500ms per resume generation). Acceptable trade-off for production-quality resume output; alternative approaches (PDF libraries) sacrifice visual accuracy.
+- **Supabase managed service** — Simplifies infrastructure (auth + DB + storage + RLS in one service) but introduces managed-service dependency. Mitigated by static fallback mode and clear service boundaries.
+- **OAuth gating** — Increases friction for resume downloads but improves analytics quality and visitor intent signal. Optional fields modal is skippable to avoid blocking motivated users.
+- **LLM integration is optional** — Preserves deterministic core logic; JD keyword analysis degrades gracefully when API key is not configured. ATS scoring remains fully functional without LLM.
+- **Resume builder complexity** — Modular architecture supports future extraction into standalone OSS platform (Open Resume Engine), justifying current architectural investment.
+
+## Scaling Considerations
+
+If deployed as a multi-tenant SaaS platform, the system would require:
+
+- **Worker-queue-based PDF generation** — offload Playwright rendering to dedicated job processors
+- **Template versioning controls** — track template schema changes across resume versions
+- **Rate limiting on JD analysis** — prevent LLM API cost runaway
+- **Structured audit logging** — compliance and debugging for multi-tenant operations
+- **Dedicated rendering cluster** — isolate PDF generation from web tier
 
 ## Roadmap
 
