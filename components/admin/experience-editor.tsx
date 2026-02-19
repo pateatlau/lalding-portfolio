@@ -246,22 +246,24 @@ export default function ExperienceEditor({
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="size-7"
+                      className="size-8"
                       aria-label="Move experience up"
                       onClick={() => handleMove(index, 'up')}
                       disabled={index === 0 || isReordering}
+                      title="Move up"
                     >
-                      <ChevronUp className="size-3" />
+                      <ChevronUp className="size-4" />
                     </Button>
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="size-7"
+                      className="size-8"
                       aria-label="Move experience down"
                       onClick={() => handleMove(index, 'down')}
                       disabled={index === experiences.length - 1 || isReordering}
+                      title="Move down"
                     >
-                      <ChevronDown className="size-3" />
+                      <ChevronDown className="size-4" />
                     </Button>
                   </div>
                 </TableCell>
@@ -419,7 +421,7 @@ export default function ExperienceEditor({
             </Button>
             <Button onClick={handleSave} disabled={isSaving}>
               {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isSaving ? 'Saving...' : isAddMode ? 'Create' : 'Save Changes'}
+              {isSaving ? 'Saving...' : isAddMode ? 'Create' : 'Save'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -243,12 +243,20 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="full_name">
-                      Full Name <span className="text-destructive">*</span>
+                      Full Name{' '}
+                      <span
+                        className="text-destructive"
+                        title="Required field"
+                        aria-label="required"
+                      >
+                        *
+                      </span>
                     </Label>
                     <Input
                       id="full_name"
                       value={formData.full_name}
                       onChange={(e) => updateField('full_name', e.target.value)}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -418,7 +426,7 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
 
               <Button onClick={handleSaveGeneral} disabled={isSavingGeneral}>
                 {isSavingGeneral && <Loader2 className="mr-2 size-4 animate-spin" />}
-                {isSavingGeneral ? 'Saving...' : 'Save General Info'}
+                {isSavingGeneral ? 'Saving...' : 'Save'}
               </Button>
             </CardContent>
           </Card>

@@ -505,7 +505,7 @@ export default function ProjectsEditor({
             </Button>
             <Button onClick={handleSave} disabled={isSaving}>
               {isSaving && <Loader2 className="mr-2 size-4 animate-spin" />}
-              {isSaving ? 'Saving...' : isAddMode ? 'Create' : 'Save Changes'}
+              {isSaving ? 'Saving...' : isAddMode ? 'Create' : 'Save'}
             </Button>
           </DialogFooter>
         </DialogContent>
