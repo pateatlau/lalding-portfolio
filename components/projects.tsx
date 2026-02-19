@@ -21,6 +21,7 @@ export default function Projects({
 
   // Load filter preference from localStorage on mount using lazy initialization
   const [activeFilter, setActiveFilter] = useState(() => {
+    if (typeof window === 'undefined') return 'All';
     const savedFilter = localStorage.getItem(FILTER_STORAGE_KEY);
     return savedFilter && categories.includes(savedFilter) ? savedFilter : 'All';
   });
@@ -28,7 +29,9 @@ export default function Projects({
   // Save filter preference to localStorage when it changes
   const handleFilterChange = (category: string) => {
     setActiveFilter(category);
-    localStorage.setItem(FILTER_STORAGE_KEY, category);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(FILTER_STORAGE_KEY, category);
+    }
   };
 
   const filteredProjects =
