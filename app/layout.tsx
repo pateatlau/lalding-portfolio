@@ -141,7 +141,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <ActiveSectionContextProvider>
               <ScrollProgress />
               <Header />
-              <main id="main">{children}</main>
+              <main id="main" className="overflow-x-hidden">
+                {children}
+              </main>
               <Footer profile={profile} />
 
               <Toaster position="top-right" />
