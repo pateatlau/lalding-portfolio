@@ -82,9 +82,9 @@ export default function Project({
                 controls
                 preload="metadata"
                 className="w-full rounded-lg"
-                aria-label={`Demo video for ${title} project`}
+                aria-label={`Silent demo video for ${title} project (no audio)`}
               >
-                <track kind="captions" />
+                <track kind="captions" label="No audio" srcLang="en" />
               </video>
             </div>
           )}
@@ -96,10 +96,10 @@ export default function Project({
             src={demoVideoUrl}
             controls
             preload="metadata"
-            aria-label={`Demo video for ${title} project`}
+            aria-label={`Silent demo video for ${title} project (no audio)`}
             className="absolute top-8 -right-40 hidden w-[28.25rem] rounded-t-lg shadow-2xl transition group-even:right-[initial] group-even:-left-40 group-hover:-translate-x-3 group-hover:translate-y-3 group-hover:scale-[1.04] group-hover:-rotate-2 group-hover:group-even:translate-x-3 group-hover:group-even:translate-y-3 group-hover:group-even:rotate-2 sm:block"
           >
-            <track kind="captions" />
+            <track kind="captions" label="No audio" srcLang="en" />
           </video>
         ) : (
           <Image

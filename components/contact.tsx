@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import SectionHeading from './section-heading';
 import { motion } from 'framer-motion';
 import { useSectionInView } from '@/lib/hooks';
@@ -10,14 +10,30 @@ import toast from 'react-hot-toast';
 import { BsEnvelope, BsPhone, BsGeoAlt, BsLinkedin, BsGithub } from 'react-icons/bs';
 import { useAuth } from '@/context/auth-context';
 import type { ProfileData } from '@/lib/types';
+import { Label } from '@/components/ui/label';
 
 export default function Contact({ profile }: { profile: ProfileData }) {
   const { ref } = useSectionInView('Contact');
   const formRef = useRef<HTMLFormElement>(null);
   const { visitorProfile } = useAuth();
+  const [emailError, setEmailError] = useState<string>('');
+  const [messageLength, setMessageLength] = useState(0);
 
   // Key changes when visitor profile loads, re-mounting inputs with pre-filled defaults
   const formKey = visitorProfile?.id ?? 'anon';
+
+  const validateEmail = (email: string) => {
+    if (!email) {
+      setEmailError('');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError('Please enter a valid email address');
+    } else {
+      setEmailError('');
+    }
+  };
 
   return (
     <motion.section
@@ -120,32 +136,77 @@ export default function Contact({ profile }: { profile: ProfileData }) {
               toast.success('Email sent successfully!');
             }}
           >
-            <input
-              key={`name-${formKey}`}
-              className="focus:border-accent-teal/40 dark:focus:border-accent-teal/30 h-14 rounded-lg border border-black/5 bg-white/60 px-4 backdrop-blur-sm transition-all focus:outline-none dark:border-white/5 dark:bg-white/5 dark:text-white"
-              name="senderName"
-              type="text"
-              maxLength={200}
-              placeholder="Your name (optional)"
-              defaultValue={visitorProfile?.full_name ?? ''}
-            />
-            <input
-              key={`email-${formKey}`}
-              className="focus:border-accent-teal/40 dark:focus:border-accent-teal/30 mt-3 h-14 rounded-lg border border-black/5 bg-white/60 px-4 backdrop-blur-sm transition-all focus:outline-none dark:border-white/5 dark:bg-white/5 dark:text-white"
-              name="senderEmail"
-              type="email"
-              required
-              maxLength={500}
-              placeholder="Your email"
-              defaultValue={visitorProfile?.email ?? ''}
-            />
-            <textarea
-              className="focus:border-accent-teal/40 dark:focus:border-accent-teal/30 my-3 h-40 rounded-lg border border-black/5 bg-white/60 p-4 backdrop-blur-sm transition-all focus:outline-none md:h-52 dark:border-white/5 dark:bg-white/5 dark:text-white"
-              name="message"
-              placeholder="Your message"
-              required
-              maxLength={5000}
-            />
+            <div className="space-y-1">
+              <Label
+                htmlFor="senderName"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Name <span className="text-gray-500 dark:text-gray-400">(optional)</span>
+              </Label>
+              <input
+                key={`name-${formKey}`}
+                id="senderName"
+                className="focus:border-accent-teal/40 dark:focus:border-accent-teal/30 h-14 w-full rounded-lg border border-black/5 bg-white/60 px-4 backdrop-blur-sm transition-all focus:outline-none dark:border-white/5 dark:bg-white/5 dark:text-white"
+                name="senderName"
+                type="text"
+                maxLength={200}
+                placeholder="Your name"
+                defaultValue={visitorProfile?.full_name ?? ''}
+              />
+            </div>
+            <div className="mt-3 space-y-1">
+              <Label
+                htmlFor="senderEmail"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Email <span className="text-red-500">*</span>
+              </Label>
+              <input
+                key={`email-${formKey}`}
+                id="senderEmail"
+                className={`h-14 w-full rounded-lg border bg-white/60 px-4 backdrop-blur-sm transition-all focus:outline-none dark:bg-white/5 dark:text-white ${
+                  emailError
+                    ? 'border-red-500/40 focus:border-red-500/60 dark:border-red-500/40 dark:focus:border-red-500/60'
+                    : 'focus:border-accent-teal/40 dark:focus:border-accent-teal/30 border-black/5 dark:border-white/5'
+                }`}
+                name="senderEmail"
+                type="email"
+                required
+                maxLength={500}
+                placeholder="your.email@example.com"
+                defaultValue={visitorProfile?.email ?? ''}
+                onChange={(e) => validateEmail(e.target.value)}
+                aria-invalid={!!emailError}
+                aria-describedby={emailError ? 'email-error' : undefined}
+              />
+              {emailError && (
+                <p id="email-error" className="text-sm text-red-600 dark:text-red-400" role="alert">
+                  {emailError}
+                </p>
+              )}
+            </div>
+            <div className="my-3 space-y-1">
+              <div className="flex items-center justify-between">
+                <Label
+                  htmlFor="message"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
+                >
+                  Message <span className="text-red-500">*</span>
+                </Label>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {messageLength} / 5000
+                </span>
+              </div>
+              <textarea
+                id="message"
+                className="focus:border-accent-teal/40 dark:focus:border-accent-teal/30 h-40 w-full rounded-lg border border-black/5 bg-white/60 p-4 backdrop-blur-sm transition-all focus:outline-none md:h-52 dark:border-white/5 dark:bg-white/5 dark:text-white"
+                name="message"
+                placeholder="Your message..."
+                required
+                maxLength={5000}
+                onChange={(e) => setMessageLength(e.target.value.length)}
+              />
+            </div>
             <SubmitBtn />
           </form>
         </div>

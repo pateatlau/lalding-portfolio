@@ -22,7 +22,7 @@ function TypewriterEffect({ titles }: { titles: string[] }) {
 
   useEffect(() => {
     const currentTitle = titles[titleIndex];
-    let innerTimeout: ReturnType<typeof setTimeout>;
+    let innerTimeout: ReturnType<typeof setTimeout> | null = null;
 
     const timeout = setTimeout(
       () => {
@@ -30,12 +30,14 @@ function TypewriterEffect({ titles }: { titles: string[] }) {
           if (charIndex < currentTitle.length) {
             setCharIndex((prev) => prev + 1);
           } else {
+            // Pause at end before starting to delete
             innerTimeout = setTimeout(() => setIsDeleting(true), 2000);
           }
         } else {
           if (charIndex > 0) {
             setCharIndex((prev) => prev - 1);
           } else {
+            // Move to next title
             setIsDeleting(false);
             setTitleIndex((prev) => (prev + 1) % titles.length);
           }
@@ -46,7 +48,7 @@ function TypewriterEffect({ titles }: { titles: string[] }) {
 
     return () => {
       clearTimeout(timeout);
-      clearTimeout(innerTimeout);
+      if (innerTimeout) clearTimeout(innerTimeout);
     };
   }, [charIndex, isDeleting, titleIndex, titles]);
 
@@ -148,24 +150,32 @@ export default function Intro({ profile }: { profile: ProfileData }) {
             Contact me <BsArrowRight className="opacity-70 transition group-hover:translate-x-1" />
           </Link>
 
-          <button
-            className="borderBlack group focus:outline-accent-teal flex cursor-pointer items-center gap-2 rounded-full bg-white px-7 py-3 transition outline-none hover:scale-110 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 disabled:opacity-50 dark:bg-white/10"
-            onClick={handleResumeClick}
-            disabled={isDownloading}
-            title="Download my resume"
-          >
-            {isDownloading ? (
-              <>
-                Downloading...
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-gray-900 dark:border-gray-500 dark:border-t-white" />
-              </>
-            ) : (
-              <>
-                Download Resume
-                <HiDownload className="opacity-60 transition group-hover:translate-y-1" />
-              </>
+          <div className="relative">
+            <button
+              className="borderBlack group focus:outline-accent-teal flex cursor-pointer items-center gap-2 rounded-full bg-white px-7 py-3 transition outline-none hover:scale-110 focus:outline focus:outline-2 focus:outline-offset-2 active:scale-105 disabled:opacity-50 dark:bg-white/10"
+              onClick={handleResumeClick}
+              disabled={isDownloading}
+              title={user ? 'Download my resume' : 'Login required to download resume'}
+            >
+              {isDownloading ? (
+                <>
+                  Downloading...
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400 border-t-gray-900 dark:border-gray-500 dark:border-t-white" />
+                </>
+              ) : (
+                <>
+                  Download Resume
+                  <HiDownload className="opacity-60 transition group-hover:translate-y-1" />
+                </>
+              )}
+            </button>
+            {!user && (
+              <span className="bg-accent-teal dark:bg-accent-teal-light absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-[0.6rem] font-medium text-white">
+                <span className="sr-only">Login required</span>
+                🔒
+              </span>
             )}
-          </button>
+          </div>
 
           {profile.linkedinUrl && (
             <a
