@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { getProfileData } from '@/lib/supabase/queries';
 
-export const runtime = 'edge';
+// Note: Not using edge runtime because getProfileData() requires cookies() from next/headers
 export const alt = 'Lalding — Full-stack Tech Lead Portfolio';
 export const size = {
   width: 1200,
@@ -9,7 +9,7 @@ export const size = {
 };
 export const contentType = 'image/png';
 
-export default async function Image() {
+export default async function OpenGraphImage() {
   const profile = await getProfileData();
 
   const name = profile?.fullName ?? 'Laldingliana Tlau Vantawl';

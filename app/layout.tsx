@@ -17,6 +17,15 @@ const inter = Inter({
   display: 'swap',
 });
 
+// Sanitize JSON-LD output to prevent XSS via script injection
+function escapeJsonLd(jsonString: string): string {
+  return jsonString
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://lalding.in'),
   title: 'Lalding | Full-stack Tech Lead Portfolio',
@@ -35,7 +44,7 @@ export const metadata: Metadata = {
   creator: 'Laldingliana Tlau Vantawl',
   category: 'technology',
   alternates: {
-    canonical: 'https://lalding.in',
+    canonical: 'https://lalding.in/',
   },
   openGraph: {
     type: 'website',
@@ -80,7 +89,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     sameAs: [
       profile?.linkedinUrl ?? 'https://www.linkedin.com/in/laldingliana-tv/',
       profile?.githubUrl ?? 'https://github.com/pateatlau',
-    ].filter(Boolean),
+    ],
     knowsAbout: [
       'React',
       'Next.js',
@@ -108,13 +117,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(personJsonLd),
+            __html: escapeJsonLd(JSON.stringify(personJsonLd)),
           }}
         />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(websiteJsonLd),
+            __html: escapeJsonLd(JSON.stringify(websiteJsonLd)),
           }}
         />
       </head>
