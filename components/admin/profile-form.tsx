@@ -511,6 +511,8 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
 
               {aboutStatus && (
                 <p
+                  role="status"
+                  aria-live="polite"
                   className={
                     aboutStatus.type === 'success'
                       ? 'text-success text-sm'
@@ -523,7 +525,7 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
 
               <Button onClick={handleSaveAbout} disabled={isSavingAbout}>
                 {isSavingAbout && <Loader2 className="mr-2 size-4 animate-spin" />}
-                {isSavingAbout ? 'Saving...' : 'Save About Info'}
+                {isSavingAbout ? 'Saving...' : 'Save'}
               </Button>
             </CardContent>
           </Card>
@@ -669,6 +671,8 @@ export default function ProfileForm({ profile, stats }: ProfileFormProps) {
 
               {statsStatus && (
                 <p
+                  role="status"
+                  aria-live="polite"
                   className={
                     statsStatus.type === 'success'
                       ? 'text-success text-sm'

@@ -335,6 +335,7 @@ export default function CommandPalette({ profile }: { profile: ProfileData }) {
                           role="option"
                           aria-selected={isSelected}
                           data-selected={isSelected}
+                          tabIndex={-1}
                           className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${
                             isSelected
                               ? 'bg-accent-teal/10 text-accent-teal dark:bg-accent-teal/15 dark:text-accent-teal-light'

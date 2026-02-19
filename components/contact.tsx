@@ -133,6 +133,7 @@ export default function Contact({ profile }: { profile: ProfileData }) {
               }
 
               formRef.current?.reset();
+              setMessageLength(0);
               toast.success('Email sent successfully!');
             }}
           >
