@@ -70,22 +70,20 @@ function CompaniesSlider({ companies }: { companies: CompanyData[] }) {
   };
 
   return (
-    <div className="relative left-1/2 mt-10 hidden w-screen -translate-x-1/2 overflow-hidden pt-2 pb-0 sm:block">
-      <div className="container">
-        <Slider {...settings}>
-          {companies.map((company) => (
-            <div key={company.name}>
-              <Image
-                src={company.logo}
-                alt={company.name}
-                height={80}
-                width={80}
-                className="h-24 w-32 rounded-xs opacity-60 grayscale transition-all duration-300 hover:opacity-100 hover:grayscale-0"
-              />
-            </div>
-          ))}
-        </Slider>
-      </div>
+    <div className="container mt-10 hidden pt-2 pb-0 sm:block">
+      <Slider {...settings}>
+        {companies.map((company) => (
+          <div key={company.name}>
+            <Image
+              src={company.logo}
+              alt={company.name}
+              height={80}
+              width={80}
+              className="h-24 w-32 rounded-xs opacity-60 grayscale transition-all duration-300 hover:opacity-100 hover:grayscale-0"
+            />
+          </div>
+        ))}
+      </Slider>
     </div>
   );
 }
