@@ -45,7 +45,7 @@ export default function Projects({
             key={category}
             onClick={() => handleFilterChange(category)}
             className={clsx(
-              'rounded-full px-4 py-2 text-sm font-medium transition',
+              'cursor-pointer rounded-full px-4 py-2 text-sm font-medium transition',
               activeFilter === category
                 ? 'bg-accent-teal dark:bg-accent-teal text-white'
                 : 'text-muted-foreground hover:text-foreground border border-black/5 bg-white/60 backdrop-blur-sm hover:bg-white dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10'
