@@ -347,8 +347,8 @@ Fork contributors without Supabase secrets will see a warning — the build uses
 - [x] **Resume builder** — compose tailored resumes from CMS data, generate PDFs, JD optimization via LLM, and rule-based ATS checker (21 checks across parsability, keywords, readability, and format)
 - [x] **Sentry integration** — error monitoring, performance tracking, source map uploads, and admin feedback widget
 - [x] **Contact form email** — fixed email delivery with verified custom domain (noreply@lalding.in)
+- [x] **SEO optimizations** — robots.txt, sitemap.xml, admin noindex, dynamic OG image (1200×630), canonical URLs, enriched JSON-LD (Person + WebSite schemas), Twitter large image cards
 - [ ] **UI improvements** — misc UI polish and optimizations across public site and admin dashboard
-- [ ] **SEO optimizations** — structured data, Open Graph tags, sitemap, and meta tag improvements
 
 ### Nice-to-Have
 
@@ -361,6 +361,7 @@ Fork contributors without Supabase secrets will see a warning — the build uses
 | ---------------------------------------------------------------------- | --------------------------------------------------------- |
 | [CMS & Auth Plan](docs/cms-and-auth-plan.md)                           | Master plan for Supabase CMS + auth + Sentry (Phases 1-7) |
 | [Resume Builder Plan](docs/resume-builder-plan.md)                     | Resume builder feature plan (Phase 8)                     |
+| [SEO Optimizations Plan](docs/seo-optimizations-plan.md)               | SEO audit and implementation plan (all tasks completed)   |
 | [UI/UX Modernization Plan](docs/ui-ux-design.md)                       | Comprehensive 5-phase redesign plan (completed)           |
 | [Testing Infrastructure](docs/testing-infrastructure.md)               | Testing setup (Vitest, Playwright, coverage)              |
 | [CI/CD Pipeline](docs/CI-CD-OPTIMIZATIONS.md)                          | CI/CD pipeline architecture and optimizations             |
