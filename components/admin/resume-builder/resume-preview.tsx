@@ -83,7 +83,9 @@ export default function ResumePreview({ config }: ResumePreviewProps) {
     if (result.data) {
       setStatus({
         type: 'success',
-        message: 'PDF generated and activated as current resume',
+        message: result.data.activated
+          ? 'PDF generated and activated as current resume'
+          : 'PDF generated but activation failed — activate manually from Version History',
       });
     }
   }

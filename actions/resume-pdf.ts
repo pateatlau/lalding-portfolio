@@ -292,7 +292,7 @@ export async function previewResumeHtml(
 
 export async function generateResumePdf(
   configId: string
-): Promise<{ data?: { versionId: string; path: string }; error?: string }> {
+): Promise<{ data?: { versionId: string; path: string; activated: boolean }; error?: string }> {
   return Sentry.withServerActionInstrumentation('generateResumePdf', {}, async () => {
     const adminResult = await requireAdmin();
     if (adminResult.error) return { error: adminResult.error };
@@ -413,14 +413,16 @@ export async function generateResumePdf(
     }
 
     // 8. Auto-activate the newly generated version
+    let activated = false;
     const activateResult = await activateResumeVersion(versionId);
     if (activateResult.error) {
       console.error('generateResumePdf: auto-activate failed:', activateResult.error);
-      // Non-fatal — version is saved, just not active
+    } else {
+      activated = true;
     }
 
     revalidatePath('/admin');
 
-    return { data: { versionId, path: storagePath } };
+    return { data: { versionId, path: storagePath, activated } };
   });
 }
