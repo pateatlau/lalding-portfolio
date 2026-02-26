@@ -39,8 +39,13 @@ export function useResumeDownload() {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const triggerDownload = useCallback(async () => {
-    // Open window synchronously during user gesture to avoid popup blockers
-    const popup = window.open('about:blank', '_blank', 'noopener,noreferrer');
+    // Open window synchronously during user gesture to avoid popup blockers.
+    // Cannot use 'noopener' here — it causes window.open to return null,
+    // which prevents us from navigating the popup after the async call.
+    const popup = window.open('about:blank', '_blank');
+    if (popup) {
+      popup.opener = null; // sever opener reference for security
+    }
 
     setIsDownloading(true);
     const result = await downloadResume();

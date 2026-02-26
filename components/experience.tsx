@@ -64,13 +64,15 @@ export default function Experience({
                     {item.company}
                   </p>
                 </div>
-                <Image
-                  src={item.companyLogo}
-                  alt={`${item.company} company logo`}
-                  height={50}
-                  width={50}
-                  className="h-10 w-10 shrink-0 rounded-lg sm:h-[50px] sm:w-[50px]"
-                />
+                {item.companyLogo && (
+                  <Image
+                    src={item.companyLogo}
+                    alt={`${item.company} company logo`}
+                    height={50}
+                    width={50}
+                    className="h-10 w-10 shrink-0 rounded-lg sm:h-[50px] sm:w-[50px]"
+                  />
+                )}
               </div>
               <p className="text-muted-foreground mt-1! font-normal!">{item.description}</p>
             </VerticalTimelineElement>
