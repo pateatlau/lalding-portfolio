@@ -7,7 +7,7 @@ CREATE TABLE educations (
   description TEXT,
   start_date DATE,
   end_date DATE,
-  display_date TEXT,
+  display_date TEXT NOT NULL DEFAULT '',
   institution_logo_url TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0
 );

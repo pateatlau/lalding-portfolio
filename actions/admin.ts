@@ -321,7 +321,7 @@ export async function createEducation(
 
   if (error) {
     console.error('createEducation error:', error.message);
-    return { error: 'Failed to create education' };
+    return { error: `Failed to create education: ${error.message}` };
   }
 
   revalidatePath('/');
@@ -345,7 +345,7 @@ export async function updateEducation(
 
   if (error) {
     console.error('updateEducation error:', error.message);
-    return { error: 'Failed to update education' };
+    return { error: `Failed to update education: ${error.message}` };
   }
 
   revalidatePath('/');

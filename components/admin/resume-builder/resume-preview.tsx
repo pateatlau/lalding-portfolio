@@ -10,19 +10,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, FileDown, CheckCircle, RefreshCw } from 'lucide-react';
+import { Loader2, FileDown, RefreshCw } from 'lucide-react';
 import { previewResumeHtml, generateResumePdf } from '@/actions/resume-pdf';
-import { activateResumeVersion } from '@/actions/resume-builder';
 import type { ResumeConfig } from '@/lib/supabase/types';
 
 type ResumePreviewProps = {
   config: ResumeConfig;
 };
-
-type GenerationResult = {
-  versionId: string;
-  path: string;
-} | null;
 
 type StatusMessage = { type: 'success' | 'error'; message: string } | null;
 
@@ -33,8 +27,6 @@ export default function ResumePreview({ config }: ResumePreviewProps) {
   const [pageSize, setPageSize] = useState<'A4' | 'Letter'>('A4');
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isActivating, setIsActivating] = useState(false);
-  const [generationResult, setGenerationResult] = useState<GenerationResult>(null);
   const [zoom, setZoom] = useState<string>('75');
   const [status, setStatus] = useState<StatusMessage>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -42,7 +34,6 @@ export default function ResumePreview({ config }: ResumePreviewProps) {
   async function loadPreview() {
     setIsLoadingPreview(true);
     setStatus(null);
-    setGenerationResult(null);
 
     const result = await previewResumeHtml(config.id);
 
@@ -79,7 +70,6 @@ export default function ResumePreview({ config }: ResumePreviewProps) {
   async function handleGenerate() {
     setIsGenerating(true);
     setStatus(null);
-    setGenerationResult(null);
 
     const result = await generateResumePdf(config.id);
 
@@ -91,26 +81,11 @@ export default function ResumePreview({ config }: ResumePreviewProps) {
     }
 
     if (result.data) {
-      setGenerationResult(result.data);
-      setStatus({ type: 'success', message: 'PDF generated successfully' });
+      setStatus({
+        type: 'success',
+        message: 'PDF generated and activated as current resume',
+      });
     }
-  }
-
-  async function handleActivate() {
-    if (!generationResult) return;
-    setIsActivating(true);
-    setStatus(null);
-
-    const result = await activateResumeVersion(generationResult.versionId);
-
-    setIsActivating(false);
-
-    if (result.error) {
-      setStatus({ type: 'error', message: result.error });
-      return;
-    }
-
-    setStatus({ type: 'success', message: 'Version activated as current resume' });
   }
 
   const scale = parseInt(zoom) / 100;
@@ -143,26 +118,14 @@ export default function ResumePreview({ config }: ResumePreviewProps) {
           </Button>
         </div>
 
-        <div className="flex items-center gap-2">
-          {generationResult && (
-            <Button variant="outline" size="sm" onClick={handleActivate} disabled={isActivating}>
-              {isActivating ? (
-                <Loader2 className="mr-1 size-4 animate-spin" />
-              ) : (
-                <CheckCircle className="mr-1 size-4" />
-              )}
-              Activate
-            </Button>
+        <Button size="sm" onClick={handleGenerate} disabled={isGenerating || !html}>
+          {isGenerating ? (
+            <Loader2 className="mr-1 size-4 animate-spin" />
+          ) : (
+            <FileDown className="mr-1 size-4" />
           )}
-          <Button size="sm" onClick={handleGenerate} disabled={isGenerating || !html}>
-            {isGenerating ? (
-              <Loader2 className="mr-1 size-4 animate-spin" />
-            ) : (
-              <FileDown className="mr-1 size-4" />
-            )}
-            Generate PDF
-          </Button>
-        </div>
+          Generate PDF
+        </Button>
       </div>
 
       {/* Status */}

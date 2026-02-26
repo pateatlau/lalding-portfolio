@@ -20,38 +20,38 @@ import type {
 function Monogram({ accentColor, fullName }: { accentColor: string; fullName: string }) {
   const nameParts = fullName.trim().split(/\s+/);
   const firstInitial = nameParts[0]?.[0]?.toUpperCase() ?? '';
-  const lastInitial = nameParts.length > 1 ? nameParts[nameParts.length - 1][0].toUpperCase() : '';
+  const lastInitial = nameParts.length > 1 ? nameParts[1][0].toUpperCase() : '';
 
   return (
     <div
       style={{
-        width: '90px',
-        height: '90px',
+        width: '110px',
+        height: '110px',
         border: `2px solid ${accentColor}`,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: 'Georgia, serif',
-        fontSize: '28px',
+        fontSize: '36px',
         lineHeight: '1.1',
         color: accentColor,
         position: 'relative',
       }}
     >
-      <span>{firstInitial}</span>
+      <span style={{ position: 'relative', top: '-4px', left: '-15px' }}>{firstInitial}</span>
       {lastInitial && (
         <>
           <div
             style={{
-              width: '70%',
+              width: '80%',
               height: '1px',
               backgroundColor: accentColor,
               transform: 'rotate(-45deg)',
               position: 'absolute',
             }}
           />
-          <span>{lastInitial}</span>
+          <span style={{ position: 'relative', top: '4px', left: '15px' }}>{lastInitial}</span>
         </>
       )}
     </div>
@@ -74,25 +74,19 @@ function ContactLine({ profile }: { profile: ResumeData['profile'] }) {
 
   return (
     <div style={{ fontSize: '9.5pt', lineHeight: '1.6' }}>
-      <span>{parts.join('  |  ')}</span>
-      {links.length > 0 && (
-        <>
-          {parts.length > 0 && <br />}
-          {links.map((link, i) => (
-            <span key={link.label}>
-              {i > 0 && '  |  '}
-              <strong>{link.label}:</strong>{' '}
-              <a
-                href={link.url}
-                rel="noopener noreferrer"
-                style={{ color: '#333', textDecoration: 'none' }}
-              >
-                {link.url}
-              </a>
-            </span>
-          ))}
-        </>
-      )}
+      <div>{parts.join('  |  ')}</div>
+      {links.map((link) => (
+        <div key={link.label}>
+          <strong>{link.label}:</strong>{' '}
+          <a
+            href={link.url}
+            rel="noopener noreferrer"
+            style={{ color: '#333', textDecoration: 'none' }}
+          >
+            {link.url}
+          </a>
+        </div>
+      ))}
     </div>
   );
 }
@@ -181,39 +175,28 @@ function SkillsContent({ items }: { items: SkillGroupItem[] }) {
 // ── Project Entry ───────────────────────────────────────────────
 
 function ProjectEntry({ item }: { item: ProjectItem }) {
+  const urls = [item.liveSiteUrl, item.sourceCodeUrl].filter(Boolean) as string[];
+
   return (
     <div style={{ marginBottom: '12px' }}>
       <div>
         <strong>{item.title}</strong>
-        {(item.liveSiteUrl || item.sourceCodeUrl) && (
-          <span style={{ fontSize: '9.5pt' }}>
-            {item.liveSiteUrl && (
-              <>
-                {'  '}
-                <a
-                  href={item.liveSiteUrl}
-                  rel="noopener noreferrer"
-                  style={{ color: 'inherit', textDecoration: 'none' }}
-                >
-                  {item.liveSiteUrl}
-                </a>
-              </>
-            )}
-            {item.liveSiteUrl && item.sourceCodeUrl && (
-              <>
-                {' | '}
-                <a
-                  href={item.sourceCodeUrl}
-                  rel="noopener noreferrer"
-                  style={{ color: 'inherit', textDecoration: 'none' }}
-                >
-                  {item.sourceCodeUrl}
-                </a>
-              </>
-            )}
-          </span>
-        )}
       </div>
+      {urls.length > 0 && (
+        <div style={{ fontSize: '9.5pt', marginTop: '1px' }}>
+          {urls.map((url) => (
+            <div key={url}>
+              <a
+                href={url}
+                rel="noopener noreferrer"
+                style={{ color: 'inherit', textDecoration: 'none' }}
+              >
+                {url}
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
       <p style={{ margin: '2px 0 0 0' }}>{item.description}</p>
       {item.tags.length > 0 && (
         <p style={{ margin: '2px 0 0 0', fontSize: '9.5pt', color: '#555' }}>
@@ -326,10 +309,29 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
 
   return (
     <PageWrapper pageSize={data.pageSize} style={style}>
-      {/* Header: Logo + Name + Contact */}
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '8px' }}>
-        <Monogram accentColor={style.accentColor} fullName={profile.fullName} />
-        <div style={{ flex: 1 }}>
+      {/* Header: Logo + Name + Contact — uses same column layout as SectionRow */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '24px',
+          marginBottom: '16px',
+        }}
+      >
+        {/* Left column — same 22% width as section labels */}
+        <div
+          style={{
+            width: '22%',
+            flexShrink: 0,
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center',
+            paddingTop: '4px',
+          }}
+        >
+          <Monogram accentColor={style.accentColor} fullName={profile.fullName} />
+        </div>
+        {/* Right column — same 78% width as section content */}
+        <div style={{ width: '78%' }}>
           <h1
             style={{
               fontFamily: style.headingFontFamily,
@@ -342,7 +344,22 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
               color: style.primaryColor,
             }}
           >
-            {profile.fullName}
+            {(() => {
+              const parts = profile.fullName.trim().split(/\s+/);
+              const firstName = parts[0];
+              const lastName = parts.slice(1).join(' ');
+              return (
+                <>
+                  {firstName}
+                  {lastName && (
+                    <>
+                      <br />
+                      {lastName}
+                    </>
+                  )}
+                </>
+              );
+            })()}
           </h1>
           {profile.jobTitle && (
             <div
@@ -358,12 +375,10 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
               {profile.jobTitle}
             </div>
           )}
+          <div style={{ marginTop: '8px' }}>
+            <ContactLine profile={profile} />
+          </div>
         </div>
-      </div>
-
-      {/* Contact info below name */}
-      <div style={{ marginLeft: '110px', marginBottom: '16px' }}>
-        <ContactLine profile={profile} />
       </div>
 
       {/* Separator */}

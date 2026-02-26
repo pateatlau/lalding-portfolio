@@ -49,10 +49,7 @@ export function useResumeDownload() {
     }
 
     if (result.url) {
-      const a = document.createElement('a');
-      a.href = result.url;
-      a.download = '';
-      a.click();
+      window.open(result.url, '_blank', 'noopener,noreferrer');
     }
   }, []);
 
@@ -99,10 +96,7 @@ export function useResumeDownload() {
         }
 
         if (result.url) {
-          const a = document.createElement('a');
-          a.href = result.url;
-          a.download = '';
-          a.click();
+          window.open(result.url, '_blank', 'noopener,noreferrer');
         }
       }
     };

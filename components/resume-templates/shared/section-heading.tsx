@@ -19,6 +19,7 @@ export default function SectionHeading({
         textTransform: 'uppercase',
         letterSpacing: '0.5px',
         lineHeight: '1.3',
+        textAlign: 'right' as const,
       }}
     >
       {label}
