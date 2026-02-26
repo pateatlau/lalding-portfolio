@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/nextjs';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { requireAdmin } from '@/actions/admin';
+import { activateResumeVersion } from '@/actions/resume-builder';
 import type { ResumeConfig, ResumeSectionConfig } from '@/lib/supabase/types';
 import type {
   ResumeData,
@@ -35,6 +36,9 @@ export async function renderToHtml(registryKey: string, data: ResumeData): Promi
   const primaryFont = fontFamily.split(',')[0].trim().replace(/['"]/g, '');
   const fontImport = `@import url('https://fonts.googleapis.com/css2?family=${encodeURIComponent(primaryFont)}:wght@400;600;700;800&display=swap');`;
 
+  const marginTop = data.style?.margins?.top ?? '0.75in';
+  const marginBottom = data.style?.margins?.bottom ?? '0.75in';
+
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -42,8 +46,15 @@ export async function renderToHtml(registryKey: string, data: ResumeData): Promi
   <style>
     ${fontImport}
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    @page { margin: 0; }
+    body {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      padding-top: ${marginTop};
+      padding-bottom: ${marginBottom};
+    }
+    @media print {
+      body { padding-top: 0; padding-bottom: 0; }
+    }
   </style>
 </head>
 <body>${markup}</body>
@@ -281,7 +292,7 @@ export async function previewResumeHtml(
 
 export async function generateResumePdf(
   configId: string
-): Promise<{ data?: { versionId: string; path: string }; error?: string }> {
+): Promise<{ data?: { versionId: string; path: string; activated: boolean }; error?: string }> {
   return Sentry.withServerActionInstrumentation('generateResumePdf', {}, async () => {
     const adminResult = await requireAdmin();
     if (adminResult.error) return { error: adminResult.error };
@@ -401,8 +412,17 @@ export async function generateResumePdf(
       return { error: 'PDF generated but failed to save version record' };
     }
 
+    // 8. Auto-activate the newly generated version
+    let activated = false;
+    const activateResult = await activateResumeVersion(versionId);
+    if (activateResult.error) {
+      console.error('generateResumePdf: auto-activate failed:', activateResult.error);
+    } else {
+      activated = true;
+    }
+
     revalidatePath('/admin');
 
-    return { data: { versionId, path: storagePath } };
+    return { data: { versionId, path: storagePath, activated } };
   });
 }

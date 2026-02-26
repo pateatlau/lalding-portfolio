@@ -39,20 +39,28 @@ export function useResumeDownload() {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const triggerDownload = useCallback(async () => {
+    // Open window synchronously during user gesture to avoid popup blockers
+    const popup = window.open('about:blank', '_blank', 'noopener,noreferrer');
+
     setIsDownloading(true);
     const result = await downloadResume();
     setIsDownloading(false);
 
     if (result.error) {
+      popup?.close();
       toast.error(result.error);
       return;
     }
 
     if (result.url) {
-      const a = document.createElement('a');
-      a.href = result.url;
-      a.download = '';
-      a.click();
+      if (popup) {
+        popup.location.href = result.url;
+      } else {
+        // Fallback if popup was blocked
+        window.location.href = result.url;
+      }
+    } else {
+      popup?.close();
     }
   }, []);
 
@@ -99,10 +107,20 @@ export function useResumeDownload() {
         }
 
         if (result.url) {
-          const a = document.createElement('a');
-          a.href = result.url;
-          a.download = '';
-          a.click();
+          // No user gesture here (auth event), so use fetch+blob to avoid popup blockers
+          try {
+            const response = await fetch(result.url);
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = 'resume.pdf';
+            a.click();
+            URL.revokeObjectURL(blobUrl);
+          } catch {
+            // Fallback: navigate directly
+            window.location.href = result.url;
+          }
         }
       }
     };

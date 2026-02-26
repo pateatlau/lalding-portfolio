@@ -100,7 +100,7 @@ export default function EducationEditor({
       degree: formData.degree,
       field_of_study: formData.field_of_study || null,
       description: formData.description || null,
-      display_date: formData.display_date || null,
+      display_date: formData.display_date,
       start_date: formData.start_date || null,
       end_date: formData.end_date || null,
       institution_logo_url: formData.institution_logo_url || null,
@@ -263,7 +263,7 @@ export default function EducationEditor({
                   {edu.field_of_study ?? '—'}
                 </TableCell>
                 <TableCell className="text-muted-foreground hidden sm:table-cell">
-                  {edu.display_date ?? '—'}
+                  {edu.display_date || '—'}
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-1">

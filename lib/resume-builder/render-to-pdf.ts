@@ -46,9 +46,9 @@ export async function htmlToPdf(html: string, options: PdfOptions): Promise<Buff
         format: options.pageSize,
         margin: {
           top: options.margins.top,
-          right: options.margins.right,
+          right: '0',
           bottom: options.margins.bottom,
-          left: options.margins.left,
+          left: '0',
         },
         printBackground: true,
       });

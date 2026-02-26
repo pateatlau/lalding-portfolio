@@ -221,7 +221,7 @@ export type Education = {
   description: string | null;
   start_date: string | null;
   end_date: string | null;
-  display_date: string | null;
+  display_date: string;
   institution_logo_url: string | null;
   sort_order: number;
 };
@@ -343,7 +343,7 @@ export type EducationInsert = {
   description?: string | null;
   start_date?: string | null;
   end_date?: string | null;
-  display_date?: string | null;
+  display_date?: string;
   institution_logo_url?: string | null;
   sort_order?: number;
 };

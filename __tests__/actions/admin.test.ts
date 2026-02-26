@@ -444,8 +444,8 @@ describeCrud({
     institution_logo_url: null,
     sort_order: 0,
   },
-  createErrorMsg: 'Failed to create education',
-  updateErrorMsg: 'Failed to update education',
+  createErrorMsg: 'Failed to create education: DB error',
+  updateErrorMsg: 'Failed to update education: DB error',
   deleteErrorMsg: 'Failed to delete education',
   reorderErrorMsg: 'Failed to reorder educations',
 });
