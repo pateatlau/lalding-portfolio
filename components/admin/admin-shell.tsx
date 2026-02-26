@@ -176,14 +176,19 @@ export default function AdminShell({ adminUser, children }: AdminShellProps) {
               )}
             </Avatar>
             <span className="hidden text-sm font-medium sm:block">{adminUser.name}</span>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
-            >
-              {theme === 'light' ? <Sun className="size-4" /> : <Moon className="size-4" />}
-            </Button>
+            {/* Rendered client-only to avoid Radix ID hydration mismatch —
+                theme is unknown on the server (always 'light') so the icon
+                would differ when the client hydrates with dark mode */}
+            {mounted && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleTheme}
+                aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+              >
+                {theme === 'light' ? <Sun className="size-4" /> : <Moon className="size-4" />}
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={handleSignOut}>
               <LogOut className="size-4" />
             </Button>
