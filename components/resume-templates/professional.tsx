@@ -25,15 +25,15 @@ function Monogram({ accentColor, fullName }: { accentColor: string; fullName: st
   return (
     <div
       style={{
-        width: '64px',
-        height: '64px',
+        width: '90px',
+        height: '90px',
         border: `2px solid ${accentColor}`,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         fontFamily: 'Georgia, serif',
-        fontSize: '18px',
+        fontSize: '28px',
         lineHeight: '1.1',
         color: accentColor,
         position: 'relative',
@@ -183,30 +183,35 @@ function SkillsContent({ items }: { items: SkillGroupItem[] }) {
 function ProjectEntry({ item }: { item: ProjectItem }) {
   return (
     <div style={{ marginBottom: '12px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+      <div>
         <strong>{item.title}</strong>
         {(item.liveSiteUrl || item.sourceCodeUrl) && (
-          <div style={{ fontSize: '9.5pt', whiteSpace: 'nowrap', flexShrink: 0 }}>
+          <span style={{ fontSize: '9.5pt' }}>
             {item.liveSiteUrl && (
-              <a
-                href={item.liveSiteUrl}
-                rel="noopener noreferrer"
-                style={{ color: 'inherit', textDecoration: 'none' }}
-              >
-                {item.liveSiteUrl}
-              </a>
+              <>
+                {'  '}
+                <a
+                  href={item.liveSiteUrl}
+                  rel="noopener noreferrer"
+                  style={{ color: 'inherit', textDecoration: 'none' }}
+                >
+                  {item.liveSiteUrl}
+                </a>
+              </>
             )}
-            {item.liveSiteUrl && item.sourceCodeUrl && '  |  '}
-            {item.sourceCodeUrl && (
-              <a
-                href={item.sourceCodeUrl}
-                rel="noopener noreferrer"
-                style={{ color: 'inherit', textDecoration: 'none' }}
-              >
-                {item.sourceCodeUrl}
-              </a>
+            {item.liveSiteUrl && item.sourceCodeUrl && (
+              <>
+                {' | '}
+                <a
+                  href={item.sourceCodeUrl}
+                  rel="noopener noreferrer"
+                  style={{ color: 'inherit', textDecoration: 'none' }}
+                >
+                  {item.sourceCodeUrl}
+                </a>
+              </>
             )}
-          </div>
+          </span>
         )}
       </div>
       <p style={{ margin: '2px 0 0 0' }}>{item.description}</p>
@@ -357,7 +362,7 @@ export default function ProfessionalTemplate({ data }: { data: ResumeData }) {
       </div>
 
       {/* Contact info below name */}
-      <div style={{ marginLeft: '84px', marginBottom: '16px' }}>
+      <div style={{ marginLeft: '110px', marginBottom: '16px' }}>
         <ContactLine profile={profile} />
       </div>
 

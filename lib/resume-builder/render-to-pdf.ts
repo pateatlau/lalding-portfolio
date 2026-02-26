@@ -45,10 +45,10 @@ export async function htmlToPdf(html: string, options: PdfOptions): Promise<Buff
       const pdfBuffer = await page.pdf({
         format: options.pageSize,
         margin: {
-          top: options.margins.top,
-          right: options.margins.right,
-          bottom: options.margins.bottom,
-          left: options.margins.left,
+          top: '0',
+          right: '0',
+          bottom: '0',
+          left: '0',
         },
         printBackground: true,
       });
