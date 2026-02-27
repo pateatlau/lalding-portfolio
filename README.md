@@ -23,6 +23,95 @@ This platform evolved from a simple hardcoded portfolio into a structured, exten
 - **Integrate AI augmentation** without compromising deterministic core logic
 - **Design for modularity** — the resume builder is architected for potential extraction into a standalone, self-hostable platform (Open Resume Engine)
 
+## Architecture Overview
+
+```mermaid
+graph TB
+    subgraph "Client Layer"
+        Browser[Browser]
+        PublicSite[Public Portfolio<br/>Next.js SSG/ISR]
+        AdminDash[Admin Dashboard<br/>Auth-Guarded]
+    end
+
+    subgraph "Application Layer"
+        AppRouter[Next.js 16 App Router<br/>React 19 Server Components]
+        Proxy[Auth Proxy<br/>Session Refresh]
+        Actions[Server Actions<br/>CRUD + Resume Builder]
+
+        subgraph "Resume Builder Engine"
+            Composer[Resume Composer<br/>Section Filtering]
+            JDAnalyzer[JD Analyzer<br/>LLM Keyword Extraction]
+            ATSChecker[ATS Checker<br/>21 Rule Checks]
+            TemplateEngine[Template Renderer<br/>React → HTML]
+            PDFGen[PDF Generator<br/>Playwright Headless]
+        end
+    end
+
+    subgraph "Data Layer"
+        Supabase[(Supabase Postgres<br/>RLS Enabled)]
+        Storage[Supabase Storage<br/>PDFs + Images]
+        Auth[Supabase Auth<br/>OAuth Providers]
+    end
+
+    subgraph "External Services"
+        LLM[Anthropic Claude API<br/>Optional JD Analysis]
+        Email[Resend API<br/>Contact Form]
+        Monitoring[Sentry<br/>Error Tracking]
+    end
+
+    subgraph "CI/CD Pipeline"
+        GHA[GitHub Actions]
+        Lint[Lint + Format]
+        Tests[Vitest + Playwright]
+        Lighthouse[Lighthouse CI]
+        Vercel[Vercel Deployment]
+    end
+
+    Browser --> PublicSite
+    Browser --> AdminDash
+    PublicSite --> AppRouter
+    AdminDash --> Proxy
+    Proxy --> AppRouter
+    AppRouter --> Actions
+
+    Actions --> Composer
+    Composer --> JDAnalyzer
+    Composer --> ATSChecker
+    Composer --> TemplateEngine
+    TemplateEngine --> PDFGen
+
+    JDAnalyzer -.Optional.-> LLM
+
+    Actions --> Supabase
+    Actions --> Storage
+    Actions --> Email
+    Proxy --> Auth
+    AppRouter --> Monitoring
+    PDFGen --> Storage
+
+    GHA --> Lint
+    GHA --> Tests
+    GHA --> Lighthouse
+    Tests --> Vercel
+
+    Supabase -.RLS Policies.-> Auth
+    Storage -.Signed URLs.-> Browser
+
+    classDef external fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
+    classDef optional fill:#fff3e0,stroke:#f57c00,stroke-width:2px,stroke-dasharray: 5 5
+    class LLM,Email,Monitoring external
+    class JDAnalyzer optional
+```
+
+**Key architectural characteristics:**
+
+- **Server-first rendering** — Next.js server components minimize client-side JavaScript
+- **Progressive enhancement** — OAuth gating, JD analysis, and advanced features are optional layers
+- **Clear service boundaries** — CMS, auth, storage, and PDF generation are isolated subsystems
+- **Security by default** — RLS policies enforce data isolation; admin operations require explicit role checks
+- **Deterministic pipeline** — resume generation is reproducible; same input → identical output
+- **Graceful degradation** — static fallback mode when Supabase is unavailable; JD features work without LLM
+
 ## Tech Stack
 
 | Category     | Technology                                                       |
